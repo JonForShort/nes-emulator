@@ -7,20 +7,17 @@ using namespace jones;
 
 NesRom::NesRom(const std::string& pathToNesRom) :
   m_nesRomFile(pathToNesRom.c_str(), std::ifstream::binary) {
+  if (m_nesRomFile.good()) {
+    m_nesRomFile.read((char*)&m_nesRomFileHeader, sizeof(NesRomHeader));
+  }
 }
 
 bool NesRom::isValid() {
-  if (!m_nesRomFile.good()) {
-    std::cout << "nes rom file is not good" << std::endl;
-    return false;
-  }
+  return m_nesRomFile.good() &&
+    m_nesRomFileHeader.constants == NES_ROM_HEADER_CONSTANT;
+}
 
-  Header header;
-  m_nesRomFile.read((char*)&header, sizeof(Header));
-  if (header.constants != NES_ROM_HEADER_CONSTANT) {
-    std::cout << "nes rom file header constants do not match" << std::endl;
-    return false;
-  }
-
-  return true;
+int NesRom::getHeaderVersion() const {
+  const int versionFlag = m_nesRomFileHeader.secondSetFlags;
+  return (versionFlag & 0x08) && !(versionFlag & 0x04) ? 2 : 1;
 }

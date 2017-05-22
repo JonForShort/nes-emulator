@@ -13,5 +13,6 @@ int main(int argc, char *argv[]){
     std::cout << "must specify valid nes rom file" << std::endl;
     return -2;
   }
+
   return 0;
 }

@@ -12,12 +12,16 @@ namespace jones {
   class NesRom {
     
   public:
+
     NesRom(const std::string& pathToNesRom);
+
     bool isValid();
+
+    int getHeaderVersion() const;
     
   private:
     
-    struct Header {
+    struct NesRomHeader {
       uint32_t constants;
       uint8_t sizeOfPrgRom;
       uint8_t sizeOfChrRom;
@@ -28,6 +32,8 @@ namespace jones {
       uint8_t fourthSetFlags;
       uint32_t ignored;
     };
+
+    NesRomHeader m_nesRomFileHeader;
     
     std::ifstream m_nesRomFile;
   };
