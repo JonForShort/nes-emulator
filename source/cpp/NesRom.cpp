@@ -18,6 +18,5 @@ bool NesRom::isValid() {
 }
 
 int NesRom::getHeaderVersion() const {
-  const int versionFlag = m_nesRomFileHeader.secondSetFlags;
-  return (versionFlag & 0x08) && !(versionFlag & 0x04) ? 2 : 1;
+  return (m_nesRomFileHeader.version == 2) ? 2 : 1;
 }
