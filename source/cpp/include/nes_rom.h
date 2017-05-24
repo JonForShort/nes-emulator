@@ -1,5 +1,4 @@
-#ifndef INCLUDE_NES_ROM_H
-#define INCLUDE_NES_ROM_H
+#pragma once
 
 #include <string>
 #include <fstream>
@@ -51,4 +50,3 @@ namespace jones {
   };
 }
 
-#endif // INCLUDE_NES_ROM_H

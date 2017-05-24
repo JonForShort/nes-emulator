@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "include/NesRom.h"
+#include "include/nes_rom.h"
 
 int main(int argc, char *argv[]){
   if (argc != 2) {

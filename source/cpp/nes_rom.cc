@@ -1,7 +1,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "include/NesRom.h"
+#include "include/nes_rom.h"
 
 using namespace jones;
 
