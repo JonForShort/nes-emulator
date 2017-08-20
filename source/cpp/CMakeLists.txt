@@ -1,3 +1,9 @@
+cmake_minimum_required(VERSION 3.7)
+
 project (jones)
 
-add_executable(jones main.cc nes_rom.cc)
+include_directories (include)
+
+set (sources main.cc nes_rom.cc)
+
+add_executable (jones ${sources})
