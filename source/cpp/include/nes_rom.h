@@ -17,7 +17,9 @@ namespace jones {
     bool isValid();
 
     int getHeaderVersion() const;
-    
+
+    void printHeader(std::ostream &out) const;
+
   private:
     
     struct NesRomHeader {
