@@ -1,6 +1,7 @@
 #include <iostream>
 
-#include "include/nes_rom.h"
+#include "nes_rom.h"
+#include "screen.h"
 
 int main(int argc, char *argv[]){
 
@@ -16,6 +17,10 @@ int main(int argc, char *argv[]){
   }
 
   nesRom.printHeader(std::cout);
+
+  jones::Screen screen;
+  screen.initialize();
+  screen.release();
 
   return 0;
 }
