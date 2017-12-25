@@ -25,21 +25,28 @@
 
 #include <SDL.h>
 
+#include "utils.h"
+
 namespace jones {
   
   class Screen {
   public:
     Screen();
+    ~Screen();
     
     void initialize();
     void release();
-    void showMain();
+    void show();
 
   private:
     void processEvent();
     void renderScreen();
+    void fillWithColor(u8 r, u8 g, u8 b, u8 a);
 
     SDL_Event mEvents;
+    SDL_Window *mWindow;
+    SDL_Renderer *mRenderer;
+
     bool mIsRunning;
   };
 }

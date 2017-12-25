@@ -32,23 +32,48 @@ Screen::Screen() : mIsRunning(false) {
 
 }
 
+Screen::~Screen() {
+  mWindow = nullptr;
+  mRenderer = nullptr;
+  mIsRunning = false;
+}
+
 void Screen::initialize() {
   SDL_Init(SDL_INIT_HAPTIC); 
 }
 
-void Screen::showMain() {
-  SDL_Window *window = SDL_CreateWindow("Jones NES Emulator",
+void Screen::show() {
+  mWindow = SDL_CreateWindow("Jones NES Emulator",
 					SDL_WINDOWPOS_UNDEFINED,
 					SDL_WINDOWPOS_UNDEFINED,
 					640, 480,
 					SDL_WINDOW_OPENGL);
-  if (window != nullptr) {
-    std::cout << "successfully created window." << std::endl;
-    mIsRunning = true;
+  if (mWindow == nullptr) {
+    mIsRunning = false;
+    return;
   }
+
+  mRenderer = SDL_CreateRenderer(mWindow, -1, 0);
+  if (mRenderer == nullptr) {
+    mIsRunning = false;
+    return;
+  }
+
+  fillWithColor(0, 0, 0, 0);
+
+  mIsRunning = true;
+  
   while (mIsRunning) {
     processEvent();
     renderScreen();
+  }
+}
+
+void Screen::fillWithColor(u8 r, u8 g, u8 b, u8 a) {
+  if (mRenderer != nullptr) {
+    SDL_SetRenderDrawColor(mRenderer, r, g, b, a);
+    SDL_RenderClear(mRenderer);
+    SDL_RenderPresent(mRenderer);
   }
 }
 

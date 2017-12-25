@@ -43,7 +43,7 @@ int main(int argc, char *argv[]){
 
   jones::Screen screen;
   screen.initialize();
-  screen.showMain();
+  screen.show();
   screen.release();
 
   return 0;
