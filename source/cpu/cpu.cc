@@ -248,5 +248,5 @@ namespace {
 
     // Carry
     C,
-  }
+  };
 }
