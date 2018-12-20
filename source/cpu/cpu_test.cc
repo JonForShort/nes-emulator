@@ -21,28 +21,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <iostream>
+#include <boost/program_options.hpp>
 #include <fstream>
+#include <iostream>
+#include <string>
 
 #include "cpu.h"
 
-namespace {
-  
-}
+namespace po = boost::program_options;
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
 
-  if (argc != 2) {
-    std::cout << "must specify path to cpu binary file" << std::endl;
+  std::string pathToBinaryFile;
+
+  try {
+    po::options_description desc{"Options"};
+    desc.add_options()
+      ("help,h", "Help screen")
+      ("file,f", po::value<std::string>(&pathToBinaryFile)->required());
+    
+    po::variables_map vm;
+    po::store(parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+  } catch (const po::error &ex) {
+    std::cerr << ex.what() << '\n';
     return -1;
   }
-
-  const auto pathToBinaryFile = argv[1];
+  
   std::ifstream binaryFile(pathToBinaryFile, std::ifstream::binary);
   if (!binaryFile.good()) {
-    std::cout << "binary file is not valid" << std::endl;
+    std::cout << "binary file is invalid; please check path" << std::endl;
     return -2;
   }
-  
+
   return 0;
 }
