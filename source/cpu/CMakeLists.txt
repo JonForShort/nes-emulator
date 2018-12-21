@@ -11,7 +11,9 @@ target_include_directories (cpu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_executable (cpu_test cpu_test.cc)
 
+target_link_libraries (cpu_test cpu)
 target_link_libraries (cpu_test ${boost-lib}/libboost_program_options.a)
+target_link_libraries (cpu_test ${boost-lib}/libboost_filesystem.a)
 
 target_include_directories (cpu_test PRIVATE ${boost-include})
 target_include_directories (cpu_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)

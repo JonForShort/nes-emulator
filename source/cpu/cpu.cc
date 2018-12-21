@@ -23,6 +23,8 @@
 //
 #include "cpu.h"
 
+using namespace jones;
+
 //
 // CPU reference
 // http://e-tradition.net/bytes/6502/6502_instruction_set.html
@@ -249,4 +251,16 @@ namespace {
     // Carry
     C,
   };
+}
+
+Cpu::Cpu(const void* baseAddr) {
+}
+
+void Cpu::reset() {
+}
+
+void Cpu::run() {
+}
+
+void* Cpu::getProgramCounter() {
 }
