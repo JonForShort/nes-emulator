@@ -39,6 +39,9 @@ namespace jo = jones;
 int main(int argc, char *argv[]) {
 
   std::string fileArgument;
+  std::string outputArgument;
+  int offsetArgument;
+  int instructionCountArgument;
   bool disassembleArgument;
 
   try {
@@ -46,6 +49,9 @@ int main(int argc, char *argv[]) {
     desc.add_options()
       ("help,h", "Help screen")
       ("file,f", po::value<std::string>(&fileArgument)->required(), "path to binary file")
+      ("output,o", po::value<std::string>(&outputArgument), "directory path to write output")
+      ("offset,s", po::value<int>(&offsetArgument)->default_value(0), "byte offset from start of binary file")
+      ("count,c", po::value<int>(&instructionCountArgument)->default_value(0), "number of instructions to execute")
       ("disassemble,d", po::bool_switch(&disassembleArgument), "perform disassemble operation");
 
     po::variables_map vm;
@@ -75,7 +81,8 @@ int main(int argc, char *argv[]) {
     const auto mappedStartAddress = mappedRegion.get_address();
     const auto mappedSize = mappedRegion.get_size();
 
-    jo::Cpu cpu(mappedStartAddress);;
+    jo::Cpu cpu(mappedStartAddress);
+    cpu.setProgramCounter(offsetArgument);
     cpu.run();
   }
 

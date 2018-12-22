@@ -28,13 +28,15 @@ namespace jones {
   class Cpu {
   public:
 
-    Cpu(const void* baseAddr);
+    Cpu(const void* baseAddress);
 
     void reset();
 
     void run();
     
     void* getProgramCounter();
+    
+    void setProgramCounter(const unsigned int address);
   };
 }
 

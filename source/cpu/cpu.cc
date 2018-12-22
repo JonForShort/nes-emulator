@@ -253,7 +253,7 @@ namespace {
   };
 }
 
-Cpu::Cpu(const void* baseAddr) {
+Cpu::Cpu(const void* baseAddress) {
 }
 
 void Cpu::reset() {
@@ -263,4 +263,7 @@ void Cpu::run() {
 }
 
 void* Cpu::getProgramCounter() {
+}
+
+void Cpu::setProgramCounter(const unsigned int address) {
 }
