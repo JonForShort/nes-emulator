@@ -21,18 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include "cpu.h"
 
-using namespace jones;
+//
+// CPU reference
+// http://e-tradition.net/bytes/6502/6502_instruction_set.html
+//
+namespace jones {
 
-Cpu::Cpu(const void* baseAddress) {
-}
+  enum class Registers {
 
-void Cpu::step() {
-}
+    // program counter (16 bit)
+    PC,
+    
+    // accumulator (8 bit)
+    AC,
 
-void Cpu::reset() {
-}
+    // X register (8 bit)
+    X,
 
-void Cpu::run() {
+    // Y register (8 bit)
+    Y,
+
+    // status register (8 bit)
+    SR,
+    
+    // stack pointer (8 bit)
+    SP
+  };
 }

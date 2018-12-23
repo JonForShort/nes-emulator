@@ -30,13 +30,10 @@ namespace jones {
 
     Cpu(const void* baseAddress);
 
+    void step();
+
     void reset();
 
     void run();
-    
-    void* getProgramCounter();
-    
-    void setProgramCounter(const unsigned int address);
   };
 }
-

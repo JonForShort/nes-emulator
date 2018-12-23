@@ -82,7 +82,6 @@ int main(int argc, char *argv[]) {
     const auto mappedSize = mappedRegion.get_size();
 
     jo::Cpu cpu(mappedStartAddress);
-    cpu.setProgramCounter(offsetArgument);
     cpu.run();
   }
 

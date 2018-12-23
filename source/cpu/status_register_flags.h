@@ -21,18 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include "cpu.h"
 
-using namespace jones;
+//
+// CPU reference
+// http://e-tradition.net/bytes/6502/6502_instruction_set.html
+//
+namespace jones {
+  
+  enum class StatusRegisterFlags {
 
-Cpu::Cpu(const void* baseAddress) {
-}
+    // Negative
+    N,
+      
+    // Overflow
+    V,
+      
+    // Break
+    B,
 
-void Cpu::step() {
-}
+    // Decimal (use BCD for arithmetics)
+    D,
 
-void Cpu::reset() {
-}
+    // Interrupt (IRQ disable)
+    I,
 
-void Cpu::run() {
+    // Zero
+    Z,
+
+    // Carry
+    C,
+  };
 }
