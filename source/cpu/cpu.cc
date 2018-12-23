@@ -54,6 +54,10 @@ Cpu::Cpu(const void* baseAddress) : impl_(new CpuImpl(baseAddress)) {}
 
 Cpu::~Cpu() = default;
 
+Cpu::Cpu(Cpu &&) noexcept = default;
+
+Cpu& Cpu::operator=(Cpu &&) noexcept = default;
+
 void Cpu::step() {
   impl_->step();
 }
