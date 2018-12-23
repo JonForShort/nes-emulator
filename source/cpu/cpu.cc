@@ -22,6 +22,9 @@
 // SOFTWARE.
 //
 #include "cpu.h"
+#include "registers.h"
+#include "status_register_flags.h"
+#include "instruction_set.h"
 
 using namespace jones;
 

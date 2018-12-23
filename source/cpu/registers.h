@@ -21,12 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#pragma once
+
+#include <cstdint>
 
 //
 // CPU reference
 // http://e-tradition.net/bytes/6502/6502_instruction_set.html
 //
 namespace jones {
+
+  using r8_t = uint8_t;
+  using r16_t = uint16_t;
 
   enum class Registers {
 
