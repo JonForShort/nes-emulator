@@ -23,17 +23,28 @@
 //
 #pragma once
 
+#include <memory>
+
 namespace jones {
 
-  class Cpu {
+  class Cpu final {
   public:
-
     Cpu(const void* baseAddress);
+
+    ~Cpu();
+
+    Cpu(Cpu && op) noexcept;              
+
+    Cpu& operator=(Cpu && op) noexcept;
 
     void step();
 
     void reset();
 
     void run();
+
+  private:
+    class CpuImpl;
+    std::unique_ptr<CpuImpl> impl_;
   };
 }

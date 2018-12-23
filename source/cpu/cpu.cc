@@ -28,14 +28,40 @@
 
 using namespace jones;
 
-Cpu::Cpu(const void* baseAddress) {
-}
+class Cpu::CpuImpl final {
+public:
+  CpuImpl(const void* baseAddress) {
+
+  }
+
+  void step() {
+
+  }
+
+  void reset() {
+
+  }
+
+  void run() {
+
+  }
+
+private:
+  const void* baseAddress_;
+};
+
+Cpu::Cpu(const void* baseAddress) : impl_(new CpuImpl(baseAddress)) {}
+
+Cpu::~Cpu() = default;
 
 void Cpu::step() {
+  impl_->step();
 }
 
 void Cpu::reset() {
+  impl_->reset();
 }
 
 void Cpu::run() {
+  impl_->run();
 }
