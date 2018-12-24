@@ -76,11 +76,10 @@ int main(int argc, char *argv[]) {
   const auto performDisassemble = disassembleArgument;
   if (performDisassemble) {
     std::cout << "performing disassemble operation" << std::endl;
-    ip::file_mapping mappedBinary(pathToBinaryFile.c_str(), ip::mode_t::read_only);
-    ip::mapped_region mappedRegion(mappedBinary, ip::mode_t::read_only);
-    const auto mappedStartAddress = mappedRegion.get_address();
-    const auto mappedSize = mappedRegion.get_size();
-
+    const ip::file_mapping mappedBinary(pathToBinaryFile.c_str(), ip::mode_t::read_only);
+    const ip::mapped_region mappedRegion(mappedBinary, ip::mode_t::read_only);
+    const auto &mappedStartAddress = mappedRegion.get_address();
+    const auto &mappedSize = mappedRegion.get_size();
     jo::Cpu cpu(mappedStartAddress);
     cpu.run();
   }
