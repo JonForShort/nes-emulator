@@ -172,6 +172,9 @@ namespace jones {
     // set interrupt disable
     SEI,
 
+    // shift left
+    SLO,
+      
     // store accumulator
     STA,
 
@@ -180,6 +183,9 @@ namespace jones {
 
     // store y
     STY,
+
+    // store p
+    STP,
 
     // transfer accumulator to X
     TAX,

@@ -22,6 +22,7 @@
 // SOFTWARE.
 //
 #include "cpu.h"
+#include "opcode_table.h"
 #include "registers.h"
 #include "status_register_flags.h"
 #include "instruction_set.h"
