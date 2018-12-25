@@ -23,32 +23,36 @@
 //
 #pragma once
 
+#include "addressing_mode.h"
 #include "instruction_set.h"
 
 namespace jones {
   
   using is = InstructionSet;
+  using am = AddressingMode;
+  using mnemonic_t = const char*;
   
   struct opcode_t {
     uint8_t opcode;
     InstructionSet type;
-    const char* mnemonic;
+    mnemonic_t mnemonic;
+    AddressingMode addr;
   };
   
   //
   // Reference: https://wiki.nesdev.com/w/index.php/CPU_unofficial_opcodes
   //
   struct opcode_t instruction_set[256] {
-    { 0x00, is::BRK, "BRK" },
-    { 0x01, is::ORA, "ORA" },
-    { 0x02, is::STP, "ORA" },
-    { 0x03, is::SLO, "ORA" },
-    { 0x04, is::NOP, "ORA" },
-    { 0x05, is::ASL, "ORA" },
-    { 0x06, is::ORA, "ORA" },
-    { 0x07, is::ORA, "ORA" },	      
-    { 0x08, is::BRK, "BRK" },
-    { 0x09, is::ORA, "ORA" },
+    { 0x00, is::BRK, "BRK", am::IMPLICIT         },
+    { 0x01, is::ORA, "ORA", am::INDEXED_INDIRECT },
+    { 0x02, is::STP, "STP", am::IMPLICIT         },
+    { 0x03, is::SLO, "SLO", am::INDEXED_INDIRECT },
+    { 0x04, is::NOP, "NOP", am::ZERO_PAGE        },
+    { 0x05, is::ORA, "ORA", am::ZERO_PAGE        },
+    { 0x06, is::ASL, "ASL", am::ZERO_PAGE        },
+    { 0x07, is::SLO, "SLO", am::ZERO_PAGE        },
+    { 0x08, is::PHP, "PHP", am::IMPLICIT         },
+    { 0x09, is::ORA, "ORA", am::IMMEDIATE        },
     { 0x0A, is::STP, "ORA" },
     { 0x0B, is::SLO, "ORA" },
     { 0x0C, is::NOP, "ORA" },
