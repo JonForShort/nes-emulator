@@ -43,6 +43,7 @@ namespace jones {
   // Reference: https://wiki.nesdev.com/w/index.php/CPU_unofficial_opcodes
   //
   struct opcode_t instruction_set[256] {
+
     { 0x00, is::BRK, "BRK", am::IMPLICIT         },
     { 0x01, is::ORA, "ORA", am::INDEXED_INDIRECT },
     { 0x02, is::STP, "STP", am::IMPLICIT         },
@@ -53,12 +54,13 @@ namespace jones {
     { 0x07, is::SLO, "SLO", am::ZERO_PAGE        },
     { 0x08, is::PHP, "PHP", am::IMPLICIT         },
     { 0x09, is::ORA, "ORA", am::IMMEDIATE        },
-    { 0x0A, is::STP, "ORA" },
-    { 0x0B, is::SLO, "ORA" },
-    { 0x0C, is::NOP, "ORA" },
-    { 0x0D, is::ASL, "ORA" },
-    { 0x0E, is::ORA, "ORA" },
-    { 0x0F, is::ORA, "ORA" },
+    { 0x0A, is::ASL, "ASL", am::IMPLICIT         },
+    { 0x0B, is::ANC, "ANC", am::IMMEDIATE        },
+    { 0x0C, is::NOP, "NOP", am::ABSOLUTE         },
+    { 0x0D, is::ORA, "ORA", am::ABSOLUTE         },
+    { 0x0E, is::ASL, "ASL", am::ABSOLUTE         },
+    { 0x0F, is::SLO, "SLO", am::ABSOLUTE         },
+
     { 0x10, is::BRK, "BRK" },
     { 0x11, is::ORA, "ORA" },
     { 0x12, is::STP, "ORA" },

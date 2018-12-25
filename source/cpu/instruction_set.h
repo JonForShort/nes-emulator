@@ -34,6 +34,9 @@ namespace jones {
     // add with carry
     ADC,
 
+    // unknown (unofficial)
+    ANC,
+
     // and (with accumulator)
     AND,
 
