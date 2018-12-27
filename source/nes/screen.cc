@@ -24,7 +24,7 @@
 #include <iostream>
 #include <SDL.h>
 
-#include "screen.h"
+#include "screen.hh"
 
 using namespace jones;
 

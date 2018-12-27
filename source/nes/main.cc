@@ -23,8 +23,8 @@
 //
 #include <iostream>
 
-#include "nes_rom.h"
-#include "screen.h"
+#include "nes_rom.hh"
+#include "screen.hh"
 
 int main(int argc, char *argv[]){
 

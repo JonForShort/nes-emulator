@@ -25,7 +25,7 @@
 
 #include <SDL.h>
 
-#include "utils.h"
+#include "utils.hh"
 
 namespace jones {
   

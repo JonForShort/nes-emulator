@@ -24,7 +24,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "nes_rom.h"
+#include "nes_rom.hh"
 
 using namespace jones;
 

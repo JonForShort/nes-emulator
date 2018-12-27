@@ -23,8 +23,8 @@
 //
 #pragma once
 
-#include "addressing_mode.h"
-#include "instruction_set.h"
+#include "addressing_mode.hh"
+#include "instruction_set.hh"
 
 namespace jones {
   

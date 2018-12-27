@@ -29,7 +29,7 @@
 #include <iostream>
 #include <string>
 
-#include "cpu.h"
+#include "cpu.hh"
 
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;

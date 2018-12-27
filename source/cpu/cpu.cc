@@ -21,11 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include "cpu.h"
-#include "opcode_table.h"
-#include "registers.h"
-#include "status_register_flags.h"
-#include "instruction_set.h"
+#include "cpu.hh"
+#include "opcode_table.hh"
+#include "registers.hh"
+#include "status_register_flags.hh"
+#include "instruction_set.hh"
 
 using namespace jones;
 
