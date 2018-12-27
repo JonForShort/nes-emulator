@@ -151,6 +151,9 @@ namespace jones {
     // pull processor status (SR)
     PLP,
 
+    // ROL followed by AND
+    RLA,
+
     // rotate left
     ROL,
 
