@@ -26,6 +26,7 @@
 //
 // CPU reference
 // http://e-tradition.net/bytes/6502/6502_instruction_set.html
+// https://wiki.nesdev.com/w/index.php/Programming_with_unofficial_opcodes
 //
 namespace jones {
 
@@ -34,11 +35,17 @@ namespace jones {
     // add with carry
     ADC,
 
-    // unknown (unofficial)
+    // AND immediate then LSR A (unofficial)
+    ALR,
+    
+    // AND immediate value then copies N flag to C (unofficial)
     ANC,
 
     // and (with accumulator)
     AND,
+
+    // AND immediate then ROR A (unofficial)
+    ARR,
 
     // arithmetic shift left
     ASL,
@@ -160,12 +167,18 @@ namespace jones {
     // rotate right
     ROR,
 
+    // ROR and then ADC (unofficial)
+    RRA,
+    
     // return from interrupt
     RTI,
 
     // return from subroutine
     RTS,
 
+    // stores bitwise AND of A and X (unofficial)
+    SAX,
+    
     // subtract with carry
     SBC,
 
@@ -180,17 +193,20 @@ namespace jones {
 
     // shift left
     SLO,
-      
+
+    // LSR value then EOR value (unofficial)
+    SRE,
+
     // store accumulator
     STA,
 
     // store X
     STX,
 
-    // store y
+    // store Y
     STY,
 
-    // store p
+    // store P
     STP,
 
     // transfer accumulator to X
@@ -215,6 +231,9 @@ namespace jones {
     TYA,
 
     // transfer Y to stack pointer
-    TYS
+    TYS,
+
+    // unknown (unofficial)
+    XAA
   };  
 }

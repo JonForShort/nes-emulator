@@ -64,7 +64,7 @@ namespace jones {
     // #v : Immediate
     IMMEDIATE,
 
-    // label : Relative
+    // +d : Relative
     RELATIVE,
 
     // (a) : Indirect
