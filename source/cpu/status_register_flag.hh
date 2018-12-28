@@ -29,7 +29,7 @@
 //
 namespace jones {
   
-  enum class StatusRegisterFlags {
+  enum class status_register_flag_t {
 
     // Negative
     N,

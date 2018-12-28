@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2017-2018
+// Copyright 2018
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,217 +23,291 @@
 //
 #pragma once
 
-//
-// CPU reference
-// http://e-tradition.net/bytes/6502/6502_instruction_set.html
-// https://wiki.nesdev.com/w/index.php/Programming_with_unofficial_opcodes
-//
+#include "addressing_mode.hh"
+#include "opcode.hh"
+
 namespace jones {
-
-  enum class InstructionSet {
-
-    // add with carry
-    ADC,
-
-    // AND immediate then LSR A (unofficial)
-    ALR,
-    
-    // AND immediate value then copies N flag to C (unofficial)
-    ANC,
-
-    // and (with accumulator)
-    AND,
-
-    // AND immediate then ROR A (unofficial)
-    ARR,
-
-    // arithmetic shift left
-    ASL,
-
-    // branch on carry clear
-    BCC,
-
-    // branch on carry set
-    BCS,
-
-    // branch on equal (zero set)
-    BEQ,
-
-    // bit test
-    BIT,
-
-    // branch on minus (negative set)
-    BMI,
-
-    // branch on not equal (zero clear)
-    BNE,
-
-    // branch on plus (negative clear)
-    BPL,
-
-    // interrupt
-    BRK,
-
-    // branch on overflow clear
-    BVC,
-
-    // branch on overflow set
-    BVS,
-
-    // clear carry
-    CLC,
-
-    // clear decimal
-    CLD,
-
-    // clear interrupt disable
-    CLI,
-
-    // clear overflow
-    CLV,
-
-    // compare (with accumulator)
-    CMP, 
-
-    // compare with X
-    CPX,
-
-    // compare with Y
-    CPY,
-
-    // decrement
-    DEC,
-
-    // decrement X
-    DEX, 
-
-    // decrement Y
-    DEY, 
-
-    // exclusive or (with accumulator)
-    EOR,
-
-    // increment
-    INC,
-
-    // increment x
-    INX,
-
-    // increment y
-    INY,
-
-    // jump
-    JMP,
-
-    // jump subroutine
-    JSR,
-
-    // load accumulator
-    LDA,
-
-    // load x
-    LDX,
-
-    // load y
-    LDY,
-
-    // logical shift right
-    LSR,
-
-    // no operation
-    NOP,
-
-    // or with accumulator
-    ORA,
-
-    // push accumulator
-    PHA,
-
-    // push processor status (SR)
-    PHP,
-
-    // pull accumulator
-    PLA,
-
-    // pull processor status (SR)
-    PLP,
-
-    // ROL followed by AND
-    RLA,
-
-    // rotate left
-    ROL,
-
-    // rotate right
-    ROR,
-
-    // ROR and then ADC (unofficial)
-    RRA,
-    
-    // return from interrupt
-    RTI,
-
-    // return from subroutine
-    RTS,
-
-    // stores bitwise AND of A and X (unofficial)
-    SAX,
-    
-    // subtract with carry
-    SBC,
-
-    // set carry
-    SEC,
-
-    // set decimal
-    SED,
-
-    // set interrupt disable
-    SEI,
-
-    // shift left
-    SLO,
-
-    // LSR value then EOR value (unofficial)
-    SRE,
-
-    // store accumulator
-    STA,
-
-    // store X
-    STX,
-
-    // store Y
-    STY,
-
-    // store P
-    STP,
-
-    // transfer accumulator to X
-    TAX,
-
-    // transfer accumulator to Y
-    TAY,
-
-    // transfer stack pointer to X
-    TSX,
-
-    // transfer stack pointer to Y
-    TSY,
-
-    // transfer X to accumulator
-    TXA,
-
-    // transfer X to stack pointer
-    TXS,
-
-    // transfer Y to accumulator
-    TYA,
-
-    // transfer Y to stack pointer
-    TYS,
-
-    // unknown (unofficial)
-    XAA
-  };  
+  
+  using op = opcode_t;
+  using am = addressing_mode_t;
+  using mnemonic_t = const char*;
+  
+  struct instruction_t {
+    uint8_t opcode;
+    opcode_t type;
+    mnemonic_t mnemonic;
+    addressing_mode_t addressingMode;
+  };
+  
+  //
+  // Reference: https://wiki.nesdev.com/w/index.php/CPU_unofficial_opcodes
+  //
+  struct instruction_t instruction_set[256] {
+
+    { 0x00, op::BRK, "BRK", am::IMPLICIT         },
+    { 0x01, op::ORA, "ORA", am::INDEXED_INDIRECT },
+    { 0x02, op::STP, "STP", am::IMPLICIT         },
+    { 0x03, op::SLO, "SLO", am::INDEXED_INDIRECT },
+    { 0x04, op::NOP, "NOP", am::ZERO_PAGE        },
+    { 0x05, op::ORA, "ORA", am::ZERO_PAGE        },
+    { 0x06, op::ASL, "ASL", am::ZERO_PAGE        },
+    { 0x07, op::SLO, "SLO", am::ZERO_PAGE        },
+    { 0x08, op::PHP, "PHP", am::IMPLICIT         },
+    { 0x09, op::ORA, "ORA", am::IMMEDIATE        },
+    { 0x0A, op::ASL, "ASL", am::IMPLICIT         },
+    { 0x0B, op::ANC, "ANC", am::IMMEDIATE        },
+    { 0x0C, op::NOP, "NOP", am::ABSOLUTE         },
+    { 0x0D, op::ORA, "ORA", am::ABSOLUTE         },
+    { 0x0E, op::ASL, "ASL", am::ABSOLUTE         },
+    { 0x0F, op::SLO, "SLO", am::ABSOLUTE         },
+
+    { 0x10, op::BPL, "BPL", am::RELATIVE         },
+    { 0x11, op::ORA, "ORA", am::INDIRECT_INDEXED },
+    { 0x12, op::STP, "STP", am::IMPLICIT         },
+    { 0x13, op::SLO, "SLO", am::INDIRECT_INDEXED },
+    { 0x14, op::NOP, "NOP", am::ZERO_PAGE_X      },
+    { 0x15, op::ORA, "ORA", am::ZERO_PAGE_X      },
+    { 0x16, op::ASL, "ASL", am::ZERO_PAGE_X      },
+    { 0x17, op::SLO, "SLO", am::ZERO_PAGE_X      },	      
+    { 0x18, op::CLC, "CLC", am::IMPLICIT         },
+    { 0x19, op::ORA, "ORA", am::ABSOLUTE_Y       },
+    { 0x1A, op::NOP, "NOP", am::IMPLICIT         },
+    { 0x1B, op::SLO, "SLO", am::ABSOLUTE_Y       },
+    { 0x1C, op::NOP, "NOP", am::ABSOLUTE_X       },
+    { 0x1D, op::ORA, "ORA", am::ABSOLUTE_X       },
+    { 0x1E, op::ASL, "ASL", am::ABSOLUTE_X       },
+    { 0x1F, op::SLO, "SLO", am::ABSOLUTE_X       },
+
+    { 0x20, op::JSR, "JSR", am::ABSOLUTE         },
+    { 0x21, op::AND, "AND", am::INDEXED_INDIRECT },
+    { 0x22, op::STP, "STP", am::IMPLICIT         },
+    { 0x23, op::RLA, "RLA", am::INDEXED_INDIRECT },
+    { 0x24, op::BIT, "BIT", am::ZERO_PAGE        },
+    { 0x25, op::AND, "AND", am::ZERO_PAGE        },
+    { 0x26, op::ROL, "ROL", am::ZERO_PAGE        },
+    { 0x27, op::RLA, "RLA", am::ZERO_PAGE        },
+    { 0x28, op::PLP, "PLP", am::IMPLICIT         },
+    { 0x29, op::AND, "AND", am::IMMEDIATE        },
+    { 0x2A, op::ROL, "ROL", am::IMPLICIT         },
+    { 0x2B, op::ANC, "ANC", am::IMMEDIATE        },
+    { 0x2C, op::BIT, "BIT", am::ABSOLUTE         },
+    { 0x2D, op::AND, "AND", am::ABSOLUTE         },
+    { 0x2E, op::ROL, "ROL", am::ABSOLUTE         },
+    { 0x2F, op::RLA, "RLA", am::ABSOLUTE         },
+
+    { 0x30, op::BMI, "BMI", am::RELATIVE         },
+    { 0x31, op::AND, "AND", am::INDIRECT_INDEXED },
+    { 0x32, op::STP, "STP", am::IMPLICIT         },
+    { 0x33, op::RLA, "RLA", am::INDIRECT_INDEXED },
+    { 0x34, op::NOP, "NOP", am::ZERO_PAGE_X      },
+    { 0x35, op::AND, "AND", am::ZERO_PAGE_X      },
+    { 0x36, op::ROL, "ROL", am::ZERO_PAGE_X      },
+    { 0x37, op::RLA, "RLA", am::ZERO_PAGE_X      },
+    { 0x38, op::SEC, "SEC", am::IMPLICIT         },
+    { 0x39, op::AND, "AND", am::ABSOLUTE_Y       },
+    { 0x3A, op::NOP, "NOP", am::IMPLICIT         },
+    { 0x3B, op::RLA, "RLA", am::ABSOLUTE_Y       },
+    { 0x3C, op::NOP, "NOP", am::ABSOLUTE_X       },
+    { 0x3D, op::AND, "AND", am::ABSOLUTE_X       },
+    { 0x3E, op::ROL, "ROL", am::ABSOLUTE_X       },
+    { 0x3F, op::RLA, "RLA", am::ABSOLUTE_X       },
+
+    { 0x40, op::RTI, "RTI", am::IMPLICIT         },
+    { 0x41, op::EOR, "EOR", am::INDEXED_INDIRECT },
+    { 0x42, op::STP, "STP", am::IMPLICIT         },
+    { 0x43, op::SRE, "SRE", am::INDEXED_INDIRECT },
+    { 0x44, op::NOP, "NOP", am::ZERO_PAGE        },
+    { 0x45, op::EOR, "EOR", am::ZERO_PAGE        },
+    { 0x46, op::LSR, "LSR", am::ZERO_PAGE        },
+    { 0x47, op::SRE, "SRE", am::ZERO_PAGE        },
+    { 0x48, op::PHA, "PHA", am::IMPLICIT         },
+    { 0x49, op::EOR, "EOR", am::IMMEDIATE        },
+    { 0x4A, op::LSR, "LSR", am::IMPLICIT         },
+    { 0x4B, op::ALR, "ALR", am::IMMEDIATE        },
+    { 0x4C, op::JMP, "JMP", am::ABSOLUTE         },
+    { 0x4D, op::EOR, "EOR", am::ABSOLUTE         },
+    { 0x4E, op::LSR, "LSR", am::ABSOLUTE         },
+    { 0x4F, op::SRE, "SRE", am::ABSOLUTE         },
+
+    { 0x50, op::BVC, "BVC", am::RELATIVE         },
+    { 0x51, op::EOR, "EOR", am::INDIRECT_INDEXED },
+    { 0x52, op::STP, "STP", am::IMPLICIT         },
+    { 0x53, op::SRE, "SRE", am::INDIRECT_INDEXED },
+    { 0x54, op::NOP, "NOP", am::ZERO_PAGE_X      },
+    { 0x55, op::EOR, "EOR", am::ZERO_PAGE_X      },
+    { 0x56, op::LSR, "LSR", am::ZERO_PAGE_X      },
+    { 0x57, op::SRE, "SRE", am::ZERO_PAGE_X      },
+    { 0x58, op::CLI, "CLI", am::IMPLICIT         },
+    { 0x59, op::EOR, "EOR", am::ABSOLUTE_Y       },
+    { 0x5A, op::NOP, "NOP", am::IMPLICIT         },
+    { 0x5B, op::SRE, "SRE", am::ABSOLUTE_Y       },
+    { 0x5C, op::NOP, "NOP", am::ABSOLUTE_X       },
+    { 0x5D, op::EOR, "EOR", am::ABSOLUTE_X       },
+    { 0x5E, op::LSR, "LSR", am::ABSOLUTE_X       },
+    { 0x5F, op::SRE, "SRE", am::ABSOLUTE_X       },
+
+    { 0x60, op::RTS, "RTS" },
+    { 0x61, op::ADC, "ADC" },
+    { 0x62, op::STP, "STP" },
+    { 0x63, op::RRA, "RRA" },
+    { 0x64, op::NOP, "NOP" },
+    { 0x65, op::ADC, "ADC" },
+    { 0x66, op::ROR, "ROR" },
+    { 0x67, op::RRA, "RRA" },	      
+    { 0x68, op::PLA, "PLA" },
+    { 0x69, op::ADC, "ADC" },
+    { 0x6A, op::ROR, "ROR" },
+    { 0x6B, op::ARR, "ARR" },
+    { 0x6C, op::JMP, "JMP" },
+    { 0x6D, op::ADC, "ADC" },
+    { 0x6E, op::ROR, "ROR" },
+    { 0x6F, op::RRA, "RRA" },
+
+    { 0x70, op::BVS, "BVS" },
+    { 0x71, op::ADC, "ADC" },
+    { 0x72, op::STP, "STP" },
+    { 0x73, op::RRA, "RRA" },
+    { 0x74, op::NOP, "NOP" },
+    { 0x75, op::ADC, "ADC" },
+    { 0x76, op::ROR, "ROR" },
+    { 0x77, op::RRA, "RRA" },	      
+    { 0x78, op::SEI, "SEI" },
+    { 0x79, op::ADC, "ADC" },
+    { 0x7A, op::NOP, "NOP" },
+    { 0x7B, op::RRA, "RRA" },
+    { 0x7C, op::NOP, "NOP" },
+    { 0x7D, op::ADC, "ADC" },
+    { 0x7E, op::ROR, "ROR" },
+    { 0x7F, op::RRA, "RRA" },
+
+    { 0x80, op::NOP, "NOP" },
+    { 0x81, op::STA, "STA" },
+    { 0x82, op::NOP, "NOP" },
+    { 0x83, op::SAX, "SAX" },
+    { 0x84, op::STY, "STY" },
+    { 0x85, op::STA, "STA" },
+    { 0x86, op::STX, "STX" },
+    { 0x87, op::SAX, "SAX" },	      
+    { 0x88, op::DEY, "DEY" },
+    { 0x89, op::NOP, "NOP", am::IMMEDIATE },
+    { 0x8A, op::TXA, "TXA", am::IMPLICIT },
+    { 0x8B, op::XAA, "XAA", am::IMMEDIATE },
+    { 0x8C, op::STY, "STY", am::ABSOLUTE },
+    { 0x8D, op::STA, "STA", am::ABSOLUTE },
+    { 0x8E, op::STX, "STX", am::ABSOLUTE },
+    { 0x8F, op::SAX, "SAX", am::ABSOLUTE },
+
+    { 0x90, op::BRK, "BRK" },
+    { 0x91, op::ORA, "ORA" },
+    { 0x92, op::STP, "ORA" },
+    { 0x93, op::SLO, "ORA" },
+    { 0x94, op::NOP, "ORA" },
+    { 0x95, op::ASL, "ORA" },
+    { 0x96, op::ORA, "ORA" },
+    { 0x97, op::ORA, "ORA" },	      
+    { 0x98, op::BRK, "BRK" },
+    { 0x99, op::ORA, "ORA" },
+    { 0x9A, op::STP, "ORA" },
+    { 0x9B, op::SLO, "ORA" },
+    { 0x9C, op::NOP, "ORA" },
+    { 0x9D, op::ASL, "ORA" },
+    { 0x9E, op::ORA, "ORA" },
+    { 0x9F, op::ORA, "ORA" },
+    { 0xA0, op::BRK, "BRK" },
+    { 0xA1, op::ORA, "ORA" },
+    { 0xA2, op::STP, "ORA" },
+    { 0xA3, op::SLO, "ORA" },
+    { 0xA4, op::NOP, "ORA" },
+    { 0xA5, op::ASL, "ORA" },
+    { 0xA6, op::ORA, "ORA" },
+    { 0xA7, op::ORA, "ORA" },	      
+    { 0xA8, op::BRK, "BRK" },
+    { 0xA9, op::ORA, "ORA" },
+    { 0xAA, op::STP, "ORA" },
+    { 0xAB, op::SLO, "ORA" },
+    { 0xAC, op::NOP, "ORA" },
+    { 0xAD, op::ASL, "ORA" },
+    { 0xAE, op::ORA, "ORA" },
+    { 0xAF, op::ORA, "ORA" },
+    { 0xB0, op::BRK, "BRK" },
+    { 0xB1, op::ORA, "ORA" },
+    { 0xB2, op::STP, "ORA" },
+    { 0xB3, op::SLO, "ORA" },
+    { 0xB4, op::NOP, "ORA" },
+    { 0xB5, op::ASL, "ORA" },
+    { 0xB6, op::ORA, "ORA" },
+    { 0xB7, op::ORA, "ORA" },	      
+    { 0xB8, op::BRK, "BRK" },
+    { 0xB9, op::ORA, "ORA" },
+    { 0xBA, op::STP, "ORA" },
+    { 0xBB, op::SLO, "ORA" },
+    { 0xBC, op::NOP, "ORA" },
+    { 0xBD, op::ASL, "ORA" },
+    { 0xBE, op::ORA, "ORA" },
+    { 0xBF, op::ORA, "ORA" },
+    { 0xC0, op::BRK, "BRK" },
+    { 0xC1, op::ORA, "ORA" },
+    { 0xC2, op::STP, "ORA" },
+    { 0xC3, op::SLO, "ORA" },
+    { 0xC4, op::NOP, "ORA" },
+    { 0xC5, op::ASL, "ORA" },
+    { 0xC6, op::ORA, "ORA" },
+    { 0xC7, op::ORA, "ORA" },	      
+    { 0xC8, op::BRK, "BRK" },
+    { 0xC9, op::ORA, "ORA" },
+    { 0xCA, op::STP, "ORA" },
+    { 0xCB, op::SLO, "ORA" },
+    { 0xCC, op::NOP, "ORA" },
+    { 0xCD, op::ASL, "ORA" },
+    { 0xCE, op::ORA, "ORA" },
+    { 0xCF, op::ORA, "ORA" },
+    { 0xD0, op::BRK, "BRK" },
+    { 0xD1, op::ORA, "ORA" },
+    { 0xD2, op::STP, "ORA" },
+    { 0xD3, op::SLO, "ORA" },
+    { 0xD4, op::NOP, "ORA" },
+    { 0xD5, op::ASL, "ORA" },
+    { 0xD6, op::ORA, "ORA" },
+    { 0xD7, op::ORA, "ORA" },	      
+    { 0xD8, op::BRK, "BRK" },
+    { 0xD9, op::ORA, "ORA" },
+    { 0xDA, op::STP, "ORA" },
+    { 0xDB, op::SLO, "ORA" },
+    { 0xDC, op::NOP, "ORA" },
+    { 0xDD, op::ASL, "ORA" },
+    { 0xDE, op::ORA, "ORA" },
+    { 0xDF, op::ORA, "ORA" },
+    { 0xE0, op::BRK, "BRK" },
+    { 0xE1, op::ORA, "ORA" },
+    { 0xE2, op::STP, "ORA" },
+    { 0xE3, op::SLO, "ORA" },
+    { 0xE4, op::NOP, "ORA" },
+    { 0xE5, op::ASL, "ORA" },
+    { 0xE6, op::ORA, "ORA" },
+    { 0xE7, op::ORA, "ORA" },	      
+    { 0xE8, op::BRK, "BRK" },
+    { 0xE9, op::ORA, "ORA" },
+    { 0xEA, op::STP, "ORA" },
+    { 0xEB, op::SLO, "ORA" },
+    { 0xEC, op::NOP, "ORA" },
+    { 0xED, op::ASL, "ORA" },
+    { 0xEE, op::ORA, "ORA" },
+    { 0xEF, op::ORA, "ORA" },
+    { 0xF0, op::BRK, "BRK" },
+    { 0xF1, op::ORA, "ORA" },
+    { 0xF2, op::STP, "ORA" },
+    { 0xF3, op::SLO, "ORA" },
+    { 0xF4, op::NOP, "ORA" },
+    { 0xF5, op::ASL, "ORA" },
+    { 0xF6, op::ORA, "ORA" },
+    { 0xF7, op::ORA, "ORA" },	      
+    { 0xF8, op::BRK, "BRK" },
+    { 0xF9, op::ORA, "ORA" },
+    { 0xFA, op::STP, "ORA" },
+    { 0xFB, op::SLO, "ORA" },
+    { 0xFC, op::NOP, "ORA" },
+    { 0xFD, op::ASL, "ORA" },
+    { 0xFE, op::ORA, "ORA" },
+    { 0xFF, op::ORA, "ORA" }
+  };
 }

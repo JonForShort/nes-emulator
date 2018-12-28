@@ -22,10 +22,10 @@
 // SOFTWARE.
 //
 #include "cpu.hh"
-#include "opcode_table.hh"
-#include "registers.hh"
-#include "status_register_flags.hh"
 #include "instruction_set.hh"
+#include "opcode.hh"
+#include "register.hh"
+#include "status_register_flag.hh"
 
 using namespace jones;
 

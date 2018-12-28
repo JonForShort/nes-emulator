@@ -34,7 +34,7 @@ namespace jones {
   using r8_t = uint8_t;
   using r16_t = uint16_t;
 
-  enum class Registers {
+  enum class register_t {
 
     // program counter (16 bit)
     PC,
