@@ -35,6 +35,9 @@ namespace jones {
     // add with carry
     ADC,
 
+    // STORE A X H into address (unofficial)
+    AHX,
+    
     // AND immediate then LSR A (unofficial)
     ALR,
     
@@ -49,6 +52,9 @@ namespace jones {
 
     // arithmetic shift left
     ASL,
+
+    // set X to A AND X and update NZC (unofficial)
+    AXS,
 
     // branch on carry clear
     BCC,
@@ -101,6 +107,9 @@ namespace jones {
     // compare with Y
     CPY,
 
+    // DEC value then CMP value (unofficial)
+    DCP,
+    
     // decrement
     DEC,
 
@@ -122,12 +131,21 @@ namespace jones {
     // increment y
     INY,
 
+    // INC value then SBC value (unofficial)
+    ISC,
+    
     // jump
     JMP,
 
     // jump subroutine
     JSR,
 
+    // store address AND S into A X and S (unofficial)
+    LAS,
+    
+    // LDA value then TAX value (unofficial)
+    LAX,
+    
     // load accumulator
     LDA,
 
@@ -191,6 +209,12 @@ namespace jones {
     // set interrupt disable
     SEI,
 
+    // stores H AND X into address (unofficial)
+    SHX,
+
+    // stores H and Y into address (unofficial)
+    SHY,
+
     // shift left
     SLO,
 
@@ -209,6 +233,9 @@ namespace jones {
     // store P
     STP,
 
+    // store A AND X into S and A AND X AND H into address (unofficial)
+    TAS,
+    
     // transfer accumulator to X
     TAX,
 
