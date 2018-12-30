@@ -18,3 +18,4 @@ set (EXTERNAL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
 
 add_subdirectory (source/nes)
 add_subdirectory (source/cpu)
+add_subdirectory (external)
