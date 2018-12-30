@@ -30,6 +30,7 @@
 #include <string>
 
 #include "cpu.hh"
+#include "screen.hh"
 
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
@@ -43,6 +44,7 @@ int main(int argc, char *argv[]) {
   int offsetArgument;
   int instructionCountArgument;
   bool disassembleArgument;
+  bool debuggerArgument;
 
   try {
     po::options_description desc{"Options"};
@@ -52,7 +54,8 @@ int main(int argc, char *argv[]) {
       ("output,o", po::value<std::string>(&outputArgument), "directory path to write output")
       ("offset,s", po::value<int>(&offsetArgument)->default_value(0), "byte offset from start of binary file")
       ("count,c", po::value<int>(&instructionCountArgument)->default_value(0), "number of instructions to execute")
-      ("disassemble,d", po::bool_switch(&disassembleArgument), "perform disassemble operation");
+      ("disassemble,d", po::bool_switch(&disassembleArgument), "perform disassemble operation")
+      ("debugger,g", po::bool_switch(&debuggerArgument), "performs operation in a debugger");
 
     po::variables_map vm;
     po::store(parse_command_line(argc, argv, desc), vm);
@@ -82,6 +85,12 @@ int main(int argc, char *argv[]) {
     const auto &mappedSize = mappedRegion.get_size();
     jo::Cpu cpu(mappedStartAddress);
     cpu.run();
+  }
+
+  const auto performDebugger = debuggerArgument;
+  if (performDebugger) {
+    jo::screen screen;
+    screen.init();
   }
 
   return 0;
