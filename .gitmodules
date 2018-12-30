@@ -1,3 +1,3 @@
 [submodule "external/ncurses"]
 	path = external/ncurses
-	url = git@github.com:thejunkjon/external-ncurses.git
+	url = https://github.com/thejunkjon/external-ncurses.git
