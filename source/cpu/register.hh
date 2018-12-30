@@ -58,13 +58,17 @@ namespace jones {
 
   template<register_t R>
   struct register_traits {
+
     typedef r8_t type;
-    uint8_t length = sizeof(type);
+
+    static constexpr uint8_t length = sizeof(type);
   };
 
   template<>
   struct register_traits<register_t::PC> {
+
     typedef r16_t type;
-    uint8_t length = sizeof(type);
+
+    static constexpr uint8_t length = sizeof(type);
   };
 }
