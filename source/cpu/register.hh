@@ -32,6 +32,7 @@
 namespace jones {
 
   using r8_t = uint8_t;
+
   using r16_t = uint16_t;
 
   enum class register_t {
@@ -53,5 +54,17 @@ namespace jones {
     
     // stack pointer (8 bit)
     SP
+  };
+
+  template<register_t R>
+  struct register_traits {
+    typedef r8_t type;
+    uint8_t length = sizeof(type);
+  };
+
+  template<>
+  struct register_traits<register_t::PC> {
+    typedef r16_t type;
+    uint8_t length = sizeof(type);
   };
 }
