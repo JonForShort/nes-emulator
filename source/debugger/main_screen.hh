@@ -23,10 +23,20 @@
 //
 #pragma once
 
+#include <curses.h>
+#include <memory.h>
+
 namespace jones {
 
-  class screen final {
+  class main_screen final {
   public:
+    main_screen();
+    ~main_screen();
+
     void init();
+    void release();
+
+  private:
+    WINDOW* main_window_;
   };
 }

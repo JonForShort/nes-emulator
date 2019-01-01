@@ -8,7 +8,7 @@ set (boost-lib       ${EXTERNAL_DIR}/boost/lib)
 set (ncurses-include ${EXTERNAL_DIR}/ncurses/out/include)
 set (ncurses-lib     ${EXTERNAL_DIR}/ncurses/out/lib)
 
-add_executable (jones-debugger debugger.cc screen.cc)
+add_executable (jones-debugger debugger.cc main_screen.cc)
 
 add_dependencies (jones-debugger ncurses)
 

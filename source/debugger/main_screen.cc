@@ -22,33 +22,76 @@
 // SOFTWARE.
 //
 #include <curses.h>
+#include <string>
 
-#include "screen.hh"
+#include "main_screen.hh"
 
-void jones::screen::init() {
+using namespace jones;
 
-  WINDOW* parent = initscr();
+namespace {
+
+  static const unsigned int command_window_height = 5;
+
+  std::string get_line() {
+    std::string result;
+    while(true) {
+      const auto ch = getch();
+      switch (ch) {
+      case '\n':
+      case ERR:
+	return result;
+      default:
+	result += ch;
+	addch(ch);
+	break;
+      }
+    }
+  }
+}
+
+main_screen::main_screen() : main_window_(initscr()) {}
+
+main_screen::~main_screen() {
+  release();
+}
+
+void main_screen::init() {
   int lines;
   int cols;
   WINDOW* top;
   WINDOW* bottom;
   bool running = true;
-  
-  getmaxyx(parent, lines, cols);
-  top = subwin(parent, lines / 2, cols, 0, 0);
-  bottom = subwin(parent, lines - lines / 2, cols, lines / 2, 0);
+
+  getmaxyx(main_window_, lines, cols);
+  top = subwin(main_window_, lines - command_window_height, cols, 0, 0);
+  bottom = subwin(main_window_, command_window_height, cols, lines - command_window_height, 0);
+
+  noecho();
   
   while (running) {
     box(top, 0, 0);
+    mvwaddstr(top, 0, 2, "[ debugger ]");
+
     box(bottom, 0, 0);
-    mvwaddstr(top, 0, 2, "[ top ]");
-    mvwaddstr(bottom, 0, 2, "[ bottom ]");
-    mvwaddstr(top, 2, 2, "Enter something to exit.");
-    mvwaddstr(bottom, 2, 2, "Here stuff is entered: ");
-    refresh();
-    if (ERR != wgetch(bottom)) {
+    mvwaddstr(bottom, 0, 2, "[ command ]");
+    mvwaddstr(bottom, 2, 2, "> ");
+
+    wmove(main_window_, lines - command_window_height + 2, 4);
+
+    clrtoeol();
+    wrefresh(main_window_);
+
+    const auto line = get_line();
+    if (line == "quit") {
       running = false;
     }
   }
-  endwin();
+}
+
+void main_screen::release() {
+  if (main_window_ != nullptr) {
+    delwin(main_window_);
+    main_window_ = nullptr;
+    endwin();
+  }
 }

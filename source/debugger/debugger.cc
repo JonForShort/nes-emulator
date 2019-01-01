@@ -30,7 +30,7 @@
 #include <string>
 
 #include "cpu.hh"
-#include "screen.hh"
+#include "main_screen.hh"
 
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 
   const auto performDebugger = debuggerArgument;
   if (performDebugger) {
-    jo::screen screen;
+    jo::main_screen screen;
     screen.init();
   }
 
