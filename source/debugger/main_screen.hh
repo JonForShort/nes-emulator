@@ -35,6 +35,7 @@ namespace jones {
 
     void init();
     void release();
+    void refresh();
 
   private:
     WINDOW* main_window_;

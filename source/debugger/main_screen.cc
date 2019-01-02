@@ -22,6 +22,7 @@
 // SOFTWARE.
 //
 #include <curses.h>
+#include <signal.h>
 #include <string>
 
 #include "main_screen.hh"
@@ -47,6 +48,16 @@ namespace {
       }
     }
   }
+
+  void sigIntHandler(int sig_num) {
+
+  }
+
+  void sigWinchHandler(int sig_num) {
+    endwin();
+    refresh();
+    clear();
+  }
 }
 
 main_screen::main_screen() : main_window_(initscr()) {}
@@ -56,6 +67,10 @@ main_screen::~main_screen() {
 }
 
 void main_screen::init() {
+  
+  signal(SIGINT, sigIntHandler);
+  signal(SIGWINCH, sigWinchHandler);
+
   int lines;
   int cols;
   WINDOW* top;
@@ -90,8 +105,15 @@ void main_screen::init() {
 
 void main_screen::release() {
   if (main_window_ != nullptr) {
+    signal(SIGINT, SIG_DFL);
+    signal(SIGWINCH, SIG_DFL);
+
     delwin(main_window_);
     main_window_ = nullptr;
     endwin();
   }
+}
+
+void main_screen::refresh() {
+
 }
