@@ -1,0 +1,11 @@
+[submodule "external/sdl/source"]
+	path = external/sdl/source
+	url = https://github.com/thejunkjon/external-sdl.git
+
+[submodule "external/ncurses/source"]
+	path = external/ncurses/source
+	url = https://github.com/thejunkjon/external-ncurses.git
+
+[submodule "external/capstone/source"]
+	path = external/capstone/source
+	url = https://github.com/thejunkjon/external-capstone.git
