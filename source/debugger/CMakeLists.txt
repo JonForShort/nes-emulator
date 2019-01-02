@@ -1,12 +1,12 @@
 cmake_minimum_required (VERSION 3.7)
 
 # boost
-set (boost-include   ${EXTERNAL_DIR}/boost/include)
-set (boost-lib       ${EXTERNAL_DIR}/boost/lib)
+set (boost-include   ${DIR_ROOT_OUT}/boost/include)
+set (boost-lib       ${DIR_ROOT_OUT}/boost/lib)
 
 # ncurses
-set (ncurses-include ${EXTERNAL_DIR}/ncurses/out/include)
-set (ncurses-lib     ${EXTERNAL_DIR}/ncurses/out/lib)
+set (ncurses-include ${DIR_ROOT_OUT}/ncurses/include)
+set (ncurses-lib     ${DIR_ROOT_OUT}/ncurses/lib)
 
 add_executable (jones-debugger debugger.cc main_screen.cc)
 

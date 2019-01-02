@@ -1,5 +1,15 @@
 cmake_minimum_required (VERSION 3.7)
 
-add_subdirectory (ncurses)
-add_subdirectory (sdl)
+set (EXTERNAL_PROJECTS ncurses sdl)
 
+foreach (EXTERNAL_PROJECT ${EXTERNAL_PROJECTS})
+
+  set (DIR_PROJECT_OUT ${DIR_ROOT_OUT}/${EXTERNAL_PROJECT})
+
+  set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${DIR_PROJECT_OUT}/lib)
+  set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${DIR_PROJECT_OUT}/lib)
+  set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${DIR_PROJECT_OUT}/bin)  
+
+  add_subdirectory (${EXTERNAL_PROJECT})
+
+endforeach ()
