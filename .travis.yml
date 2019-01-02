@@ -14,5 +14,8 @@ addons:
       - cmake
 script:
   - gcc -v && g++ -v && cmake --version
-  - cmake .
+  - mkdir build
+  - pushd build
+  - cmake ..
   - make && make test
+  - popd
