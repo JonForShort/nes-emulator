@@ -12,6 +12,7 @@ addons:
       - gcc-6
       - g++-6
       - cmake
+      - alsa-lib
 script:
   - gcc -v && g++ -v && cmake --version
   - mkdir build
