@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
     const ip::mapped_region mappedRegion(mappedBinary, ip::mode_t::read_only);
     const auto &mappedStartAddress = mappedRegion.get_address();
     const auto &mappedSize = mappedRegion.get_size();
-    jo::Cpu cpu(mappedStartAddress);
+    jo::cpu cpu(mappedStartAddress);
     cpu.run();
   }
 

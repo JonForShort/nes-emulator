@@ -29,44 +29,39 @@
 
 using namespace jones;
 
-class Cpu::CpuImpl final {
+class cpu::cpu_impl final {
 public:
-  CpuImpl(const void* baseAddress) {
-
-  }
+  cpu_impl(const void* base_address) : base_address_(base_address) {}
 
   void step() {
-
   }
 
   void reset() {
-
   }
 
   void run() {
-
   }
 
 private:
-  const void* baseAddress_;
+  const void* base_address_;
 };
 
-Cpu::Cpu(const void* baseAddress) : impl_(new CpuImpl(baseAddress)) {}
+cpu::cpu(const void* base_address) : impl_(new cpu_impl(base_address)) {}
 
-Cpu::~Cpu() = default;
+cpu::~cpu() = default;
 
-Cpu::Cpu(Cpu &&) noexcept = default;
+cpu::cpu(cpu &&) noexcept = default;
 
-Cpu& Cpu::operator=(Cpu &&) noexcept = default;
+cpu& cpu::operator=(cpu &&) noexcept = default;
 
-void Cpu::step() {
+void cpu::step() {
   impl_->step();
 }
 
-void Cpu::reset() {
+void cpu::reset() {
   impl_->reset();
 }
 
-void Cpu::run() {
+void cpu::run() {
   impl_->run();
 }

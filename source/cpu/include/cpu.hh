@@ -27,24 +27,24 @@
 
 namespace jones {
 
-  class Cpu final {
+  class cpu final {
   public:
-    Cpu(const void* baseAddress);
-
-    ~Cpu();
-
-    Cpu(Cpu && op) noexcept;              
-
-    Cpu& operator=(Cpu && op) noexcept;
-
+    cpu(const void* base_address);
+    
+    ~cpu();
+    
+    cpu(cpu && op) noexcept;              
+    
+    cpu& operator=(cpu && op) noexcept;
+    
     void step();
-
+    
     void reset();
-
+    
     void run();
 
   private:
-    class CpuImpl;
-    std::unique_ptr<CpuImpl> impl_;
+    class cpu_impl;
+    std::unique_ptr<cpu_impl> impl_;
   };
 }
