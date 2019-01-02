@@ -9,3 +9,7 @@
 [submodule "external/capstone/source"]
 	path = external/capstone/source
 	url = https://github.com/thejunkjon/external-capstone.git
+
+[submodule "external/sndio/source"]
+	path = external/sndio/source
+	url = https://github.com/thejunkjon/external-sndio.git
