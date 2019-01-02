@@ -1,6 +1,11 @@
 [submodule "external/ncurses"]
 	path = external/ncurses
 	url = https://github.com/thejunkjon/external-ncurses.git
+
 [submodule "external/capstone"]
 	path = external/capstone
 	url = https://github.com/thejunkjon/external-capstone.git
+
+[submodule "external/sdl"]
+	path = external/sdl
+	url = https://github.com/thejunkjon/external-libsdl.git
