@@ -12,7 +12,7 @@ addons:
       - gcc-6
       - g++-6
       - cmake
-      - alsa-lib
+      - libasound2-dev
 script:
   - gcc -v && g++ -v && cmake --version
   - mkdir build
