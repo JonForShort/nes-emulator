@@ -10,6 +10,7 @@ set (ncurses-lib     ${DIR_ROOT_OUT}/ncurses/lib)
 
 add_executable (jones-debugger debugger.cc main_screen.cc)
 
+add_dependencies (jones-debugger boost)
 add_dependencies (jones-debugger ncurses)
 
 target_link_libraries (jones-debugger cpu)

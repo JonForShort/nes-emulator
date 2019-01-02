@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.7)
 
-set (EXTERNAL_PROJECTS ncurses sdl)
+set (EXTERNAL_PROJECTS ncurses sdl boost)
 
 foreach (EXTERNAL_PROJECT ${EXTERNAL_PROJECTS})
 
