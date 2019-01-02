@@ -13,3 +13,6 @@
 [submodule "external/sndio/source"]
 	path = external/sndio/source
 	url = https://github.com/thejunkjon/external-sndio.git
+[submodule "external/boost/source"]
+	path = external/boost/source
+	url = git@github.com:thejunkjon/external-boost.git
