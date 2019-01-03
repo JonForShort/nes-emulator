@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.7)
 
-set (EXTERNAL_PROJECTS ncurses sndio sdl boost)
+set (EXTERNAL_PROJECTS ncurses sndio sdl boost capstone)
 
 foreach (EXTERNAL_PROJECT ${EXTERNAL_PROJECTS})
 
