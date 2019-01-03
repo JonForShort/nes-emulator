@@ -8,7 +8,13 @@ set (boost-lib       ${DIR_ROOT_OUT}/boost/lib)
 set (ncurses-include ${DIR_ROOT_OUT}/ncurses/include)
 set (ncurses-lib     ${DIR_ROOT_OUT}/ncurses/lib)
 
-add_executable (jones-debugger debugger.cc main_screen.cc)
+set (source-files
+  debugger.cc
+  main_screen.cc
+  windows/command_window.cc
+)
+
+add_executable (jones-debugger ${source-files})
 
 add_dependencies (jones-debugger boost)
 add_dependencies (jones-debugger ncurses)

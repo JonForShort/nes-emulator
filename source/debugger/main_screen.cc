@@ -26,6 +26,7 @@
 #include <string>
 
 #include "main_screen.hh"
+#include "windows/command_window.hh"
 
 using namespace jones;
 
@@ -79,7 +80,8 @@ void main_screen::init() {
 
   getmaxyx(main_window_, lines, cols);
   top = subwin(main_window_, lines - command_window_height, cols, 0, 0);
-  bottom = subwin(main_window_, command_window_height, cols, lines - command_window_height, 0);
+
+  command_window command_window(main_window_, lines, cols);
 
   noecho();
   
@@ -87,9 +89,7 @@ void main_screen::init() {
     box(top, 0, 0);
     mvwaddstr(top, 0, 2, "[ debugger ]");
 
-    box(bottom, 0, 0);
-    mvwaddstr(bottom, 0, 2, "[ command ]");
-    mvwaddstr(bottom, 2, 2, "> ");
+    command_window.redraw(lines, cols);
 
     wmove(main_window_, lines - command_window_height + 2, 4);
 
