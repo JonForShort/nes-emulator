@@ -61,50 +61,26 @@ namespace {
   }
 }
 
-main_screen::main_screen() : main_window_(initscr()) {}
+main_screen::main_screen():
+  main_window_(initscr()),
+  is_running_(false),
+  screen_height_(0),
+  screen_width_(0) {
+}
 
 main_screen::~main_screen() {
   release();
 }
 
-void main_screen::init() {
-  
+void main_screen::initialize() {
   signal(SIGINT, sigIntHandler);
   signal(SIGWINCH, sigWinchHandler);
-
-  int lines;
-  int cols;
-  WINDOW* top;
-  WINDOW* bottom;
-  bool running = true;
-
-  getmaxyx(main_window_, lines, cols);
-  top = subwin(main_window_, lines - command_window_height, cols, 0, 0);
-
-  command_window command_window(main_window_, lines, cols);
-
-  noecho();
-  
-  while (running) {
-    box(top, 0, 0);
-    mvwaddstr(top, 0, 2, "[ debugger ]");
-
-    command_window.redraw(lines, cols);
-
-    wmove(main_window_, lines - command_window_height + 2, 4);
-
-    clrtoeol();
-    wrefresh(main_window_);
-
-    const auto line = get_line();
-    if (line == "quit") {
-      running = false;
-    }
-  }
 }
 
 void main_screen::release() {
   if (main_window_ != nullptr) {
+    is_running_ = false;
+
     signal(SIGINT, SIG_DFL);
     signal(SIGWINCH, SIG_DFL);
 
@@ -114,6 +90,22 @@ void main_screen::release() {
   }
 }
 
-void main_screen::refresh() {
+void main_screen::show() {
+  update();
+  command_window command_window(main_window_, screen_height_, screen_width_);
+  noecho();
+  is_running_ = true;
+  while (is_running_) {
+    command_window.redraw(screen_height_, screen_width_);
+    clrtoeol();
+    wrefresh(main_window_);
+    const auto line = get_line();
+    if (line == "quit") {
+      is_running_ = false;
+    }
+  }
+}
 
+void main_screen::update() {
+  getmaxyx(main_window_, screen_height_, screen_width_);
 }

@@ -33,11 +33,16 @@ namespace jones {
     main_screen();
     ~main_screen();
 
-    void init();
+    void initialize();
     void release();
-    void refresh();
+
+    void show();
+    void update();
 
   private:
     WINDOW* main_window_;
+    bool is_running_;
+    unsigned int screen_height_;
+    unsigned int screen_width_;
   };
 }

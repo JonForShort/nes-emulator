@@ -90,7 +90,9 @@ int main(int argc, char *argv[]) {
   const auto performDebugger = debuggerArgument;
   if (performDebugger) {
     jo::main_screen screen;
-    screen.init();
+    screen.initialize();
+    screen.show();
+    screen.release();
   }
 
   return 0;
