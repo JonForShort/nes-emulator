@@ -1,6 +1,9 @@
 cmake_minimum_required (VERSION 3.7)
 
-set (sources cpu.cc)
+set (sources
+  cpu.cc
+  disassemble.cc
+)
 
 add_library (cpu STATIC ${sources})
 

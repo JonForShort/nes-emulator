@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2017-2019
+// Copyright 2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,35 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#pragma once
+#include "disassemble.hh"
 
-#include <memory>
+using namespace jones;
 
-namespace jones {
-
-  struct cpu_state {
-  };
-
-  class cpu final {
-  public:
-    cpu(const void* base_address);
-
-    ~cpu();
-
-    cpu(cpu && op) noexcept;
-
-    cpu& operator=(cpu && op) noexcept;
-
-    void step();
-
-    void reset();
-
-    void run();
-
-    cpu_state get_state();
-    
-  private:
-    class cpu_impl;
-    std::unique_ptr<cpu_impl> impl_;
-  };
+disassemble::instructions disassemble::disassemble(uint8_t* buffer, size_t length_in_bytes) {
+  return disassemble::instructions{std::vector<std::string>(), 0};
 }

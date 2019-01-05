@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2017-2019
+// Copyright 2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,33 +23,16 @@
 //
 #pragma once
 
-#include <memory>
+#include <cstdint>
+#include <string>
+#include <vector>
 
-namespace jones {
+namespace jones::disassemble {
 
-  struct cpu_state {
+  struct instructions {
+    std::vector<std::string> instructions;
+    size_t used_length_in_bytes;
   };
 
-  class cpu final {
-  public:
-    cpu(const void* base_address);
-
-    ~cpu();
-
-    cpu(cpu && op) noexcept;
-
-    cpu& operator=(cpu && op) noexcept;
-
-    void step();
-
-    void reset();
-
-    void run();
-
-    cpu_state get_state();
-    
-  private:
-    class cpu_impl;
-    std::unique_ptr<cpu_impl> impl_;
-  };
+  instructions disassemble(uint8_t* buffer, size_t length_in_bytes);
 }
