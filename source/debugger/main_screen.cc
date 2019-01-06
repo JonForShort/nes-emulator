@@ -32,45 +32,38 @@ using namespace jones;
 
 namespace {
 
-  static const unsigned int command_window_height = 5;
+static const unsigned int command_window_height = 5;
 
-  std::string get_line() {
-    std::string result;
-    while(true) {
-      const auto ch = getch();
-      switch (ch) {
-      case '\n':
-      case ERR:
-	return result;
-      default:
-	result += ch;
-	addch(ch);
-	break;
-      }
+std::string get_line() {
+  std::string result;
+  while (true) {
+    const auto ch = getch();
+    switch (ch) {
+    case '\n':
+    case ERR:
+      return result;
+    default:
+      result += ch;
+      addch(ch);
+      break;
     }
   }
-
-  void sigIntHandler(int sig_num) {
-
-  }
-
-  void sigWinchHandler(int sig_num) {
-    endwin();
-    refresh();
-    clear();
-  }
 }
 
-main_screen::main_screen():
-  main_window_(initscr()),
-  is_running_(false),
-  screen_height_(0),
-  screen_width_(0) {
-}
+void sigIntHandler(int sig_num) {}
 
-main_screen::~main_screen() {
-  release();
+void sigWinchHandler(int sig_num) {
+  endwin();
+  refresh();
+  clear();
 }
+} // namespace
+
+main_screen::main_screen()
+    : main_window_(initscr()), is_running_(false), screen_height_(0),
+      screen_width_(0) {}
+
+main_screen::~main_screen() { release(); }
 
 void main_screen::initialize() {
   signal(SIGINT, sigIntHandler);

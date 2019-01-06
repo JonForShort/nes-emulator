@@ -21,16 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <iostream>
 #include <SDL2/SDL.h>
+#include <iostream>
 
 #include "screen.hh"
 
 using namespace jones;
 
-Screen::Screen() : mIsRunning(false) {
-
-}
+Screen::Screen() : mIsRunning(false) {}
 
 Screen::~Screen() {
   mWindow = nullptr;
@@ -38,16 +36,12 @@ Screen::~Screen() {
   mIsRunning = false;
 }
 
-void Screen::initialize() {
-  SDL_Init(SDL_INIT_HAPTIC); 
-}
+void Screen::initialize() { SDL_Init(SDL_INIT_HAPTIC); }
 
 void Screen::show() {
-  mWindow = SDL_CreateWindow("Jones NES Emulator",
-					SDL_WINDOWPOS_UNDEFINED,
-					SDL_WINDOWPOS_UNDEFINED,
-					640, 480,
-					SDL_WINDOW_OPENGL);
+  mWindow =
+      SDL_CreateWindow("Jones NES Emulator", SDL_WINDOWPOS_UNDEFINED,
+                       SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
   if (mWindow == nullptr) {
     mIsRunning = false;
     return;
@@ -62,7 +56,7 @@ void Screen::show() {
   fillWithColor(0, 0, 0, 0);
 
   mIsRunning = true;
-  
+
   while (mIsRunning) {
     processEvent();
     renderScreen();
@@ -79,15 +73,11 @@ void Screen::fillWithColor(u8 r, u8 g, u8 b, u8 a) {
 
 void Screen::processEvent() {
   while (SDL_PollEvent(&mEvents)) {
-    if(mEvents.type == SDL_QUIT)
+    if (mEvents.type == SDL_QUIT)
       mIsRunning = false;
   }
 }
 
-void Screen::renderScreen() {
+void Screen::renderScreen() {}
 
-}
-
-void Screen::release() {
-  SDL_Quit();
-}
+void Screen::release() { SDL_Quit(); }

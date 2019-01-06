@@ -67,19 +67,22 @@ int main(int argc, char *argv[]) {
 
   const fs::path pathToBinaryFile(fileArgument);
   if (!fs::exists(pathToBinaryFile)) {
-    std::cout << "binary file path does not exist; please check path" << std::endl;
+    std::cout << "binary file path does not exist; please check path"
+              << std::endl;
     return -2;
   }
 
   if (fs::is_directory(pathToBinaryFile)) {
-    std::cout << "binary file path is a directory; please check path" << std::endl;
+    std::cout << "binary file path is a directory; please check path"
+              << std::endl;
     return -3;
   }
 
   const auto performDisassemble = disassembleArgument;
   if (performDisassemble) {
     std::cout << "performing disassemble operation" << std::endl;
-    const ip::file_mapping mappedBinary(pathToBinaryFile.c_str(), ip::mode_t::read_only);
+    const ip::file_mapping mappedBinary(pathToBinaryFile.c_str(),
+                                        ip::mode_t::read_only);
     const ip::mapped_region mappedRegion(mappedBinary, ip::mode_t::read_only);
     const auto &mappedStartAddress = mappedRegion.get_address();
     const auto &mappedSize = mappedRegion.get_size();

@@ -26,7 +26,7 @@
 #include "nes_rom.hh"
 #include "screen.hh"
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
 
   if (argc != 2) {
     std::cout << "must specify path to nes rom file" << std::endl;

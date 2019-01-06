@@ -28,21 +28,22 @@
 
 namespace jones {
 
-  class main_screen final {
-  public:
-    main_screen();
-    ~main_screen();
+class main_screen final {
+public:
+  main_screen();
+  ~main_screen();
 
-    void initialize();
-    void release();
+  void initialize();
+  void release();
 
-    void show();
-    void update();
+  void show();
+  void update();
 
-  private:
-    WINDOW* main_window_;
-    bool is_running_;
-    unsigned int screen_height_;
-    unsigned int screen_width_;
-  };
-}
+private:
+  WINDOW *main_window_;
+  bool is_running_;
+  unsigned int screen_height_;
+  unsigned int screen_width_;
+};
+
+} // namespace jones

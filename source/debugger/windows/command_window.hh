@@ -27,14 +27,15 @@
 
 namespace jones {
 
-  class command_window final {
-  public:
-    command_window(WINDOW* parent_window, int line_count, int column_count);
-    ~command_window();
+class command_window final {
+public:
+  command_window(WINDOW *parent_window, int line_count, int column_count);
+  ~command_window();
 
-    void redraw(int line_count, int column_count);
+  void redraw(int line_count, int column_count);
 
-  private:
-    WINDOW* window_;
-  };
-}
+private:
+  WINDOW *window_;
+};
+
+} // namespace jones

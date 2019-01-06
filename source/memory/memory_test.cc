@@ -25,7 +25,4 @@
 
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_CASE (memory_test)
-{
-    BOOST_CHECK (true);
-}
+BOOST_AUTO_TEST_CASE(memory_test) { BOOST_CHECK(true); }

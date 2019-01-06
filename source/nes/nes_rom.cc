@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 #include "nes_rom.hh"
 
@@ -30,25 +30,28 @@ using namespace jones;
 
 namespace {
 
-  void printHexInteger(std::ostream &out, const char* label, const uint32_t value) {
-    out << "  " << label << std::hex << static_cast<uint32_t>(value) << std::endl;
-  }
-
-  void printHexInteger(std::ostream &out, const char* label, const uint8_t value) {
-    out << "  " << label << std::hex << static_cast<uint16_t>(value) << std::endl;
-  }
+void printHexInteger(std::ostream &out, const char *label,
+                     const uint32_t value) {
+  out << "  " << label << std::hex << static_cast<uint32_t>(value) << std::endl;
 }
 
-NesRom::NesRom(const std::string& pathToNesRom) :
-  m_nesRomFile(pathToNesRom.c_str(), std::ifstream::binary) {
+void printHexInteger(std::ostream &out, const char *label,
+                     const uint8_t value) {
+  out << "  " << label << std::hex << static_cast<uint16_t>(value) << std::endl;
+}
+
+} // namespace
+
+NesRom::NesRom(const std::string &pathToNesRom)
+    : m_nesRomFile(pathToNesRom.c_str(), std::ifstream::binary) {
   if (m_nesRomFile.good()) {
-    m_nesRomFile.read((char*)&m_nesRomFileHeader, sizeof(NesRomHeader));
+    m_nesRomFile.read((char *)&m_nesRomFileHeader, sizeof(NesRomHeader));
   }
 }
 
 bool NesRom::isValid() {
   return m_nesRomFile.good() &&
-    m_nesRomFileHeader.constants == NES_ROM_HEADER_CONSTANT;
+         m_nesRomFileHeader.constants == NES_ROM_HEADER_CONSTANT;
 }
 
 int NesRom::getHeaderVersion() const {
