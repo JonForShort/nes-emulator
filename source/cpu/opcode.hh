@@ -30,237 +30,238 @@
 //
 namespace jones {
 
-  enum class opcode_t {
+enum class opcode_t {
 
-    // add with carry
-    ADC,
+  // add with carry
+  ADC,
 
-    // STORE A X H into address (unofficial)
-    AHX,
-    
-    // AND immediate then LSR A (unofficial)
-    ALR,
-    
-    // AND immediate value then copies N flag to C (unofficial)
-    ANC,
+  // STORE A X H into address (unofficial)
+  AHX,
 
-    // and (with accumulator)
-    AND,
+  // AND immediate then LSR A (unofficial)
+  ALR,
 
-    // AND immediate then ROR A (unofficial)
-    ARR,
+  // AND immediate value then copies N flag to C (unofficial)
+  ANC,
 
-    // arithmetic shift left
-    ASL,
+  // and (with accumulator)
+  AND,
 
-    // set X to A AND X and update NZC (unofficial)
-    AXS,
+  // AND immediate then ROR A (unofficial)
+  ARR,
 
-    // branch on carry clear
-    BCC,
+  // arithmetic shift left
+  ASL,
 
-    // branch on carry set
-    BCS,
+  // set X to A AND X and update NZC (unofficial)
+  AXS,
 
-    // branch on equal (zero set)
-    BEQ,
+  // branch on carry clear
+  BCC,
 
-    // bit test
-    BIT,
+  // branch on carry set
+  BCS,
 
-    // branch on minus (negative set)
-    BMI,
+  // branch on equal (zero set)
+  BEQ,
 
-    // branch on not equal (zero clear)
-    BNE,
+  // bit test
+  BIT,
 
-    // branch on plus (negative clear)
-    BPL,
+  // branch on minus (negative set)
+  BMI,
 
-    // interrupt
-    BRK,
+  // branch on not equal (zero clear)
+  BNE,
 
-    // branch on overflow clear
-    BVC,
+  // branch on plus (negative clear)
+  BPL,
 
-    // branch on overflow set
-    BVS,
+  // interrupt
+  BRK,
 
-    // clear carry
-    CLC,
+  // branch on overflow clear
+  BVC,
 
-    // clear decimal
-    CLD,
+  // branch on overflow set
+  BVS,
 
-    // clear interrupt disable
-    CLI,
+  // clear carry
+  CLC,
 
-    // clear overflow
-    CLV,
+  // clear decimal
+  CLD,
 
-    // compare (with accumulator)
-    CMP, 
+  // clear interrupt disable
+  CLI,
 
-    // compare with X
-    CPX,
+  // clear overflow
+  CLV,
 
-    // compare with Y
-    CPY,
+  // compare (with accumulator)
+  CMP,
 
-    // DEC value then CMP value (unofficial)
-    DCP,
-    
-    // decrement
-    DEC,
+  // compare with X
+  CPX,
 
-    // decrement X
-    DEX, 
+  // compare with Y
+  CPY,
 
-    // decrement Y
-    DEY, 
+  // DEC value then CMP value (unofficial)
+  DCP,
 
-    // exclusive or (with accumulator)
-    EOR,
+  // decrement
+  DEC,
 
-    // increment
-    INC,
+  // decrement X
+  DEX,
 
-    // increment x
-    INX,
+  // decrement Y
+  DEY,
 
-    // increment y
-    INY,
+  // exclusive or (with accumulator)
+  EOR,
 
-    // INC value then SBC value (unofficial)
-    ISC,
-    
-    // jump
-    JMP,
+  // increment
+  INC,
 
-    // jump subroutine
-    JSR,
+  // increment x
+  INX,
 
-    // store address AND S into A X and S (unofficial)
-    LAS,
-    
-    // LDA value then TAX value (unofficial)
-    LAX,
-    
-    // load accumulator
-    LDA,
+  // increment y
+  INY,
 
-    // load x
-    LDX,
+  // INC value then SBC value (unofficial)
+  ISC,
 
-    // load y
-    LDY,
+  // jump
+  JMP,
 
-    // logical shift right
-    LSR,
+  // jump subroutine
+  JSR,
 
-    // no operation
-    NOP,
+  // store address AND S into A X and S (unofficial)
+  LAS,
 
-    // or with accumulator
-    ORA,
+  // LDA value then TAX value (unofficial)
+  LAX,
 
-    // push accumulator
-    PHA,
+  // load accumulator
+  LDA,
 
-    // push processor status (SR)
-    PHP,
+  // load x
+  LDX,
 
-    // pull accumulator
-    PLA,
+  // load y
+  LDY,
 
-    // pull processor status (SR)
-    PLP,
+  // logical shift right
+  LSR,
 
-    // ROL followed by AND
-    RLA,
+  // no operation
+  NOP,
 
-    // rotate left
-    ROL,
+  // or with accumulator
+  ORA,
 
-    // rotate right
-    ROR,
+  // push accumulator
+  PHA,
 
-    // ROR and then ADC (unofficial)
-    RRA,
-    
-    // return from interrupt
-    RTI,
+  // push processor status (SR)
+  PHP,
 
-    // return from subroutine
-    RTS,
+  // pull accumulator
+  PLA,
 
-    // stores bitwise AND of A and X (unofficial)
-    SAX,
-    
-    // subtract with carry
-    SBC,
+  // pull processor status (SR)
+  PLP,
 
-    // set carry
-    SEC,
+  // ROL followed by AND
+  RLA,
 
-    // set decimal
-    SED,
+  // rotate left
+  ROL,
 
-    // set interrupt disable
-    SEI,
+  // rotate right
+  ROR,
 
-    // stores H AND X into address (unofficial)
-    SHX,
+  // ROR and then ADC (unofficial)
+  RRA,
 
-    // stores H and Y into address (unofficial)
-    SHY,
+  // return from interrupt
+  RTI,
 
-    // shift left
-    SLO,
+  // return from subroutine
+  RTS,
 
-    // LSR value then EOR value (unofficial)
-    SRE,
+  // stores bitwise AND of A and X (unofficial)
+  SAX,
 
-    // store accumulator
-    STA,
+  // subtract with carry
+  SBC,
 
-    // store X
-    STX,
+  // set carry
+  SEC,
 
-    // store Y
-    STY,
+  // set decimal
+  SED,
 
-    // store P
-    STP,
+  // set interrupt disable
+  SEI,
 
-    // store A AND X into S and A AND X AND H into address (unofficial)
-    TAS,
-    
-    // transfer accumulator to X
-    TAX,
+  // stores H AND X into address (unofficial)
+  SHX,
 
-    // transfer accumulator to Y
-    TAY,
+  // stores H and Y into address (unofficial)
+  SHY,
 
-    // transfer stack pointer to X
-    TSX,
+  // shift left
+  SLO,
 
-    // transfer stack pointer to Y
-    TSY,
+  // LSR value then EOR value (unofficial)
+  SRE,
 
-    // transfer X to accumulator
-    TXA,
+  // store accumulator
+  STA,
 
-    // transfer X to stack pointer
-    TXS,
+  // store X
+  STX,
 
-    // transfer Y to accumulator
-    TYA,
+  // store Y
+  STY,
 
-    // transfer Y to stack pointer
-    TYS,
+  // store P
+  STP,
 
-    // unknown (unofficial)
-    XAA
-  };  
-}
+  // store A AND X into S and A AND X AND H into address (unofficial)
+  TAS,
+
+  // transfer accumulator to X
+  TAX,
+
+  // transfer accumulator to Y
+  TAY,
+
+  // transfer stack pointer to X
+  TSX,
+
+  // transfer stack pointer to Y
+  TSY,
+
+  // transfer X to accumulator
+  TXA,
+
+  // transfer X to stack pointer
+  TXS,
+
+  // transfer Y to accumulator
+  TYA,
+
+  // transfer Y to stack pointer
+  TYS,
+
+  // unknown (unofficial)
+  XAA
+};
+
+} // namespace jones

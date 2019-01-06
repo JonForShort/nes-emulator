@@ -29,10 +29,11 @@
 
 namespace jones::disassemble {
 
-  struct instructions {
-    std::vector<std::string> instructions;
-    size_t used_length_in_bytes;
-  };
+struct instructions {
+  std::vector<std::string> instructions;
+  size_t used_length_in_bytes;
+};
 
-  instructions disassemble(uint8_t* buffer, size_t length_in_bytes);
-}
+instructions disassemble(uint8_t *buffer, size_t length_in_bytes);
+
+} // namespace jones::disassemble

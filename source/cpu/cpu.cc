@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2017-2018
+// Copyright 2017-2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,37 +31,28 @@ using namespace jones;
 
 class cpu::cpu_impl final {
 public:
-  cpu_impl(const void* base_address) : base_address_(base_address) {}
+  cpu_impl(const void *base_address) : base_address_(base_address) {}
 
-  void step() {
-  }
+  void step() {}
 
-  void reset() {
-  }
+  void reset() {}
 
-  void run() {
-  }
+  void run() {}
 
 private:
-  const void* base_address_;
+  const void *base_address_;
 };
 
-cpu::cpu(const void* base_address) : impl_(new cpu_impl(base_address)) {}
+cpu::cpu(const void *base_address) : impl_(new cpu_impl(base_address)) {}
 
 cpu::~cpu() = default;
 
 cpu::cpu(cpu &&) noexcept = default;
 
-cpu& cpu::operator=(cpu &&) noexcept = default;
+cpu &cpu::operator=(cpu &&) noexcept = default;
 
-void cpu::step() {
-  impl_->step();
-}
+void cpu::step() { impl_->step(); }
 
-void cpu::reset() {
-  impl_->reset();
-}
+void cpu::reset() { impl_->reset(); }
 
-void cpu::run() {
-  impl_->run();
-}
+void cpu::run() { impl_->run(); }

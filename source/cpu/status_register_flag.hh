@@ -28,28 +28,29 @@
 // http://e-tradition.net/bytes/6502/6502_instruction_set.html
 //
 namespace jones {
-  
-  enum class status_register_flag_t {
 
-    // Negative
-    N,
-      
-    // Overflow
-    V,
-      
-    // Break
-    B,
+enum class status_register_flag_t {
 
-    // Decimal (use BCD for arithmetics)
-    D,
+  // Negative
+  N,
 
-    // Interrupt (IRQ disable)
-    I,
+  // Overflow
+  V,
 
-    // Zero
-    Z,
+  // Break
+  B,
 
-    // Carry
-    C,
-  };
-}
+  // Decimal (use BCD for arithmetics)
+  D,
+
+  // Interrupt (IRQ disable)
+  I,
+
+  // Zero
+  Z,
+
+  // Carry
+  C,
+};
+
+} // namespace jones

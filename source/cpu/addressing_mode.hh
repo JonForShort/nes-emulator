@@ -28,46 +28,47 @@
 // https://wiki.nesdev.com/w/index.php/CPU_addressing_modes
 //
 namespace jones {
-  
-  enum class addressing_mode_t {
 
-    // d : Zero Page Indexed
-    ZERO_PAGE,
+enum class addressing_mode_t {
 
-    // d,x : Zero Page Indexed with X
-    ZERO_PAGE_X,
+  // d : Zero Page Indexed
+  ZERO_PAGE,
 
-    // d,y : Zero Page Indexed with Y
-    ZERO_PAGE_Y,
+  // d,x : Zero Page Indexed with X
+  ZERO_PAGE_X,
 
-    // a : Absolute Indexed
-    ABSOLUTE,
+  // d,y : Zero Page Indexed with Y
+  ZERO_PAGE_Y,
 
-    // a,x : Absolute Indexed with X
-    ABSOLUTE_X,
+  // a : Absolute Indexed
+  ABSOLUTE,
 
-    // a,y : Absolute Indexed with Y
-    ABSOLUTE_Y,
+  // a,x : Absolute Indexed with X
+  ABSOLUTE_X,
 
-    // (d,x) : Indexed Indirect
-    INDEXED_INDIRECT,
+  // a,y : Absolute Indexed with Y
+  ABSOLUTE_Y,
 
-    // (d),y : Indirect Indexed
-    INDIRECT_INDEXED,
+  // (d,x) : Indexed Indirect
+  INDEXED_INDIRECT,
 
-    // () : Implicit
-    IMPLICIT,
+  // (d),y : Indirect Indexed
+  INDIRECT_INDEXED,
 
-    // A : Accumulator
-    ACCUMULATOR,
+  // () : Implicit
+  IMPLICIT,
 
-    // #v : Immediate
-    IMMEDIATE,
+  // A : Accumulator
+  ACCUMULATOR,
 
-    // +d : Relative
-    RELATIVE,
+  // #v : Immediate
+  IMMEDIATE,
 
-    // (a) : Indirect
-    INDIRECT
-  };
-}
+  // +d : Relative
+  RELATIVE,
+
+  // (a) : Indirect
+  INDIRECT
+};
+
+} // namespace jones

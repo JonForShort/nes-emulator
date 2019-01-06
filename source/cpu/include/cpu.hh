@@ -27,29 +27,29 @@
 
 namespace jones {
 
-  struct cpu_state {
-  };
+struct cpu_state {};
 
-  class cpu final {
-  public:
-    cpu(const void* base_address);
+class cpu final {
+public:
+  cpu(const void *base_address);
 
-    ~cpu();
+  ~cpu();
 
-    cpu(cpu && op) noexcept;
+  cpu(cpu &&op) noexcept;
 
-    cpu& operator=(cpu && op) noexcept;
+  cpu &operator=(cpu &&op) noexcept;
 
-    void step();
+  void step();
 
-    void reset();
+  void reset();
 
-    void run();
+  void run();
 
-    cpu_state get_state();
-    
-  private:
-    class cpu_impl;
-    std::unique_ptr<cpu_impl> impl_;
-  };
-}
+  cpu_state get_state();
+
+private:
+  class cpu_impl;
+  std::unique_ptr<cpu_impl> impl_;
+};
+
+} // namespace jones

@@ -31,44 +31,43 @@
 //
 namespace jones {
 
-  using r8_t = uint8_t;
+using r8_t = uint8_t;
 
-  using r16_t = uint16_t;
+using r16_t = uint16_t;
 
-  enum class register_t {
+enum class register_t {
 
-    // program counter (16 bit)
-    PC,
-    
-    // accumulator (8 bit)
-    AC,
+  // program counter (16 bit)
+  PC,
 
-    // X register (8 bit)
-    X,
+  // accumulator (8 bit)
+  AC,
 
-    // Y register (8 bit)
-    Y,
+  // X register (8 bit)
+  X,
 
-    // status register (8 bit)
-    SR,
-    
-    // stack pointer (8 bit)
-    SP
-  };
+  // Y register (8 bit)
+  Y,
 
-  template<register_t R>
-  struct register_traits {
+  // status register (8 bit)
+  SR,
 
-    typedef r8_t type;
+  // stack pointer (8 bit)
+  SP
+};
 
-    static constexpr uint8_t length = sizeof(type);
-  };
+template <register_t R> struct register_traits {
 
-  template<>
-  struct register_traits<register_t::PC> {
+  typedef r8_t type;
 
-    typedef r16_t type;
+  static constexpr uint8_t length = sizeof(type);
+};
 
-    static constexpr uint8_t length = sizeof(type);
-  };
-}
+template <> struct register_traits<register_t::PC> {
+
+  typedef r16_t type;
+
+  static constexpr uint8_t length = sizeof(type);
+};
+
+} // namespace jones
