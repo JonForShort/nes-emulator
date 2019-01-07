@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.7)
 
 set (sources
   cpu.cc
+  decode.cc
   disassemble.cc
 )
 

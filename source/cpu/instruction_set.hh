@@ -32,6 +32,8 @@ using op = opcode_t;
 using am = addressing_mode_t;
 using mnemonic_t = const char *;
 
+constexpr unsigned int max_instruction_length_in_bytes = 3;
+
 struct instruction_t {
   uint8_t opcode;
   opcode_t type;
