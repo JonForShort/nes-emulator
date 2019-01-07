@@ -29,7 +29,7 @@
 //
 namespace jones {
 
-enum class addressing_mode_t {
+enum class addressing_mode_type {
 
   // d : Zero Page Indexed
   ZERO_PAGE,

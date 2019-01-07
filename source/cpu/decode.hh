@@ -26,7 +26,7 @@
 #include <cstdint>
 #include <stddef.h>
 
-#include "instruction_set.hh"
+#include "instruction.hh"
 
 namespace jones::decode {
 

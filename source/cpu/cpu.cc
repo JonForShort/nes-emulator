@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 #include "cpu.hh"
-#include "instruction_set.hh"
+#include "instruction.hh"
 #include "opcode.hh"
 #include "register.hh"
 #include "status_register_flag.hh"

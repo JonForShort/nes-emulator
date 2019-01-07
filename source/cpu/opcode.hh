@@ -30,7 +30,7 @@
 //
 namespace jones {
 
-enum class opcode_t {
+enum class opcode_type {
 
   // add with carry
   ADC,

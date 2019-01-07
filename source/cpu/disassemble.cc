@@ -25,20 +25,20 @@
 
 #include "addressing_mode.hh"
 #include "disassemble.hh"
-#include "instruction_set.hh"
+#include "instruction.hh"
 
 using namespace jones;
 
 namespace {
 
-std::string disassemble_opcode(const instruction_t &instruction, uint8_t *buffer, const size_t length_in_bytes) {
+std::string disassemble_opcode(const instruction &instruction, uint8_t *buffer, const size_t length_in_bytes) {
   return std::string(instruction.mnemonic);
 }
 
-std::string disassemble_operands(const instruction_t &instruction, uint8_t *buffer, const size_t length_in_bytes) {
+std::string disassemble_operands(const instruction &instruction, uint8_t *buffer, const size_t length_in_bytes) {
   const auto addressing_mode = instruction.addressing_mode;
   switch (addressing_mode) {
-  case addressing_mode_t::IMMEDIATE:
+  case addressing_mode_type::IMMEDIATE:
     return "#$2C";
   default:
     return "UNKNOWN";

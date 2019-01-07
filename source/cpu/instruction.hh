@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2018
+// Copyright 2018-2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,24 +28,23 @@
 
 namespace jones {
 
-using op = opcode_t;
-using am = addressing_mode_t;
-using mnemonic_t = const char *;
+using op = opcode_type;
+using am = addressing_mode_type;
 
 constexpr unsigned int max_instruction_length_in_bytes = 3;
 
-struct instruction_t {
-  uint8_t opcode;
-  opcode_t type;
-  mnemonic_t mnemonic;
+struct instruction {
+  uint8_t opcode_binary;
+  opcode_type opcode;
+  const char *mnemonic;
   uint8_t length;
-  addressing_mode_t addressing_mode;
+  addressing_mode_type addressing_mode;
 };
 
 //
 // Reference: https://wiki.nesdev.com/w/index.php/CPU_unofficial_opcodes
 //
-struct instruction_t instruction_set[256]{
+struct instruction instruction_set[256]{
 
     {0x00, op::BRK, "BRK", 1, am::IMPLICIT},
     {0x01, op::ORA, "ORA", 3, am::INDEXED_INDIRECT},
