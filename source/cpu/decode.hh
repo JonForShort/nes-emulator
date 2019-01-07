@@ -28,20 +28,28 @@
 
 #include "instruction.hh"
 
+using namespace jones;
+
 namespace jones::decode {
 
 struct opcode {
+  opcode_type opcode;
 };
 
-struct operands {
+struct operand {
+  union {
+    uint8_t general_register;
+    uint16_t immediate;
+    uint16_t address;
+  };
 };
 
 struct instruction {
-  uint8_t encoded[jones::max_instruction_length_in_bytes];
+  uint8_t encoded[max_instruction_length_in_bytes];
   uint8_t encoded_length_in_bytes;
 
   opcode decoded_opcode;
-  operands decoded_operands;
+  operand decoded_operand;
 };
 
 instruction decode(uint8_t *buffer, size_t length_in_bytes);
