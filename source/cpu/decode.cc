@@ -22,9 +22,31 @@
 // SOFTWARE.
 //
 #include "decode.hh"
+#include <cstring>
 
 using namespace jones;
 
 decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
+  if (length_in_bytes < 1) {
+    //
+    // buffer is not sufficient size to hold an instruction
+    //
+    return decode::instruction();
+  }
+  const auto opcode = buffer[0];
+  const auto instruction = instruction_set[opcode];
+  if (length_in_bytes < instruction.length) {
+    //
+    // buffer is smaller than expected size
+    //
+    return decode::instruction();
+  }
+  const auto instruction_length = instruction.length;
+  decode::instruction decoded_instruction = {0};
+  std::memcpy(decoded_instruction.encoded, buffer, instruction_length);
+  decoded_instruction.encoded_length_in_bytes = instruction_length;
+
+  decoded_instruction.decoded_opcode = decode::opcode{instruction.opcode};
   
+  return decoded_instruction;
 }
