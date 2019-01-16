@@ -6,6 +6,10 @@ NES emulator and debugger written in c++
 
 * Coming Soon
 
+### Planned Features
+
+* Interactive debugger - Jones will provide a helpful debugger for NES developers to test their own home-brewed roms.
+
 ### Screen Shots
 
 * Coming Soon
