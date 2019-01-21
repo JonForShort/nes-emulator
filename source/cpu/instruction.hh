@@ -25,6 +25,7 @@
 
 #include "addressing_mode.hh"
 #include "opcode.hh"
+#include "operand.hh"
 
 namespace jones {
 

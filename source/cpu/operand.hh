@@ -23,37 +23,21 @@
 //
 #pragma once
 
-#include <cstdint>
-#include <stddef.h>
+namespace jones {
 
-#include "instruction.hh"
+enum class operand_type {
 
-using namespace jones;
+  // Operand is unknown.
+  INVALID,
 
-namespace jones::decode {
+  // Operand has a register type.
+  REGISTER,
 
-struct opcode {
-  opcode_type type;;
+  // Operand has an immediate type.
+  IMMEDIATE,
+
+  // Operand has a memory type.
+  MEMORY
 };
 
-struct operand {
-  operand_type type;
-  union {
-    uint8_t general_register;
-    uint16_t immediate;
-    uint16_t address;
-  };
-};
-
-struct instruction {
-  uint8_t encoded[max_instruction_length_in_bytes];
-  uint8_t encoded_length_in_bytes;
-
-  opcode decoded_opcode;
-  operand decoded_operand[3];
-  uint8_t decoded_operand_count;
-};
-
-instruction decode(uint8_t *buffer, size_t length_in_bytes);
-
-} // namespace jones::decode
+} // namespace jones
