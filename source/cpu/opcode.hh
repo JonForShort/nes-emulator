@@ -32,7 +32,10 @@ namespace jones {
 
 enum class opcode_type {
 
-  // add with carry
+  // opcode is unknown or invalid.
+  INVALID,
+
+  // ADD with carry
   ADC,
 
   // STORE A X H into address (unofficial)
@@ -44,7 +47,7 @@ enum class opcode_type {
   // AND immediate value then copies N flag to C (unofficial)
   ANC,
 
-  // and (with accumulator)
+  // AND (with accumulator)
   AND,
 
   // AND immediate then ROR A (unofficial)

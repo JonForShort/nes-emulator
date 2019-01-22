@@ -25,6 +25,7 @@
 
 #include <cstdint>
 #include <stddef.h>
+#include <variant>
 
 #include "instruction.hh"
 
@@ -33,16 +34,13 @@ using namespace jones;
 namespace jones::decode {
 
 struct opcode {
-  opcode_type type;;
+  opcode_type type;
+  uint8_t value;
 };
 
 struct operand {
   operand_type type;
-  union {
-    uint8_t general_register;
-    uint16_t immediate;
-    uint16_t address;
-  };
+  std::variant<uint8_t, uint16_t> value;
 };
 
 struct instruction {
@@ -50,8 +48,7 @@ struct instruction {
   uint8_t encoded_length_in_bytes;
 
   opcode decoded_opcode;
-  operand decoded_operand[3];
-  uint8_t decoded_operand_count;
+  operand decoded_operand;
 };
 
 instruction decode(uint8_t *buffer, size_t length_in_bytes);
