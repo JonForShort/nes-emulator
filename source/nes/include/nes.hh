@@ -21,7 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#pragma once
+#ifndef JONES_NES_NES_ROM_HH
+#define JONES_NES_NES_ROM_HH
 
 #include "nes_rom.h"
 
@@ -36,3 +37,6 @@ namespace jones {
     void reset();
   };
 }
+
+#endif // JONES_NES_NES_ROM_HH
+

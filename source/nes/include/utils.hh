@@ -21,14 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#pragma once
+#ifndef JONES_NES_UTILS_HH
+#define JONES_NES_UTILS_HH
 
 #include <cstdint>
 
 #define NTH_BIT(x, n) (((x) >> (n)) & 1)
 
-typedef uint8_t  u8;
-typedef int8_t  s8;
+typedef uint8_t u8;
+typedef int8_t s8;
 
 typedef uint16_t u16;
 typedef int16_t s16;
@@ -38,3 +39,5 @@ typedef int32_t s32;
 
 typedef uint64_t u64;
 typedef int64_t s64;
+
+#endif // JONES_NES_UTILS_HH

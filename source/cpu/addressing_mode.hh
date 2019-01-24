@@ -21,7 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#pragma once
+#ifndef JONES_CPU_ADDRESSING_MODE_HH
+#define JONES_CPU_ADDRESSING_MODE_HH
 
 //
 // Reference:
@@ -72,3 +73,5 @@ enum class addressing_mode_type {
 };
 
 } // namespace jones
+
+#endif // JONES_CPU_ADDRESSING_MODE_HH

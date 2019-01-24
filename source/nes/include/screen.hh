@@ -21,7 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#pragma once
+#ifndef JONES_NES_SCREEN_HH
+#define JONES_NES_SCREEN_HH
 
 #include <SDL2/SDL.h>
 
@@ -50,3 +51,5 @@ namespace jones {
     bool mIsRunning;
   };
 }
+
+#endif // JONES_NES_SCREEN_HH

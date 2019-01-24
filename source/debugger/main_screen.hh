@@ -21,7 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#pragma once
+#ifndef JONES_DEBUGGER_MAIN_SCREEN_HH
+#define JONES_DEBUGGER_MAIN_SCREEN_HH
 
 #include <curses.h>
 #include <memory.h>
@@ -47,3 +48,5 @@ private:
 };
 
 } // namespace jones
+
+#endif // JONES_DEBUGGER_MAIN_SCREEN_HH
