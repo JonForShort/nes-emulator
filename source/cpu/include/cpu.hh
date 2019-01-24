@@ -21,7 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#pragma once
+#ifndef JONES_CPU_CPU_HH
+#define JONES_CPU_CPU_HH
 
 #include <memory>
 
@@ -53,3 +54,5 @@ private:
 };
 
 } // namespace jones
+
+#endif // JONES_CPU_CPU_HH

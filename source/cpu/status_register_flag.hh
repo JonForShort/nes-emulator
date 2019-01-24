@@ -21,7 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#pragma once
+#ifndef JONES_CPU_STATUS_REGISTER_FLAG_HH
+#define JONES_CPU_STATUS_REGISTER_FLAG_HH
 
 //
 // CPU reference
@@ -54,3 +55,5 @@ enum class status_register_flag_t {
 };
 
 } // namespace jones
+
+#endif // JONES_CPU_STATUS_REGISTER_FLAG_HH

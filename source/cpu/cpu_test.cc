@@ -25,19 +25,29 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include "decode.hh"
 #include "disassemble.hh"
 
-namespace jd = jones::disassemble;
+namespace jde = jones::decode;
+namespace jdi = jones::disassemble;
 
 BOOST_AUTO_TEST_CASE(cpu_test) { BOOST_CHECK(true); }
 
 BOOST_AUTO_TEST_CASE(disasemble_test_and_immediate) {
+
   uint8_t and_immediate[] = {0x29, 0x2C};
 
-  const auto instructions =
-      jd::disassemble(and_immediate, sizeof(and_immediate));
+  const auto instructions = jdi::disassemble(and_immediate, sizeof(and_immediate));
   BOOST_CHECK(instructions.instructions.size() == 1);
 
   const auto &first_instruction = instructions.instructions[0];
   BOOST_CHECK(first_instruction == "AND #$2C");
+}
+
+BOOST_AUTO_TEST_CASE(decode_invalid_instruction_too_small) {
+
+  uint8_t empty_instruction[] = {};
+
+  const auto instruction = jde::decode(empty_instruction, sizeof(empty_instruction));
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::INVALID);
 }

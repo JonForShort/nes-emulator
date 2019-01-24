@@ -21,13 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#pragma once
+#ifndef JONES_CPU_DECODE_HH
+#define JONES_CPU_DECODE_HH
 
 #include <cstdint>
 #include <stddef.h>
 #include <variant>
 
 #include "instruction.hh"
+#include "operand.hh"
 
 using namespace jones;
 
@@ -54,3 +56,5 @@ struct instruction {
 instruction decode(uint8_t *buffer, size_t length_in_bytes);
 
 } // namespace jones::decode
+
+#endif // JONES_CPU_DECODE_HH

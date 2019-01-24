@@ -21,7 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#pragma once
+#ifndef JONES_CPU_OPERAND_HH
+#define JONES_CPU_OPERAND_HH
 
 namespace jones {
 
@@ -41,3 +42,5 @@ enum class operand_type {
 };
 
 } // namespace jones
+
+#endif // JONES_CPU_OPERAND_HH

@@ -4,6 +4,7 @@ set (sources
   cpu.cc
   decode.cc
   disassemble.cc
+  instruction.cc
 )
 
 add_library (cpu STATIC ${sources})

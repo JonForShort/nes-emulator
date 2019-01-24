@@ -21,7 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#pragma once
+#ifndef JONES_CPU_DISASSEMBLE_HH
+#define JONES_CPU_DISASSEMBLE_HH
 
 #include <cstdint>
 #include <string>
@@ -37,3 +38,5 @@ struct instructions {
 instructions disassemble(uint8_t *buffer, size_t length_in_bytes);
 
 } // namespace jones::disassemble
+
+#endif // JONES_CPU_DISASSEMBLE_HH

@@ -21,7 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#pragma once
+#ifndef JONES_CPU_OPCODE_HH
+#define JONES_CPU_OPCODE_HH
 
 //
 // CPU reference
@@ -268,3 +269,5 @@ enum class opcode_type {
 };
 
 } // namespace jones
+
+#endif // JONES_CPU_OPCODE_HH
