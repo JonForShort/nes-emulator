@@ -24,6 +24,7 @@
 #define BOOST_TEST_MODULE cpu_test
 
 #include <boost/test/unit_test.hpp>
+#include <variant>
 
 #include "decode.hh"
 #include "disassemble.hh"
@@ -50,4 +51,16 @@ BOOST_AUTO_TEST_CASE(decode_invalid_instruction_too_small) {
 
   const auto instruction = jde::decode(empty_instruction, sizeof(empty_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::INVALID);
+}
+
+BOOST_AUTO_TEST_CASE(decode_brk_instruction_valid) {
+
+  uint8_t brk_instruction[] = {0x00};
+
+  const auto instruction = jde::decode(brk_instruction, sizeof(brk_instruction));
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::BRK);
+  BOOST_CHECK(instruction.decoded_opcode.value == 0x00);
+
+  BOOST_CHECK(instruction.decoded_operand.type == operand_type::NONE);
+  BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0x00));
 }

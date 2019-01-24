@@ -28,8 +28,11 @@ namespace jones {
 
 enum class operand_type {
 
-  // Operand is unknown.
+  // Operand is unknown.  This occurs when there is an error.
   INVALID,
+
+  // Operand is not available.  This occurs when the instruction does not have an operand.
+  NONE,
 
   // Operand has a register type.
   REGISTER,

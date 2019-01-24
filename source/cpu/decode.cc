@@ -69,7 +69,7 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
     decoded_instruction.decoded_operand = {operand_type::IMMEDIATE, buffer[1]};
     break;
   case addressing_mode_type::IMPLICIT:
-    // no operands for implicit type.
+    decoded_instruction.decoded_operand = {operand_type::NONE, static_cast<uint8_t>(0x00)};
     break;
   case addressing_mode_type::INDEXED_INDIRECT:
   case addressing_mode_type::INDIRECT:
