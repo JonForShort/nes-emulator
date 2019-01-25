@@ -3,13 +3,13 @@ sudo: false
 language:
   - cpp
 compiler:
-  - clang
+  - gcc
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - clang
+      - gcc
       - cmake
       - libasound2-dev
 script:
