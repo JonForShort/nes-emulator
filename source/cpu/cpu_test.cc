@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2018
+// Copyright 2018-2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,18 @@
 namespace jde = jones::decode;
 namespace jdi = jones::disassemble;
 
+namespace {
+
+void check_invalid_instruction(const jde::instruction &instruction) {
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::INVALID);
+  BOOST_CHECK(instruction.decoded_opcode.value == 0);
+
+  BOOST_CHECK(instruction.decoded_operand.type == operand_type::INVALID);
+  BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0x00));
+}
+
+} // namespace
+
 BOOST_AUTO_TEST_CASE(cpu_test) { BOOST_CHECK(true); }
 
 BOOST_AUTO_TEST_CASE(disasemble_test_and_immediate) {
@@ -50,7 +62,7 @@ BOOST_AUTO_TEST_CASE(decode_invalid_instruction_too_small) {
   uint8_t empty_instruction[] = {};
 
   const auto instruction = jde::decode(empty_instruction, sizeof(empty_instruction));
-  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::INVALID);
+  check_invalid_instruction(instruction);
 }
 
 BOOST_AUTO_TEST_CASE(decode_brk_instruction_valid) {
@@ -75,4 +87,12 @@ BOOST_AUTO_TEST_CASE(decode_ora_instruction_indexed_indirect_valid) {
 
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
   BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0xFF));
+}
+
+BOOST_AUTO_TEST_CASE(decode_ora_instruction_indexed_indirect_invalid_too_small) {
+
+  uint8_t ora_instruction[] = {0x01};
+
+  const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
+  check_invalid_instruction(instruction);
 }
