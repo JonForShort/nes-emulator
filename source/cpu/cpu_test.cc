@@ -64,3 +64,15 @@ BOOST_AUTO_TEST_CASE(decode_brk_instruction_valid) {
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::NONE);
   BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0x00));
 }
+
+BOOST_AUTO_TEST_CASE(decode_ora_instruction_indexed_indirect_valid) {
+
+  uint8_t ora_instruction[] = {0x01, 0xFF};
+
+  const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ORA);
+  BOOST_CHECK(instruction.decoded_opcode.value == 0x01);
+
+  BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
+  BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0xFF));
+}
