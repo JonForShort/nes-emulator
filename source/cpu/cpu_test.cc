@@ -261,3 +261,41 @@ BOOST_AUTO_TEST_CASE(decode_0x08_php_instruction_valid) {
   BOOST_CHECK(instruction.decoded_opcode.value == 0x08);
   check_instruction_no_operand(instruction);
 }
+
+//
+// Test: Decodes opcode value 0x09 with missing operand value.
+//
+BOOST_AUTO_TEST_CASE(decode_0x09_ora_instruction_invalid_too_small) {
+
+  uint8_t ora_instruction[] = {0x09};
+
+  const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
+  check_instruction_invalid(instruction);
+}
+
+//
+// Test: Decodes opcode value 0x09 with operand set to 0xFF.
+//
+BOOST_AUTO_TEST_CASE(decode_0x09_ora_instruction_valid) {
+
+  uint8_t ora_instruction[] = {0x09, 0xFF};
+
+  const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ORA);
+  BOOST_CHECK(instruction.decoded_opcode.value == 0x09);
+  BOOST_CHECK(instruction.decoded_operand.type == operand_type::IMMEDIATE);
+  BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0xFF));
+}
+
+//
+// Test: Decodes opcode value 0x0A.
+//
+BOOST_AUTO_TEST_CASE(decode_0x0A_asl_instruction_valid) {
+
+  uint8_t asl_instruction[] = {0x0A, 0xFF};
+
+  const auto instruction = jde::decode(asl_instruction, sizeof(asl_instruction));
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ASL);
+  BOOST_CHECK(instruction.decoded_opcode.value == 0x0A);
+  check_instruction_no_operand(instruction);
+}
