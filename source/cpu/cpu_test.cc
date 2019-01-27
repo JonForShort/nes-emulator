@@ -198,3 +198,66 @@ BOOST_AUTO_TEST_CASE(decode_0x05_ora_instruction_invalid_too_small) {
   const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
   check_instruction_invalid(instruction);
 }
+
+//
+// Test: Decodes opcode value 0x06 with operand value set to 0xFF
+//
+BOOST_AUTO_TEST_CASE(decode_0x06_asl_instruction_valid) {
+
+  uint8_t asl_instruction[] = {0x06, 0xFF};
+
+  const auto instruction = jde::decode(asl_instruction, sizeof(asl_instruction));
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ASL);
+  BOOST_CHECK(instruction.decoded_opcode.value == 0x06);
+  BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
+  BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0xFF));
+}
+
+//
+// Test: Decodes opcode value 0x06 with missing operand value.
+//
+BOOST_AUTO_TEST_CASE(decode_0x06_asl_instruction_invalid_too_small) {
+
+  uint8_t asl_instruction[] = {0x06};
+
+  const auto instruction = jde::decode(asl_instruction, sizeof(asl_instruction));
+  check_instruction_invalid(instruction);
+}
+
+//
+// Test: Decodes opcode value 0x07 with operand value set to 0xFF
+//
+BOOST_AUTO_TEST_CASE(decode_0x07_slo_instruction_valid) {
+
+  uint8_t slo_instruction[] = {0x07, 0xFF};
+
+  const auto instruction = jde::decode(slo_instruction, sizeof(slo_instruction));
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::SLO);
+  BOOST_CHECK(instruction.decoded_opcode.value == 0x07);
+  BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
+  BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0xFF));
+}
+
+//
+// Test: Decodes opcode value 0x07 with missing operand value.
+//
+BOOST_AUTO_TEST_CASE(decode_0x07_slo_instruction_invalid_too_small) {
+
+  uint8_t slo_instruction[] = {0x07};
+
+  const auto instruction = jde::decode(slo_instruction, sizeof(slo_instruction));
+  check_instruction_invalid(instruction);
+}
+
+//
+// Test: Decodes opcode value 0x08.
+//
+BOOST_AUTO_TEST_CASE(decode_0x08_php_instruction_valid) {
+
+  uint8_t php_instruction[] = {0x08, 0xFF};
+
+  const auto instruction = jde::decode(php_instruction, sizeof(php_instruction));
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::PHP);
+  BOOST_CHECK(instruction.decoded_opcode.value == 0x08);
+  check_instruction_no_operand(instruction);
+}
