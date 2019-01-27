@@ -173,3 +173,28 @@ BOOST_AUTO_TEST_CASE(decode_0x04_nop_instruction_invalid_too_small) {
   const auto instruction = jde::decode(nop_instruction, sizeof(nop_instruction));
   check_instruction_invalid(instruction);
 }
+
+//
+// Test: Decodes opcode value 0x05 with operand value set to 0xFF
+//
+BOOST_AUTO_TEST_CASE(decode_0x05_ora_instruction_valid) {
+
+  uint8_t ora_instruction[] = {0x05, 0xFF};
+
+  const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ORA);
+  BOOST_CHECK(instruction.decoded_opcode.value == 0x05);
+  BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
+  BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0xFF));
+}
+
+//
+// Test: Decodes opcode value 0x05 with missing operand value.
+//
+BOOST_AUTO_TEST_CASE(decode_0x05_ora_instruction_invalid_too_small) {
+
+  uint8_t ora_instruction[] = {0x05};
+
+  const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
+  check_instruction_invalid(instruction);
+}
