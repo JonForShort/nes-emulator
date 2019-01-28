@@ -22,51 +22,55 @@
 // SOFTWARE.
 //
 #include <sstream>
+#include <string>
+#include <vector>
 
-#include "addressing_mode.hh"
+#include "decode.hh"
 #include "disassemble.hh"
 #include "instruction.hh"
 
-using namespace jones;
+namespace jdi = jones::disassemble;
+namespace jde = jones::decode;
 
 namespace {
 
-std::string disassemble_opcode(const instruction &instruction, uint8_t *buffer, const size_t length_in_bytes) {
-  return std::string(instruction.mnemonic);
+std::string disassemble_opcode(const jde::instruction &decoded_instruction) {
+  return instruction_set[decoded_instruction.decoded_opcode.value].mnemonic;
 }
 
-std::string disassemble_operands(const instruction &instruction, uint8_t *buffer, const size_t length_in_bytes) {
-  const auto addressing_mode = instruction.addressing_mode;
-  switch (addressing_mode) {
-  case addressing_mode_type::IMMEDIATE:
-    return "#$2C";
+std::string disassemble_operand_immediate(const jde::operand &decoded_operand) {
+  std::stringstream operand_string;
+  const int immediate_value = std::get<uint8_t>(decoded_operand.value);
+  operand_string << " #$" << std::hex << std::uppercase << immediate_value;
+  return operand_string.str();
+}
+
+std::string disassemble_operand(const jde::instruction &decoded_instruction) {
+  const auto &decoded_operand = decoded_instruction.decoded_operand;
+  switch (decoded_operand.type) {
+  case operand_type::IMMEDIATE:
+    return disassemble_operand_immediate(decoded_operand);
+  case operand_type::NONE:
+    return std::string("");
   default:
-    return "UNKNOWN";
+    return "";
   }
 }
 
 } // namespace
 
 disassemble::instructions disassemble::disassemble(uint8_t *buffer, const size_t length_in_bytes) {
-  if (length_in_bytes < 1) {
-    //
-    // buffer is not sufficient size to hold an instruction
-    //
-    return disassemble::instructions{std::vector<std::string>(), 0};
-  }
-  const auto opcode = buffer[0];
-  const auto instruction = instruction_set[opcode];
-  if (length_in_bytes < instruction.length) {
-    //
-    // buffer is smaller than expected size
-    //
-    return disassemble::instructions{std::vector<std::string>(), 0};
-  }
-  std::vector<std::string> disassembled_instructions = std::vector<std::string>();
-  size_t used_length_in_bytes = 0;
+  std::vector<std::string> disassembled_instructions;
+  int buffer_offset = 0;
+  auto decoded_instruction = jde::decode(buffer, length_in_bytes);
+  while (jde::is_valid(decoded_instruction)) {
+    const auto opcode_string = disassemble_opcode(decoded_instruction);
+    const auto operand_string = disassemble_operand(decoded_instruction);
+    const auto disassemble_string = opcode_string + operand_string;
+    disassembled_instructions.push_back(disassemble_string);
 
-  const auto opcode_string = disassemble_opcode(instruction, buffer, length_in_bytes);
-  const auto operands_string = disassemble_operands(instruction, buffer, length_in_bytes);
-  disassembled_instructions.emplace_back(opcode_string + " " + operands_string);
-  return disassemble::instructions{disassembled_instructions, 0};
+    buffer_offset += decoded_instruction.encoded_length_in_bytes;
+    decoded_instruction = jde::decode(buffer + buffer_offset, length_in_bytes - buffer_offset);
+  }
+  return jdi::instructions{disassembled_instructions, 0};
 }

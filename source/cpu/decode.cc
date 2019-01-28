@@ -28,6 +28,7 @@
 using namespace jones;
 
 namespace {
+
 decode::instruction create_invalid_instruction() {
   return decode::instruction{
       .encoded = {0},
@@ -36,6 +37,7 @@ decode::instruction create_invalid_instruction() {
       .decoded_operand = {operand_type::INVALID, static_cast<uint8_t>(0)},
   };
 }
+
 } // namespace
 
 decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
@@ -88,4 +90,9 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
     break;
   }
   return decoded_instruction;
+}
+
+bool decode::is_valid(const decode::instruction &decoded_instruction) {
+  return !(decoded_instruction.decoded_opcode.type == opcode_type::INVALID) &&
+         !(decoded_instruction.decoded_operand.type == operand_type::INVALID);
 }

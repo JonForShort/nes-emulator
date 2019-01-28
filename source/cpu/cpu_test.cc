@@ -51,11 +51,28 @@ void check_instruction_no_operand(const jde::instruction &instruction) {
 
 BOOST_AUTO_TEST_CASE(cpu_test) { BOOST_CHECK(true); }
 
-BOOST_AUTO_TEST_CASE(disasemble_test_and_immediate) {
+//
+// Test: Disassembles BRK instruction with opcode 0x00.
+//
+BOOST_AUTO_TEST_CASE(disasemble_0x00_brk_instruction_valid) {
 
-  uint8_t and_immediate[] = {0x29, 0x2C};
+  uint8_t brk_instruction[] = {0x00};
 
-  const auto instructions = jdi::disassemble(and_immediate, sizeof(and_immediate));
+  const auto instructions = jdi::disassemble(brk_instruction, sizeof(brk_instruction));
+  BOOST_CHECK(instructions.instructions.size() == 1);
+
+  const auto &first_instruction = instructions.instructions[0];
+  BOOST_CHECK(first_instruction == "BRK");
+}
+
+//
+// Test: Disassembles AND instruction with opcode 0x29.
+//
+BOOST_AUTO_TEST_CASE(disasemble_0x29_and_instruction_valid) {
+
+  uint8_t and_instruction[] = {0x29, 0x2C};
+
+  const auto instructions = jdi::disassemble(and_instruction, sizeof(and_instruction));
   BOOST_CHECK(instructions.instructions.size() == 1);
 
   const auto &first_instruction = instructions.instructions[0];

@@ -55,6 +55,8 @@ struct instruction {
 
 instruction decode(uint8_t *buffer, size_t length_in_bytes);
 
+bool is_valid(const instruction &decoded_instruction);
+
 } // namespace jones::decode
 
 #endif // JONES_CPU_DECODE_HH
