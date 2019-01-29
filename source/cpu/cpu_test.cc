@@ -52,20 +52,6 @@ void check_instruction_no_operand(const jde::instruction &instruction) {
 BOOST_AUTO_TEST_CASE(cpu_test) { BOOST_CHECK(true); }
 
 //
-// Test: Disassembles BRK instruction with opcode 0x00.
-//
-BOOST_AUTO_TEST_CASE(disasemble_0x00_brk_instruction_valid) {
-
-  uint8_t brk_instruction[] = {0x00};
-
-  const auto instructions = jdi::disassemble(brk_instruction, sizeof(brk_instruction));
-  BOOST_CHECK(instructions.instructions.size() == 1);
-
-  const auto &first_instruction = instructions.instructions[0];
-  BOOST_CHECK(first_instruction == "BRK");
-}
-
-//
 // Test: Disassembles AND instruction with opcode 0x29.
 //
 BOOST_AUTO_TEST_CASE(disasemble_0x29_and_instruction_valid) {
@@ -98,9 +84,25 @@ BOOST_AUTO_TEST_CASE(decode_0x00_brk_instruction_valid) {
   uint8_t brk_instruction[] = {0x00};
 
   const auto instruction = jde::decode(brk_instruction, sizeof(brk_instruction));
+
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::BRK);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x00);
+
   check_instruction_no_operand(instruction);
+}
+
+//
+// Test: Disassembles BRK instruction with opcode 0x00.
+//
+BOOST_AUTO_TEST_CASE(disasemble_0x00_brk_instruction_valid) {
+
+  uint8_t brk_instruction[] = {0x00};
+
+  const auto instructions = jdi::disassemble(brk_instruction, sizeof(brk_instruction));
+  BOOST_CHECK(instructions.instructions.size() == 1);
+
+  const auto &first_instruction = instructions.instructions[0];
+  BOOST_CHECK(first_instruction == "BRK");
 }
 
 //
@@ -111,8 +113,10 @@ BOOST_AUTO_TEST_CASE(decode_0x01_ora_instruction_valid) {
   uint8_t ora_instruction[] = {0x01, 0xFF};
 
   const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
+
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ORA);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x01);
+
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
   BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0xFF));
 }
@@ -125,7 +129,22 @@ BOOST_AUTO_TEST_CASE(decode_0x01_ora_instruction_invalid_too_small) {
   uint8_t ora_instruction[] = {0x01};
 
   const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
+
   check_instruction_invalid(instruction);
+}
+
+//
+// Test: Disassembles ORA instruction with opcode 0x01.
+//
+BOOST_AUTO_TEST_CASE(disasemble_0x01_ora_instruction_valid) {
+
+  uint8_t ora_instruction[] = {0x01, 0xFF};
+
+  const auto instructions = jdi::disassemble(ora_instruction, sizeof(ora_instruction));
+  BOOST_CHECK(instructions.instructions.size() == 1);
+
+  const auto &first_instruction = instructions.instructions[0];
+  BOOST_CHECK(first_instruction == "ORA ($FF,X)");
 }
 
 //
@@ -136,8 +155,10 @@ BOOST_AUTO_TEST_CASE(decode_0x02_stp_instruction_valid) {
   uint8_t stp_instruction[] = {0x02};
 
   const auto instruction = jde::decode(stp_instruction, sizeof(stp_instruction));
+
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::STP);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x02);
+
   check_instruction_no_operand(instruction);
 }
 

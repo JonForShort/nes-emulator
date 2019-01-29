@@ -59,7 +59,7 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
   decode::instruction decoded_instruction = {0};
   std::memcpy(decoded_instruction.encoded, buffer, instruction_length);
   decoded_instruction.encoded_length_in_bytes = instruction_length;
-
+  decoded_instruction.decoded_addressing_mode = instruction.addressing_mode;
   decoded_instruction.decoded_opcode = {instruction.opcode, opcode};
   switch (instruction.addressing_mode) {
   case addressing_mode_type::ABSOLUTE:

@@ -45,11 +45,25 @@ std::string disassemble_operand_immediate(const jde::operand &decoded_operand) {
   return operand_string.str();
 }
 
+std::string disassemble_operand_memory(const jde::operand &decoded_operand, const addressing_mode_type addressing_mode) {
+  std::stringstream operand_string;
+  const int memory_value = std::get<uint8_t>(decoded_operand.value);
+  switch (addressing_mode) {
+  case addressing_mode_type::INDEXED_INDIRECT:
+    operand_string << " ($" << std::hex << std::uppercase << memory_value << ",X)";
+    break;
+  }
+  return operand_string.str();
+}
+
 std::string disassemble_operand(const jde::instruction &decoded_instruction) {
+  const auto &decoded_addressing_mode = decoded_instruction.decoded_addressing_mode;
   const auto &decoded_operand = decoded_instruction.decoded_operand;
   switch (decoded_operand.type) {
   case operand_type::IMMEDIATE:
     return disassemble_operand_immediate(decoded_operand);
+  case operand_type::MEMORY:
+    return disassemble_operand_memory(decoded_operand, decoded_addressing_mode);
   case operand_type::NONE:
     return std::string("");
   default:

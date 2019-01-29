@@ -51,6 +51,8 @@ struct instruction {
 
   opcode decoded_opcode;
   operand decoded_operand;
+
+  addressing_mode_type decoded_addressing_mode;
 };
 
 instruction decode(uint8_t *buffer, size_t length_in_bytes);
