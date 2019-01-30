@@ -52,6 +52,15 @@ std::string disassemble_operand_memory(const jde::operand &decoded_operand, cons
   case addressing_mode_type::INDEXED_INDIRECT:
     operand_string << " ($" << std::hex << std::uppercase << memory_value << ",X)";
     break;
+  case addressing_mode_type::ZERO_PAGE:
+    operand_string << " $" << std::hex << std::uppercase << memory_value;
+    break;
+  case addressing_mode_type::ZERO_PAGE_X:
+    operand_string << " $" << std::hex << std::uppercase << memory_value << ",X";
+    break;
+  case addressing_mode_type::ZERO_PAGE_Y:
+    operand_string << " $" << std::hex << std::uppercase << memory_value << ",Y";
+    break;
   }
   return operand_string.str();
 }

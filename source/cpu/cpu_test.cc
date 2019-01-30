@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(decode_0x00_brk_instruction_valid) {
 }
 
 //
-// Test: Disassembles BRK instruction with opcode 0x00.
+// Test: Disassembles opcode value 0x00.
 //
 BOOST_AUTO_TEST_CASE(disasemble_0x00_brk_instruction_valid) {
 
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(decode_0x01_ora_instruction_invalid_too_small) {
 }
 
 //
-// Test: Disassembles ORA instruction with opcode 0x01.
+// Test: Disassembles opcode value 0x01.
 //
 BOOST_AUTO_TEST_CASE(disasemble_0x01_ora_instruction_valid) {
 
@@ -163,6 +163,20 @@ BOOST_AUTO_TEST_CASE(decode_0x02_stp_instruction_valid) {
 }
 
 //
+// Test: Disassembles opcode value 0x02.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x02_stp_instruction_valid) {
+
+  uint8_t stp_instruction[] = {0x02};
+
+  const auto instructions = jdi::disassemble(stp_instruction, sizeof(stp_instruction));
+  BOOST_CHECK(instructions.instructions.size() == 1);
+
+  const auto &first_instruction = instructions.instructions[0];
+  BOOST_CHECK(first_instruction == "STP");
+}
+
+//
 // Test: Decodes opcode value 0x03 with operand value set to 0xFF.
 //
 BOOST_AUTO_TEST_CASE(decode_0x03_slo_instruction_valid) {
@@ -185,6 +199,20 @@ BOOST_AUTO_TEST_CASE(decode_0x03_slo_instruction_invalid_too_small) {
 
   const auto instruction = jde::decode(slo_instruction, sizeof(slo_instruction));
   check_instruction_invalid(instruction);
+}
+
+//
+// Test: Disassembles opcode value 0x03.
+//
+BOOST_AUTO_TEST_CASE(disasemble_0x03_slo_instruction_valid) {
+
+  uint8_t slo_instruction[] = {0x03, 0xFF};
+
+  const auto instructions = jdi::disassemble(slo_instruction, sizeof(slo_instruction));
+  BOOST_CHECK(instructions.instructions.size() == 1);
+
+  const auto &first_instruction = instructions.instructions[0];
+  BOOST_CHECK(first_instruction == "SLO ($FF,X)");
 }
 
 //
@@ -213,6 +241,20 @@ BOOST_AUTO_TEST_CASE(decode_0x04_nop_instruction_invalid_too_small) {
 }
 
 //
+// Test: Disassembles opcode value 0x04.
+//
+BOOST_AUTO_TEST_CASE(disasemble_0x04_nop_instruction_valid) {
+
+  uint8_t instruction[] = {0x04, 0xFF};
+
+  const auto instructions = jdi::disassemble(instruction, sizeof(instruction));
+  BOOST_CHECK(instructions.instructions.size() == 1);
+
+  const auto &first_instruction = instructions.instructions[0];
+  BOOST_CHECK(first_instruction == "NOP $FF");
+}
+
+//
 // Test: Decodes opcode value 0x05 with operand value set to 0xFF
 //
 BOOST_AUTO_TEST_CASE(decode_0x05_ora_instruction_valid) {
@@ -235,6 +277,20 @@ BOOST_AUTO_TEST_CASE(decode_0x05_ora_instruction_invalid_too_small) {
 
   const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
   check_instruction_invalid(instruction);
+}
+
+//
+// Test: Disassembles opcode value 0x05.
+//
+BOOST_AUTO_TEST_CASE(disasemble_0x05_ora_instruction_valid) {
+
+  uint8_t instruction[] = {0x05, 0xFF};
+
+  const auto instructions = jdi::disassemble(instruction, sizeof(instruction));
+  BOOST_CHECK(instructions.instructions.size() == 1);
+
+  const auto &first_instruction = instructions.instructions[0];
+  BOOST_CHECK(first_instruction == "ORA $FF");
 }
 
 //
@@ -263,6 +319,20 @@ BOOST_AUTO_TEST_CASE(decode_0x06_asl_instruction_invalid_too_small) {
 }
 
 //
+// Test: Disassembles opcode value 0x06.
+//
+BOOST_AUTO_TEST_CASE(disasemble_0x06_asl_instruction_valid) {
+
+  uint8_t instruction[] = {0x06, 0xFF};
+
+  const auto instructions = jdi::disassemble(instruction, sizeof(instruction));
+  BOOST_CHECK(instructions.instructions.size() == 1);
+
+  const auto &first_instruction = instructions.instructions[0];
+  BOOST_CHECK(first_instruction == "ASL $FF");
+}
+
+//
 // Test: Decodes opcode value 0x07 with operand value set to 0xFF
 //
 BOOST_AUTO_TEST_CASE(decode_0x07_slo_instruction_valid) {
@@ -288,6 +358,20 @@ BOOST_AUTO_TEST_CASE(decode_0x07_slo_instruction_invalid_too_small) {
 }
 
 //
+// Test: Disassembles opcode value 0x07.
+//
+BOOST_AUTO_TEST_CASE(disasemble_0x07_slo_instruction_valid) {
+
+  uint8_t instruction[] = {0x07, 0xFF};
+
+  const auto instructions = jdi::disassemble(instruction, sizeof(instruction));
+  BOOST_CHECK(instructions.instructions.size() == 1);
+
+  const auto &first_instruction = instructions.instructions[0];
+  BOOST_CHECK(first_instruction == "SLO $FF");
+}
+
+//
 // Test: Decodes opcode value 0x08.
 //
 BOOST_AUTO_TEST_CASE(decode_0x08_php_instruction_valid) {
@@ -298,6 +382,20 @@ BOOST_AUTO_TEST_CASE(decode_0x08_php_instruction_valid) {
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::PHP);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x08);
   check_instruction_no_operand(instruction);
+}
+
+//
+// Test: Disassembles opcode value 0x08.
+//
+BOOST_AUTO_TEST_CASE(disasemble_0x08_php_instruction_valid) {
+
+  uint8_t instruction[] = {0x08};
+
+  const auto instructions = jdi::disassemble(instruction, sizeof(instruction));
+  BOOST_CHECK(instructions.instructions.size() == 1);
+
+  const auto &first_instruction = instructions.instructions[0];
+  BOOST_CHECK(first_instruction == "PHP");
 }
 
 //
