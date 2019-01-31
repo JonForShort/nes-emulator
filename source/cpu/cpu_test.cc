@@ -424,14 +424,42 @@ BOOST_AUTO_TEST_CASE(decode_0x09_ora_instruction_valid) {
 }
 
 //
+// Test: Disassembles opcode value 0x09.
+//
+BOOST_AUTO_TEST_CASE(disasemble_0x09_ora_instruction_valid) {
+
+  uint8_t instruction[] = {0x09, 0xFF};
+
+  const auto instructions = jdi::disassemble(instruction, sizeof(instruction));
+  BOOST_CHECK(instructions.instructions.size() == 1);
+
+  const auto &first_instruction = instructions.instructions[0];
+  BOOST_CHECK(first_instruction == "ORA #$FF");
+}
+
+//
 // Test: Decodes opcode value 0x0A.
 //
 BOOST_AUTO_TEST_CASE(decode_0x0A_asl_instruction_valid) {
 
-  uint8_t asl_instruction[] = {0x0A, 0xFF};
+  uint8_t asl_instruction[] = {0x0A};
 
   const auto instruction = jde::decode(asl_instruction, sizeof(asl_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ASL);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x0A);
   check_instruction_no_operand(instruction);
+}
+
+//
+// Test: Disassembles opcode value 0x0A.
+//
+BOOST_AUTO_TEST_CASE(disasemble_0x0A_asl_instruction_valid) {
+
+  uint8_t instruction[] = {0x0A, 0xFF};
+
+  const auto instructions = jdi::disassemble(instruction, sizeof(instruction));
+  BOOST_CHECK(instructions.instructions.size() == 1);
+
+  const auto &first_instruction = instructions.instructions[0];
+  BOOST_CHECK(first_instruction == "ASL");
 }
