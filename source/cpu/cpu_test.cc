@@ -455,11 +455,40 @@ BOOST_AUTO_TEST_CASE(decode_0x0A_asl_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(disasemble_0x0A_asl_instruction_valid) {
 
-  uint8_t instruction[] = {0x0A, 0xFF};
+  uint8_t instruction[] = {0x0A};
 
   const auto instructions = jdi::disassemble(instruction, sizeof(instruction));
   BOOST_CHECK(instructions.instructions.size() == 1);
 
   const auto &first_instruction = instructions.instructions[0];
   BOOST_CHECK(first_instruction == "ASL");
+}
+
+//
+// Test: Decodes opcode value 0x0B.
+//
+BOOST_AUTO_TEST_CASE(decode_0x0B_anc_instruction_valid) {
+
+  uint8_t anc_instruction[] = {0x0B, 0xFF};
+
+  const auto instruction = jde::decode(anc_instruction, sizeof(anc_instruction));
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ANC);
+  BOOST_CHECK(instruction.decoded_opcode.value == 0x0B);
+
+  BOOST_CHECK(instruction.decoded_operand.type == operand_type::IMMEDIATE);
+  BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0xFF));
+}
+
+//
+// Test: Disassembles opcode value 0x0B.
+//
+BOOST_AUTO_TEST_CASE(disasemble_0x0B_anc_instruction_valid) {
+
+  uint8_t instruction[] = {0x0B, 0xFF};
+
+  const auto instructions = jdi::disassemble(instruction, sizeof(instruction));
+  BOOST_CHECK(instructions.instructions.size() == 1);
+
+  const auto &first_instruction = instructions.instructions[0];
+  BOOST_CHECK(first_instruction == "ANC #$FF");
 }
