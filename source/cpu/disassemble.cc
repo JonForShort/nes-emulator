@@ -47,20 +47,32 @@ std::string disassemble_operand_immediate(const jde::operand &decoded_operand) {
 
 std::string disassemble_operand_memory(const jde::operand &decoded_operand, const addressing_mode_type addressing_mode) {
   std::stringstream operand_string;
-  const int memory_value = std::get<uint8_t>(decoded_operand.value);
   switch (addressing_mode) {
-  case addressing_mode_type::INDEXED_INDIRECT:
-    operand_string << " ($" << std::hex << std::uppercase << memory_value << ",X)";
-    break;
-  case addressing_mode_type::ZERO_PAGE:
+  case addressing_mode_type::ABSOLUTE: {
+    const int memory_value = std::get<uint16_t>(decoded_operand.value);
     operand_string << " $" << std::hex << std::uppercase << memory_value;
     break;
-  case addressing_mode_type::ZERO_PAGE_X:
+  }
+  case addressing_mode_type::INDEXED_INDIRECT: {
+    const int memory_value = std::get<uint8_t>(decoded_operand.value);
+    operand_string << " ($" << std::hex << std::uppercase << memory_value << ",X)";
+    break;
+  }
+  case addressing_mode_type::ZERO_PAGE: {
+    const int memory_value = std::get<uint8_t>(decoded_operand.value);
+    operand_string << " $" << std::hex << std::uppercase << memory_value;
+    break;
+  }
+  case addressing_mode_type::ZERO_PAGE_X: {
+    const int memory_value = std::get<uint8_t>(decoded_operand.value);
     operand_string << " $" << std::hex << std::uppercase << memory_value << ",X";
     break;
-  case addressing_mode_type::ZERO_PAGE_Y:
+  }
+  case addressing_mode_type::ZERO_PAGE_Y: {
+    const int memory_value = std::get<uint8_t>(decoded_operand.value);
     operand_string << " $" << std::hex << std::uppercase << memory_value << ",Y";
     break;
+  }
   }
   return operand_string.str();
 }

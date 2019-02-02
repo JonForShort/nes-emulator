@@ -492,3 +492,32 @@ BOOST_AUTO_TEST_CASE(disasemble_0x0B_anc_instruction_valid) {
   const auto &first_instruction = instructions.instructions[0];
   BOOST_CHECK(first_instruction == "ANC #$FF");
 }
+
+//
+// Test: Decodes opcode value 0x0C.
+//
+BOOST_AUTO_TEST_CASE(decode_0x0C_nop_instruction_valid) {
+
+  uint8_t nop_instruction[] = {0x0C, 0xFF, 0xEE};
+
+  const auto instruction = jde::decode(nop_instruction, sizeof(nop_instruction));
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::NOP);
+  BOOST_CHECK(instruction.decoded_opcode.value == 0x0C);
+
+  BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
+  BOOST_CHECK(std::get<uint16_t>(instruction.decoded_operand.value) == static_cast<uint16_t>(0xEEFF));
+}
+
+//
+// Test: Disassembles opcode value 0x0C.
+//
+BOOST_AUTO_TEST_CASE(disasemble_0x0C_nop_instruction_valid) {
+
+  uint8_t instruction[] = {0x0C, 0xFF, 0xEE};
+
+  const auto instructions = jdi::disassemble(instruction, sizeof(instruction));
+  BOOST_CHECK(instructions.instructions.size() == 1);
+
+  const auto &first_instruction = instructions.instructions[0];
+  BOOST_CHECK(first_instruction == "NOP $EEFF");
+}
