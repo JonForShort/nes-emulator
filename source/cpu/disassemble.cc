@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <cstring>
 #include <sstream>
-#include <string>
 #include <vector>
 
 #include "decode.hh"
@@ -95,14 +95,20 @@ std::string disassemble_operand(const jde::instruction &decoded_instruction) {
 } // namespace
 
 disassemble::instructions disassemble::disassemble(uint8_t *buffer, const size_t length_in_bytes) {
-  std::vector<std::string> disassembled_instructions;
+  std::vector<jdi::instruction> disassembled_instructions;
   int buffer_offset = 0;
   auto decoded_instruction = jde::decode(buffer, length_in_bytes);
   while (jde::is_valid(decoded_instruction)) {
     const auto opcode_string = disassemble_opcode(decoded_instruction);
     const auto operand_string = disassemble_operand(decoded_instruction);
-    const auto disassemble_string = opcode_string + operand_string;
-    disassembled_instructions.push_back(disassemble_string);
+
+    jdi::instruction disassembled_instruction = jdi::instruction();
+    disassembled_instruction.address = 0;
+    disassembled_instruction.length_in_bytes = decoded_instruction.encoded_length_in_bytes;
+    disassembled_instruction.binary = decoded_instruction.encoded;
+    disassembled_instruction.opcode = opcode_string;
+    disassembled_instruction.operand = operand_string;
+    disassembled_instructions.push_back(disassembled_instruction);
 
     buffer_offset += decoded_instruction.encoded_length_in_bytes;
     decoded_instruction = jde::decode(buffer + buffer_offset, length_in_bytes - buffer_offset);

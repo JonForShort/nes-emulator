@@ -31,8 +31,6 @@
 
 namespace jones {
 
-constexpr unsigned int max_instruction_length_in_bytes = 3;
-
 struct instruction {
   uint8_t opcode_binary;
   opcode_type opcode;

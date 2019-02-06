@@ -24,15 +24,26 @@
 #ifndef JONES_CPU_DISASSEMBLE_HH
 #define JONES_CPU_DISASSEMBLE_HH
 
+#include <array>
 #include <cstdint>
 #include <string>
 #include <vector>
 
 namespace jones::disassemble {
 
+constexpr unsigned int max_length_in_bytes = 3;
+
+struct instruction {
+  uint16_t address;
+  uint8_t length_in_bytes;
+  std::array<uint8_t, max_length_in_bytes> binary;
+  std::string opcode;
+  std::string operand;
+};
+
 struct instructions {
-  std::vector<std::string> instructions;
-  size_t used_length_in_bytes;
+  std::vector<instruction> instructions;
+  size_t total_length_in_bytes;
 };
 
 instructions disassemble(uint8_t *buffer, size_t length_in_bytes);

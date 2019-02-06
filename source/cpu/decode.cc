@@ -31,7 +31,7 @@ namespace {
 
 decode::instruction create_invalid_instruction() {
   return decode::instruction{
-      .encoded = {0},
+      .encoded = {},
       .encoded_length_in_bytes = 0,
       .decoded_opcode = {opcode_type::INVALID, 0},
       .decoded_operand = {operand_type::INVALID, static_cast<uint8_t>(0)},
@@ -57,7 +57,7 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
   }
   const auto instruction_length = instruction.length;
   decode::instruction decoded_instruction = {0};
-  std::memcpy(decoded_instruction.encoded, buffer, instruction_length);
+  std::memcpy(decoded_instruction.encoded.data(), buffer, instruction_length);
   decoded_instruction.encoded_length_in_bytes = instruction_length;
   decoded_instruction.decoded_addressing_mode = instruction.addressing_mode;
   decoded_instruction.decoded_opcode = {instruction.opcode, opcode};

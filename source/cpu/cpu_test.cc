@@ -47,12 +47,13 @@ void check_instruction_no_operand(const jde::instruction &instruction) {
   BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0x00));
 }
 
-void check_disassemble(uint8_t *buffer, size_t length_in_bytes, const char *disassembled_string) {
+void check_disassemble(uint8_t *buffer, size_t length_in_bytes, const char *expected) {
   const auto instructions = jdi::disassemble(buffer, length_in_bytes);
   BOOST_CHECK(instructions.instructions.size() == 1);
 
   const auto &first_instruction = instructions.instructions[0];
-  BOOST_CHECK(first_instruction == disassembled_string);
+  const auto disassembled = first_instruction.opcode + first_instruction.operand;
+  BOOST_CHECK(disassembled == expected);
 }
 
 } // namespace

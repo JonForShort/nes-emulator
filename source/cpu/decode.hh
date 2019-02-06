@@ -24,6 +24,7 @@
 #ifndef JONES_CPU_DECODE_HH
 #define JONES_CPU_DECODE_HH
 
+#include <array>
 #include <cstdint>
 #include <stddef.h>
 #include <variant>
@@ -34,6 +35,8 @@
 using namespace jones;
 
 namespace jones::decode {
+
+constexpr unsigned int max_length_in_bytes = 3;
 
 struct opcode {
   opcode_type type;
@@ -46,7 +49,7 @@ struct operand {
 };
 
 struct instruction {
-  uint8_t encoded[max_instruction_length_in_bytes];
+  std::array<uint8_t, max_length_in_bytes> encoded;
   uint8_t encoded_length_in_bytes;
 
   opcode decoded_opcode;
