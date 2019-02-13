@@ -32,15 +32,12 @@ namespace po = boost::program_options;
 
 int main(int argc, char *argv[]) {
 
-  std::string dumpRomArgument;
+  std::string fileArgument;
   std::string outputArgument;
 
   try {
     po::options_description desc{"Options"};
-    desc.add_options()
-      ("help,h", "Help screen")
-      ("dump-rom,dr", po::value<std::string>(&dumpRomArgument), "file path to rom to dump")
-      ("output,o", po::value<std::string>(&outputArgument), "directory path to write output");
+    desc.add_options()("help,h", "Help screen")("file,f", po::value<std::string>(&fileArgument)->required(), "file path to rom")("output,o", po::value<std::string>(&outputArgument)->default_value("out"), "directory path to write output");
 
     po::variables_map vm;
     po::store(parse_command_line(argc, argv, desc), vm);
@@ -50,15 +47,26 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-  const fs::path dumpRomPath(dumpRomArgument);
-  if (!fs::exists(dumpRomPath)) {
-    std::cout << "rom file path does not exist; please check path" << std::endl;
+  const fs::path filePath(fileArgument);
+  if (!fs::exists(filePath)) {
+    std::cerr << "file path does not exist; please check path" << std::endl;
     return -2;
   }
 
-  if (fs::is_directory(dumpRomPath)) {
-    std::cout << "rom file path is a directory; please check path" << std::endl;
+  if (fs::is_directory(filePath)) {
+    std::cerr << "file path is a directory; please check path" << std::endl;
     return -3;
+  }
+
+  const fs::path outputPath(outputArgument);
+  if (fs::exists(outputPath) && !fs::is_directory(outputPath)) {
+    std::cerr << "output directory path is a file; please check path : " << outputPath << std::endl;
+    return -4;
+  }
+
+  if (!fs::exists(outputPath) && !fs::create_directories(outputPath)) {
+    std::cerr << "unable to create output directory path; please check path : " << outputPath << std::endl;
+    return -5;
   }
 
   return 0;
