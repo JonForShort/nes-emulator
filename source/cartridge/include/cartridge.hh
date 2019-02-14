@@ -43,6 +43,10 @@ public:
 
   void printHeader(std::ostream &out) const;
 
+  uint16_t getPrgRomOffset() const;
+
+  uint16_t getChrRomOffset() const;
+
 private:
   struct RomHeader {
     uint32_t constants;
@@ -65,7 +69,7 @@ private:
     uint8_t isPrgRamPresent : 1;
     uint8_t hasBusConflicts : 1;
     unsigned int : 2;
-    uint32_t ignored;
+    uint8_t ignored[5];
   };
 
   RomHeader romFileHeader_;

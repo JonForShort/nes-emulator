@@ -55,6 +55,14 @@ int Cartridge::getHeaderVersion() const {
   return (romFileHeader_.version == 2) ? 2 : 1;
 }
 
+uint16_t Cartridge::getPrgRomOffset() const {
+  return sizeof(romFileHeader_) + (romFileHeader_.hasTrainer == 0 ? 0 : (sizeof(uint8_t) * 512));
+}
+
+uint16_t Cartridge::getChrRomOffset() const {
+  return getPrgRomOffset() + romFileHeader_.sizeOfPrgRom;
+}
+
 void Cartridge::printHeader(std::ostream &out) const {
   out << "***********************************************" << std::endl;
   out << "  Nes Rom Header" << std::endl;
