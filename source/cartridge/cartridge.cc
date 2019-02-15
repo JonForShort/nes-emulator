@@ -30,59 +30,59 @@ using namespace jones;
 
 namespace {
 
-void printHexInteger(std::ostream &out, const char *label, const uint32_t value) {
+void print_hex_integer(std::ostream &out, const char *label, const uint32_t value) {
   out << "  " << label << std::hex << static_cast<uint32_t>(value) << std::endl;
 }
 
-void printHexInteger(std::ostream &out, const char *label, const uint8_t value) {
+void print_hex_integer(std::ostream &out, const char *label, const uint8_t value) {
   out << "  " << label << std::hex << static_cast<uint16_t>(value) << std::endl;
 }
 
 } // namespace
 
-Cartridge::Cartridge(const std::string &pathToRom) : romFile_(pathToRom.c_str(), std::ifstream::binary) {
-  if (romFile_.good()) {
-    romFile_.read((char *)&romFileHeader_, sizeof(romFileHeader_));
+cartridge::cartridge(const std::string &rom_path) : rom_file_(rom_path.c_str(), std::ifstream::binary) {
+  if (rom_file_.good()) {
+    rom_file_.read((char *)&rom_file_header_, sizeof(rom_file_header_));
   }
 }
 
-bool Cartridge::isValid() {
-  return romFile_.good() &&
-         romFileHeader_.constants == ROM_HEADER_CONSTANT;
+bool cartridge::is_valid() {
+  return rom_file_.good() &&
+         rom_file_header_.constants == ROM_HEADER_CONSTANT;
 }
 
-int Cartridge::getHeaderVersion() const {
-  return (romFileHeader_.version == 2) ? 2 : 1;
+int cartridge::get_header_version() const {
+  return (rom_file_header_.version == 2) ? 2 : 1;
 }
 
-uint16_t Cartridge::getPrgRomOffset() const {
-  return sizeof(romFileHeader_) + (romFileHeader_.hasTrainer == 0 ? 0 : (sizeof(uint8_t) * 512));
+uint16_t cartridge::get_prgrom_offset() const {
+  return sizeof(rom_file_header_) + (rom_file_header_.has_trainer == 0 ? 0 : (sizeof(uint8_t) * 512));
 }
 
-uint16_t Cartridge::getChrRomOffset() const {
-  return getPrgRomOffset() + romFileHeader_.sizeOfPrgRom;
+uint16_t cartridge::get_chrrom_offset() const {
+  return get_prgrom_offset() + rom_file_header_.prgrom_size;
 }
 
-void Cartridge::printHeader(std::ostream &out) const {
+void cartridge::print_header(std::ostream &out) const {
   out << "***********************************************" << std::endl;
   out << "  Nes Rom Header" << std::endl;
   out << "***********************************************" << std::endl;
-  printHexInteger(out, "constants: ", romFileHeader_.constants);
-  printHexInteger(out, "sizeOfPrgRom: ", romFileHeader_.sizeOfPrgRom);
-  printHexInteger(out, "sizeOfChrRom: ", romFileHeader_.sizeOfChrRom);
-  printHexInteger(out, "hasMirroring: ", romFileHeader_.hasMirroring);
-  printHexInteger(out, "containsBatteryBackedPrgRam: ", romFileHeader_.containsBatteryBackedPrgRam);
-  printHexInteger(out, "hasTrainer: ", romFileHeader_.hasTrainer);
-  printHexInteger(out, "ignoreMirroringControl: ", romFileHeader_.ignoreMirroringControl);
-  printHexInteger(out, "lowerMapperNibble: ", romFileHeader_.lowerMapperNibble);
-  printHexInteger(out, "isVsUnisystem: ", romFileHeader_.isVsUnisystem);
-  printHexInteger(out, "isPlayChoice: ", romFileHeader_.isPlayChoice);
-  printHexInteger(out, "version: ", romFileHeader_.version);
-  printHexInteger(out, "upperMapperNibble: ", romFileHeader_.upperMapperNibble);
-  printHexInteger(out, "sizeOfPrgRam: ", romFileHeader_.sizeOfPrgRam);
-  printHexInteger(out, "whichTvSystemOne: ", romFileHeader_.whichTvSystemOne);
-  printHexInteger(out, "whichTvSystemTwo: ", romFileHeader_.whichTvSystemTwo);
-  printHexInteger(out, "isPrgRamPresent: ", romFileHeader_.isPrgRamPresent);
-  printHexInteger(out, "hasBusConflicts: ", romFileHeader_.hasBusConflicts);
+  print_hex_integer(out, "constants: ", rom_file_header_.constants);
+  print_hex_integer(out, "prgrom_size: ", rom_file_header_.prgrom_size);
+  print_hex_integer(out, "chrrom_size: ", rom_file_header_.chrrom_size);
+  print_hex_integer(out, "has_mirroring: ", rom_file_header_.has_mirroring);
+  print_hex_integer(out, "contains_battery_backed_prgram: ", rom_file_header_.contains_battery_backed_prgram);
+  print_hex_integer(out, "has_trainer: ", rom_file_header_.has_trainer);
+  print_hex_integer(out, "ignore_mirroring_control: ", rom_file_header_.ignore_mirroring_control);
+  print_hex_integer(out, "lower_mapper_nibble: ", rom_file_header_.lower_mapper_nibble);
+  print_hex_integer(out, "is_vs_unisystem: ", rom_file_header_.is_vs_unisystem);
+  print_hex_integer(out, "is_play_choice: ", rom_file_header_.is_play_choice);
+  print_hex_integer(out, "version: ", rom_file_header_.version);
+  print_hex_integer(out, "upper_mapper_nibble: ", rom_file_header_.upper_mapper_nibble);
+  print_hex_integer(out, "prgram_size: ", rom_file_header_.prgram_size);
+  print_hex_integer(out, "which_tv_system_one: ", rom_file_header_.which_tv_system_one);
+  print_hex_integer(out, "which_tv_system_two: ", rom_file_header_.which_tv_system_two);
+  print_hex_integer(out, "is_prgram_present: ", rom_file_header_.is_prgram_present);
+  print_hex_integer(out, "has_bus_conflicts: ", rom_file_header_.has_bus_conflicts);
   out << "***********************************************" << std::endl;
 }

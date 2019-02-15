@@ -13,6 +13,7 @@ add_executable (jones-tool ${source-files})
 add_dependencies (jones-tool boost)
 
 target_link_libraries (jones-tool cpu)
+target_link_libraries (jones-tool cartridge)
 target_link_libraries (jones-tool ${boost-lib}/libboost_program_options.a)
 target_link_libraries (jones-tool ${boost-lib}/libboost_filesystem.a)
 

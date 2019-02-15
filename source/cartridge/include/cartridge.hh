@@ -32,49 +32,49 @@
 
 namespace jones {
 
-class Cartridge {
+class cartridge {
 
 public:
-  Cartridge(const std::string &pathToRom);
+  cartridge(const std::string &rom_path);
 
-  bool isValid();
+  bool is_valid();
 
-  int getHeaderVersion() const;
+  int get_header_version() const;
 
-  void printHeader(std::ostream &out) const;
+  void print_header(std::ostream &out) const;
 
-  uint16_t getPrgRomOffset() const;
+  uint16_t get_prgrom_offset() const;
 
-  uint16_t getChrRomOffset() const;
+  uint16_t get_chrrom_offset() const;
 
 private:
-  struct RomHeader {
+  struct rom_header {
     uint32_t constants;
-    uint8_t sizeOfPrgRom;
-    uint8_t sizeOfChrRom;
-    uint8_t hasMirroring : 1;
-    uint8_t containsBatteryBackedPrgRam : 1;
-    uint8_t hasTrainer : 1;
-    uint8_t ignoreMirroringControl : 1;
-    uint8_t lowerMapperNibble : 4;
-    uint8_t isVsUnisystem : 1;
-    uint8_t isPlayChoice : 1;
+    uint8_t prgrom_size;
+    uint8_t chrrom_size;
+    uint8_t has_mirroring : 1;
+    uint8_t contains_battery_backed_prgram : 1;
+    uint8_t has_trainer : 1;
+    uint8_t ignore_mirroring_control : 1;
+    uint8_t lower_mapper_nibble : 4;
+    uint8_t is_vs_unisystem : 1;
+    uint8_t is_play_choice : 1;
     uint8_t version : 2;
-    uint8_t upperMapperNibble : 4;
-    uint8_t sizeOfPrgRam;
-    uint8_t whichTvSystemOne : 1;
+    uint8_t upper_mapper_nibble : 4;
+    uint8_t prgram_size;
+    uint8_t which_tv_system_one : 1;
     unsigned int : 7;
-    uint8_t whichTvSystemTwo : 2;
+    uint8_t which_tv_system_two : 2;
     unsigned int : 2;
-    uint8_t isPrgRamPresent : 1;
-    uint8_t hasBusConflicts : 1;
+    uint8_t is_prgram_present : 1;
+    uint8_t has_bus_conflicts : 1;
     unsigned int : 2;
     uint8_t ignored[5];
   };
 
-  RomHeader romFileHeader_;
+  rom_header rom_file_header_;
 
-  std::ifstream romFile_;
+  std::ifstream rom_file_;
 };
 } // namespace jones
 
