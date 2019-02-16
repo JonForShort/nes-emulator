@@ -27,17 +27,22 @@
 #include <iostream>
 #include <string>
 
+#include "cartridge.hh"
+
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
 int main(int argc, char *argv[]) {
 
-  std::string fileArgument;
-  std::string outputArgument;
+  std::string file_argument;
+  std::string output_argument;
 
   try {
     po::options_description desc{"Options"};
-    desc.add_options()("help,h", "Help screen")("file,f", po::value<std::string>(&fileArgument)->required(), "file path to rom")("output,o", po::value<std::string>(&outputArgument)->default_value("out"), "directory path to write output");
+    desc.add_options()
+      ("help,h", "Help screen")
+      ("file,f", po::value<std::string>(&file_argument)->required(), "file path to rom")
+      ("output,o", po::value<std::string>(&output_argument)->default_value("out"), "directory path to write output");
 
     po::variables_map vm;
     po::store(parse_command_line(argc, argv, desc), vm);
@@ -47,27 +52,35 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-  const fs::path filePath(fileArgument);
-  if (!fs::exists(filePath)) {
+  const fs::path file_path(file_argument);
+  if (!fs::exists(file_path)) {
     std::cerr << "file path does not exist; please check path" << std::endl;
     return -2;
   }
 
-  if (fs::is_directory(filePath)) {
+  if (fs::is_directory(file_path)) {
     std::cerr << "file path is a directory; please check path" << std::endl;
     return -3;
   }
 
-  const fs::path outputPath(outputArgument);
-  if (fs::exists(outputPath) && !fs::is_directory(outputPath)) {
-    std::cerr << "output directory path is a file; please check path : " << outputPath << std::endl;
+  const fs::path output_path(output_argument);
+  if (fs::exists(output_path) && !fs::is_directory(output_path)) {
+    std::cerr << "output directory path is a file; please check path : " << output_path << std::endl;
     return -4;
   }
 
-  if (!fs::exists(outputPath) && !fs::create_directories(outputPath)) {
-    std::cerr << "unable to create output directory path; please check path : " << outputPath << std::endl;
+  if (!fs::exists(output_path) && !fs::create_directories(output_path)) {
+    std::cerr << "unable to create output directory path; please check path : " << output_path << std::endl;
     return -5;
   }
+
+  jones::cartridge rom(file_path.string());
+  if (!rom.is_valid()) {
+    std::cerr << "error: must specify valid rom file" << std::endl;
+    return -6;
+  }
+
+  rom.print_header(std::cout);
 
   return 0;
 }
