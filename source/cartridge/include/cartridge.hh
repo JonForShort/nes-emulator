@@ -45,7 +45,11 @@ public:
 
   uint16_t get_prgrom_offset() const;
 
+  uint16_t get_prgrom_size() const;
+
   uint16_t get_chrrom_offset() const;
+
+  uint16_t get_chrrom_size() const;
 
 private:
   struct rom_header {
