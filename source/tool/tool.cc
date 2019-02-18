@@ -25,7 +25,9 @@
 #include <boost/interprocess/file_mapping.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/program_options.hpp>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #include "cartridge.hh"
@@ -40,6 +42,17 @@ namespace jo = jones;
 
 namespace {
 
+std::string to_hex_string(uint8_t *data, size_t size, size_t width) {
+  std::ostringstream oss;
+  for (int i = 0; i < size; i++) {
+    oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(data[i]);
+  }
+  for (int i = 0; i < (width - (size * 2)); i++) {
+    oss << " ";
+  }
+  return oss.str();
+}
+
 void dump_code(const fs::path &root_path, const jo::cartridge &rom, const uint8_t *const base_address, const size_t length_in_bytes) {
   const fs::path code_path = root_path / "code";
   fs::create_directories(code_path);
@@ -49,12 +62,10 @@ void dump_code(const fs::path &root_path, const jo::cartridge &rom, const uint8_
   const auto &disassembled_code = jd::disassemble(const_cast<uint8_t *>(prgrom_base_address), rom.get_prgrom_size());
   const auto &disassembled_instructions = disassembled_code.instructions;
   for (auto instruction : disassembled_instructions) {
-    code_file << " " << std::hex << std::uppercase << instruction.address;
-    code_file << " " << std::hex << std::uppercase << instruction.length_in_bytes;
-    for (auto binary : instruction.binary) {
-      code_file << std::hex << binary;
-    }
-    code_file << " " << instruction.opcode << instruction.operand << std::endl;
+    code_file << "   " << to_hex_string(reinterpret_cast<uint8_t *>(&instruction.address), sizeof(instruction.address), 5);
+    code_file << "   " << to_hex_string(&instruction.length_in_bytes, sizeof(instruction.length_in_bytes), 5);
+    code_file << "   " << to_hex_string(instruction.binary.data(), instruction.length_in_bytes, 10);
+    code_file << "   " << instruction.opcode << instruction.operand << std::endl;
   }
 }
 
