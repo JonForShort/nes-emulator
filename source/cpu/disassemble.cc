@@ -103,7 +103,7 @@ disassemble::instructions disassemble::disassemble(uint8_t *buffer, const size_t
     const auto operand_string = disassemble_operand(decoded_instruction);
 
     jdi::instruction disassembled_instruction = jdi::instruction();
-    disassembled_instruction.address = 0;
+    disassembled_instruction.address = buffer_offset;
     disassembled_instruction.length_in_bytes = decoded_instruction.encoded_length_in_bytes;
     disassembled_instruction.binary = decoded_instruction.encoded;
     disassembled_instruction.opcode = opcode_string;

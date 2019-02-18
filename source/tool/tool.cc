@@ -62,7 +62,8 @@ void dump_code(const fs::path &root_path, const jo::cartridge &rom, const uint8_
   const auto &disassembled_code = jd::disassemble(const_cast<uint8_t *>(prgrom_base_address), rom.get_prgrom_size());
   const auto &disassembled_instructions = disassembled_code.instructions;
   for (auto instruction : disassembled_instructions) {
-    code_file << "   " << to_hex_string(reinterpret_cast<uint8_t *>(&instruction.address), sizeof(instruction.address), 5);
+    auto instruction_address = instruction.address + rom.get_prgrom_offset();
+    code_file << "   " << to_hex_string(reinterpret_cast<uint8_t *>(&instruction_address), sizeof(instruction.address), 5);
     code_file << "   " << to_hex_string(&instruction.length_in_bytes, sizeof(instruction.length_in_bytes), 5);
     code_file << "   " << to_hex_string(instruction.binary.data(), instruction.length_in_bytes, 10);
     code_file << "   " << instruction.opcode << instruction.operand << std::endl;
