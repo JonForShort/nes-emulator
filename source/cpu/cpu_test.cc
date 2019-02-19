@@ -189,6 +189,14 @@ BOOST_AUTO_TEST_CASE(disassemble_0x0F_instruction_valid) {
 }
 
 //
+// Test: Disassembles opcode 0x10.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x10_instruction_valid) {
+  uint8_t binary_instruction[] = {0x10, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "BPL $FF");
+}
+
+//
 // Test: Disassembles opcode 0x29.
 //
 BOOST_AUTO_TEST_CASE(disassemble_0x29_instruction_valid) {
@@ -447,11 +455,23 @@ BOOST_AUTO_TEST_CASE(decode_0x0E_asl_instruction_valid) {
 //
 // Test: Decodes opcode value 0x0F.
 //
-BOOST_AUTO_TEST_CASE(decode_0x0F_slo_instruction_valid) {
+BOOST_AUTO_TEST_CASE(decode_0x0F_instruction_valid) {
   uint8_t binary_instruction[] = {0x0F, 0xFF, 0xEE};
   const auto instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::SLO);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x0F);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
   BOOST_CHECK(std::get<uint16_t>(instruction.decoded_operand.value) == static_cast<uint16_t>(0xEEFF));
+}
+
+//
+// Test: Decodes opcode value 0x10.
+//
+BOOST_AUTO_TEST_CASE(decode_0x10_instruction_valid) {
+  uint8_t binary_instruction[] = {0x10, 0xFF};
+  const auto instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::BPL);
+  BOOST_CHECK(instruction.decoded_opcode.value == 0x10);
+  BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
+  BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0xFF));
 }

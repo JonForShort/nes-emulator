@@ -53,6 +53,11 @@ std::string disassemble_operand_memory(const jde::operand &decoded_operand, cons
     operand_string << " $" << std::hex << std::uppercase << memory_value;
     break;
   }
+  case addressing_mode_type::RELATIVE: {
+    const int memory_value = std::get<uint8_t>(decoded_operand.value);
+    operand_string << " $" << std::hex << std::uppercase << memory_value;
+    break;
+  }
   case addressing_mode_type::INDEXED_INDIRECT: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
     operand_string << " ($" << std::hex << std::uppercase << memory_value << ",X)";
