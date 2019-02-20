@@ -42,10 +42,16 @@ namespace jo = jones;
 
 namespace {
 
-std::string to_hex_string(uint8_t *data, size_t size, size_t width) {
+std::string to_hex_string(uint8_t *data, size_t size, size_t width, bool left_to_right = true) {
   std::ostringstream oss;
-  for (int i = 0; i < size; i++) {
-    oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(data[i]);
+  if (left_to_right) {
+    for (int i = 0; i < size; i++) {
+      oss << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(data[i]);
+    }
+  } else {
+    for (int i = (size - 1); i >= 0; i--) {
+      oss << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(data[i]);
+    }
   }
   for (int i = 0; i < (width - (size * 2)); i++) {
     oss << " ";
@@ -63,7 +69,7 @@ void dump_code(const fs::path &root_path, const jo::cartridge &rom, const uint8_
   const auto &disassembled_instructions = disassembled_code.instructions;
   for (auto instruction : disassembled_instructions) {
     auto instruction_address = instruction.address + rom.get_prgrom_offset();
-    code_file << "   " << to_hex_string(reinterpret_cast<uint8_t *>(&instruction_address), sizeof(instruction.address), 5);
+    code_file << "   " << to_hex_string(reinterpret_cast<uint8_t *>(&instruction_address), sizeof(instruction.address), 5, false);
     code_file << "   " << to_hex_string(&instruction.length_in_bytes, sizeof(instruction.length_in_bytes), 5);
     code_file << "   " << to_hex_string(instruction.binary.data(), instruction.length_in_bytes, 10);
     code_file << "   " << instruction.opcode << instruction.operand << std::endl;
@@ -88,10 +94,7 @@ int main(int argc, char *argv[]) {
 
   try {
     po::options_description desc{"Options"};
-    desc.add_options()
-      ("help,h", "Help screen")
-      ("file,f", po::value<std::string>(&file_argument)->required(), "file path to rom")
-      ("output,o", po::value<std::string>(&output_argument)->default_value("out"), "directory path to write output");
+    desc.add_options()("help,h", "Help screen")("file,f", po::value<std::string>(&file_argument)->required(), "file path to rom")("output,o", po::value<std::string>(&output_argument)->default_value("out"), "directory path to write output");
 
     po::variables_map vm;
     po::store(parse_command_line(argc, argv, desc), vm);
