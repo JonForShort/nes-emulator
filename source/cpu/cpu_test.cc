@@ -197,6 +197,22 @@ BOOST_AUTO_TEST_CASE(disassemble_0x10_instruction_valid) {
 }
 
 //
+// Test: Disassembles opcode 0x11.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x11_instruction_valid) {
+  uint8_t binary_instruction[] = {0x11, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "ORA ($FF),Y");
+}
+
+//
+// Test: Disassembles opcode 0x12.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x12_instruction_valid) {
+  uint8_t binary_instruction[] = {0x12};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "STP");
+}
+
+//
 // Test: Disassembles opcode 0x29.
 //
 BOOST_AUTO_TEST_CASE(disassemble_0x29_instruction_valid) {
@@ -474,4 +490,27 @@ BOOST_AUTO_TEST_CASE(decode_0x10_instruction_valid) {
   BOOST_CHECK(instruction.decoded_opcode.value == 0x10);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
   BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0xFF));
+}
+
+//
+// Test: Decodes opcode value 0x11.
+//
+BOOST_AUTO_TEST_CASE(decode_0x11_instruction_valid) {
+  uint8_t binary_instruction[] = {0x11, 0xFF};
+  const auto instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ORA);
+  BOOST_CHECK(instruction.decoded_opcode.value == 0x11);
+  BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
+  BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0xFF));
+}
+
+//
+// Test: Decodes opcode value 0x12.
+//
+BOOST_AUTO_TEST_CASE(decode_0x12_instruction_valid) {
+  uint8_t binary_instruction[] = {0x12};
+  const auto instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
+  BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::STP);
+  BOOST_CHECK(instruction.decoded_opcode.value == 0x12);
+  check_instruction_no_operand(instruction);
 }
