@@ -213,6 +213,118 @@ BOOST_AUTO_TEST_CASE(disassemble_0x12_instruction_valid) {
 }
 
 //
+// Test: Disassembles opcode 0x13.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x13_instruction_valid) {
+  uint8_t binary_instruction[] = {0x13, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "SLO ($FF),Y");
+}
+
+//
+// Test: Disassembles opcode 0x14.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x14_instruction_valid) {
+  uint8_t binary_instruction[] = {0x14, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "NOP $FF,X");
+}
+
+//
+// Test: Disassembles opcode 0x15.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x15_instruction_valid) {
+  uint8_t binary_instruction[] = {0x15, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "ORA $FF,X");
+}
+
+//
+// Test: Disassembles opcode 0x16.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x16_instruction_valid) {
+  uint8_t binary_instruction[] = {0x16, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "ASL $FF,X");
+}
+
+//
+// Test: Disassembles opcode 0x17.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x17_instruction_valid) {
+  uint8_t binary_instruction[] = {0x17, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "SLO $FF,X");
+}
+
+//
+// Test: Disassembles opcode 0x18.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x18_instruction_valid) {
+  uint8_t binary_instruction[] = {0x18};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "CLC");
+}
+
+//
+// Test: Disassembles opcode 0x19.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x19_instruction_valid) {
+  uint8_t binary_instruction[] = {0x19, 0xFF, 0xEE};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "ORA $EEFF,Y");
+}
+
+//
+// Test: Disassembles opcode 0x1A.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x1A_instruction_valid) {
+  uint8_t binary_instruction[] = {0x1A};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "NOP");
+}
+
+//
+// Test: Disassembles opcode 0x1B.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x1B_instruction_valid) {
+  uint8_t binary_instruction[] = {0x1B, 0xFF, 0xEE};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "SLO $EEFF,Y");
+}
+
+//
+// Test: Disassembles opcode 0x1C.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x1C_instruction_valid) {
+  uint8_t binary_instruction[] = {0x1C, 0xFF, 0xEE};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "NOP $EEFF,X");
+}
+
+//
+// Test: Disassembles opcode 0x1D.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x1D_instruction_valid) {
+  uint8_t binary_instruction[] = {0x1D, 0xFF, 0xEE};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "ORA $EEFF,X");
+}
+
+//
+// Test: Disassembles opcode 0x1E.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x1E_instruction_valid) {
+  uint8_t binary_instruction[] = {0x1E, 0xFF, 0xEE};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "ASL $EEFF,X");
+}
+
+//
+// Test: Disassembles opcode 0x1F.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x1F_instruction_valid) {
+  uint8_t binary_instruction[] = {0x1F, 0xFF, 0xEE};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "SLO $EEFF,X");
+}
+
+//
+// Test: Disassembles opcode 0x20.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x20_instruction_valid) {
+  uint8_t binary_instruction[] = {0x20, 0xFF, 0xEE};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "JSR $EEFF");
+}
+
+//
 // Test: Disassembles opcode 0x29.
 //
 BOOST_AUTO_TEST_CASE(disassemble_0x29_instruction_valid) {

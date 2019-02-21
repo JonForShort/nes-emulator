@@ -53,6 +53,16 @@ std::string disassemble_operand_memory(const jde::operand &decoded_operand, cons
     operand_string << " $" << std::hex << std::uppercase << memory_value;
     break;
   }
+  case addressing_mode_type::ABSOLUTE_X: {
+    const int memory_value = std::get<uint16_t>(decoded_operand.value);
+    operand_string << " $" << std::hex << std::uppercase << memory_value << ",X";
+    break;
+  }
+  case addressing_mode_type::ABSOLUTE_Y: {
+    const int memory_value = std::get<uint16_t>(decoded_operand.value);
+    operand_string << " $" << std::hex << std::uppercase << memory_value << ",Y";
+    break;
+  }
   case addressing_mode_type::RELATIVE: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
     operand_string << " $" << std::hex << std::uppercase << memory_value;
