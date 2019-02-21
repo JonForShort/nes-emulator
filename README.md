@@ -1,5 +1,8 @@
 # jones
 
+[![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Build Status](https://travis-ci.org/thejunkjon/jones.svg?branch=master)](https://travis-ci.org/thejunkjon/jones)
+
 NES emulator and debugger written in c++
 
 ### Features
@@ -17,5 +20,3 @@ NES emulator and debugger written in c++
 ### Building
 
 * __Linux__: [Linux Build](https://github.com/thejunkjon/jones/wiki/Build-For-Linux)
-
-[![Build Status](https://travis-ci.org/thejunkjon/jones.svg?branch=master)](https://travis-ci.org/thejunkjon/jones)
