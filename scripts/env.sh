@@ -28,6 +28,6 @@ jones_build() {
 
     pushd ${JONES_BUILD_DIR}
         cmake ..
-        make
+        make && make test
     popd
 }

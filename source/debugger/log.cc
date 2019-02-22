@@ -21,10 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <boost/log/core.hpp>
+#include <boost/log/expressions.hpp>
+#include <boost/log/sinks/text_file_backend.hpp>
+#include <boost/log/sources/record_ostream.hpp>
+#include <boost/log/sources/severity_logger.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/log/utility/setup/file.hpp>
+
 #include "log.hh"
 
-Log::Log() {
+namespace bl = boost::log;
+namespace bk = boost::log::keywords;
+namespace bsrc = boost::log::sources;
+namespace bsinks = boost::log::sinks;
+
+using namespace jones;
+
+namespace {
+
+} // namespace
+
+log::log() {
 }
 
-Log::~Log(void) {
+log::~log(void) {
+}
+
+void log::set_minimum_level(log_level level) {
+  level_ = level;
+  update_log();
+}
+
+void log::set_log_sink(log_sink sink) {
+  sink_ = sink;
+  update_log();
+}
+
+void log::update_log() {
 }

@@ -24,11 +24,36 @@
 #ifndef JONES_DEBUGGER_LOG_HH
 #define JONES_DEBUGGER_LOG_HH
 
-class Log {
+namespace jones {
 
-public:
-  Log();
-  ~Log();
+enum class log_level {
+  VERBOSE,
+  DEBUG,
+  WARNING,
+  ERROR
 };
+
+enum class log_sink {
+  NONE,
+  CONSOLE,
+  FILE
+};
+
+class log {
+public:
+  log();
+  ~log();
+
+  void set_minimum_level(log_level level);
+  void set_log_sink(log_sink sink);
+
+private:
+  void update_log();
+
+  log_sink sink_ = log_sink::NONE;
+  log_level level_ = log_level::WARNING;
+};
+
+}; // namespace jones
 
 #endif // JONES_DEBUGGER_LOG_HH
