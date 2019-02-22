@@ -19,3 +19,15 @@ jones_debugger() {
 
     ${JONES_DEBUGGER} -g -f ${DEBUG_FILE}	
 }
+
+jones_build() {
+
+    JONES_BUILD_DIR=${SCRIPT_DIR}/../build
+
+    mkdir -p ${JONES_BUILD_DIR}
+
+    pushd ${JONES_BUILD_DIR}
+        cmake ..
+        make
+    popd
+}
