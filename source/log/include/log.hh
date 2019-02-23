@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2019
+// Copyright 2017-2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,43 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <boost/log/core.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/sinks/text_file_backend.hpp>
-#include <boost/log/sources/record_ostream.hpp>
-#include <boost/log/sources/severity_logger.hpp>
+#ifndef JONES_LOG_LOG_HH
+#define JONES_LOG_LOG_HH
+
+#include <boost/log/sources/global_logger_storage.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/utility/setup/file.hpp>
 
-#include "log.hh"
+#define LOGFILE "jones.log"
 
-namespace bl = boost::log;
-namespace bk = boost::log::keywords;
-namespace bsrc = boost::log::sources;
-namespace bsinks = boost::log::sinks;
+#define SEVERITY_THRESHOLD logging::trivial::warning
 
-using namespace jones;
+BOOST_LOG_GLOBAL_LOGGER(logger, boost::log::sources::severity_logger_mt<boost::log::trivial::severity_level>)
 
-namespace {
+#define LOG(severity) BOOST_LOG_SEV(logger::get(), boost::log::trivial::severity)
 
-} // namespace
+#define LOG_TRACE LOG(trace)
+#define LOG_DEBUG LOG(debug)
+#define LOG_INFO LOG(info)
+#define LOG_WARNING LOG(warning)
+#define LOG_ERROR LOG(error)
+#define LOG_FATAL LOG(fatal)
 
-log::log() {
-}
-
-log::~log(void) {
-}
-
-void log::set_minimum_level(log_level level) {
-  level_ = level;
-  update_log();
-}
-
-void log::set_log_sink(log_sink sink) {
-  sink_ = sink;
-  update_log();
-}
-
-void log::update_log() {
-}
+#endif // JONES_LOG_LOG_HH

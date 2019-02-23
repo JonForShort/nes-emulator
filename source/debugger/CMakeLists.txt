@@ -10,7 +10,6 @@ set (ncurses-lib     ${DIR_ROOT_OUT}/ncurses/lib)
 
 set (source-files
   debugger.cc
-  log.cc
   main_screen.cc
   windows/command_window.cc
 )
@@ -21,11 +20,9 @@ add_dependencies (jones-debugger boost)
 add_dependencies (jones-debugger ncurses)
 
 target_link_libraries (jones-debugger cpu)
+target_link_libraries (jones-debugger log)
 target_link_libraries (jones-debugger ${boost-lib}/libboost_program_options.a)
 target_link_libraries (jones-debugger ${boost-lib}/libboost_filesystem.a)
-target_link_libraries (jones-debugger ${boost-lib}/libboost_log.a)
-target_link_libraries (jones-debugger ${boost-lib}/libboost_log_setup.a)
-target_link_libraries (jones-debugger ${boost-lib}/libboost_thread.a)
 target_link_libraries (jones-debugger ${ncurses-lib}/libncurses.a)
 target_link_libraries (jones-debugger pthread)
 
