@@ -30,7 +30,7 @@
 #include <string>
 
 #include "cpu.hh"
-#include "main_screen.hh"
+#include "interface.hh"
 
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
@@ -69,10 +69,10 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  jo::main_screen screen;
-  screen.initialize();
-  screen.show();
-  screen.release();
+  jo::interface interface;
+  interface.initialize();
+  interface.show();
+  interface.release();
 
   return 0;
 }

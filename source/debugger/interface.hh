@@ -21,18 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_DEBUGGER_MAIN_SCREEN_HH
-#define JONES_DEBUGGER_MAIN_SCREEN_HH
+#ifndef JONES_DEBUGGER_INTERFACE_HH
+#define JONES_DEBUGGER_INTERFACE_HH
 
 #include <curses.h>
 #include <memory.h>
 
 namespace jones {
 
-class main_screen final {
+enum class window_type {
+  COMMAND,
+  CONTENT
+};
+
+class interface final {
 public:
-  main_screen();
-  ~main_screen();
+  interface();
+  ~interface();
 
   void initialize();
   void release();
@@ -40,13 +45,21 @@ public:
   void show();
   void update();
 
+  void rotate_window_focus();
+  bool window_has_focus(window_type window);
+  void window_focus(window_type window);
+  window_type window_focus();
+
 private:
   WINDOW *main_window_;
   bool is_running_;
+
   unsigned int screen_height_;
   unsigned int screen_width_;
+
+  window_type focus_window_;
 };
 
 } // namespace jones
 
-#endif // JONES_DEBUGGER_MAIN_SCREEN_HH
+#endif // JONES_DEBUGGER_INTERFACE_HH

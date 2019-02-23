@@ -10,7 +10,7 @@ set (ncurses-lib     ${DIR_ROOT_OUT}/ncurses/lib)
 
 set (source-files
   debugger.cc
-  main_screen.cc
+  interface.cc
   windows/command_window.cc
 )
 

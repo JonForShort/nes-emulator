@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2018
+// Copyright 2018-2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,20 +25,69 @@
 #include <signal.h>
 #include <string>
 
-#include "main_screen.hh"
+#include "interface.hh"
+#include "log.hh"
 #include "windows/command_window.hh"
 
 using namespace jones;
 
 namespace {
 
-static const unsigned int command_window_height = 5;
+void signal_handler(int signo) {
+  LOG_DEBUG << "signal handled = " << signo;
+  if (signo == SIGWINCH) {
+    endwin();
+    refresh();
+    clear();
+  }
+}
+
+int register_signal_handler() {
+  LOG_DEBUG << "registering signal handlers.";
+  struct sigaction action;
+  action.sa_handler = signal_handler;
+  sigemptyset(&action.sa_mask);
+  action.sa_flags = 0;
+  if (sigaction(SIGWINCH, &action, NULL) < 0) {
+    LOG_ERROR << "sigaction failed";
+    return -1;
+  }
+  if (sigaction(SIGINT, &action, NULL) < 0) {
+    LOG_ERROR << "sigaction failed";
+    return -1;
+  }
+  if (sigaction(SIGTERM, &action, NULL) < 0) {
+    LOG_ERROR << "sigaction failed";
+    return -1;
+  }
+  if (sigaction(SIGQUIT, &action, NULL) < 0) {
+    LOG_ERROR << "sigaction failed";
+    return -1;
+  }
+  if (sigaction(SIGCHLD, &action, NULL) < 0) {
+    LOG_ERROR << "sigaction failed";
+    return -1;
+  }
+  return 0;
+}
+
+int unregister_signal_handler() {
+  LOG_DEBUG << "unregistering signal handlers.";
+  signal(SIGWINCH, SIG_DFL);
+  signal(SIGINT, SIG_DFL);
+  signal(SIGTERM, SIG_DFL);
+  signal(SIGQUIT, SIG_DFL);
+  signal(SIGQUIT, SIG_DFL);
+}
 
 std::string get_line() {
   std::string result;
   while (true) {
     const auto ch = getch();
     switch (ch) {
+    case KEY_STAB:
+      result = "";
+      break;
     case '\n':
     case ERR:
       return result;
@@ -50,32 +99,26 @@ std::string get_line() {
   }
 }
 
-void sigIntHandler(int sig_num) {}
-
-void sigWinchHandler(int sig_num) {
-  endwin();
-  refresh();
-  clear();
-}
+static const unsigned int command_window_height = 5;
 } // namespace
 
-main_screen::main_screen()
+interface::interface()
     : main_window_(initscr()), is_running_(false), screen_height_(0),
       screen_width_(0) {}
 
-main_screen::~main_screen() { release(); }
-
-void main_screen::initialize() {
-  signal(SIGINT, sigIntHandler);
-  signal(SIGWINCH, sigWinchHandler);
+interface::~interface() {
+  release();
 }
 
-void main_screen::release() {
+void interface::initialize() {
+  register_signal_handler();
+}
+
+void interface::release() {
   if (main_window_ != nullptr) {
     is_running_ = false;
 
-    signal(SIGINT, SIG_DFL);
-    signal(SIGWINCH, SIG_DFL);
+    unregister_signal_handler();
 
     delwin(main_window_);
     main_window_ = nullptr;
@@ -83,7 +126,7 @@ void main_screen::release() {
   }
 }
 
-void main_screen::show() {
+void interface::show() {
   update();
   command_window command_window(main_window_, screen_height_, screen_width_);
   noecho();
@@ -99,6 +142,32 @@ void main_screen::show() {
   }
 }
 
-void main_screen::update() {
+void interface::update() {
   getmaxyx(main_window_, screen_height_, screen_width_);
+}
+
+bool interface::window_has_focus(window_type window) {
+  return focus_window_ == window;
+}
+
+void interface::window_focus(window_type window) {
+  focus_window_ = window;
+  update();
+}
+
+window_type interface::window_focus() {
+  return focus_window_;
+}
+
+void interface::rotate_window_focus() {
+  switch (focus_window_) {
+  case window_type::COMMAND:
+    focus_window_ = window_type::CONTENT;
+    update();
+    break;
+  case window_type::CONTENT:
+    focus_window_ = window_type::COMMAND;
+    update();
+    break;
+  }
 }
