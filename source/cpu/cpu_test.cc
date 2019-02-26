@@ -325,6 +325,30 @@ BOOST_AUTO_TEST_CASE(disassemble_0x20_instruction_valid) {
 }
 
 //
+// Test: Disassembles opcode 0x21.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x21_instruction_valid) {
+  uint8_t binary_instruction[] = {0x21, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "AND ($FF,X)");
+}
+
+//
+// Test: Disassembles opcode 0x22.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x22_instruction_valid) {
+  uint8_t binary_instruction[] = {0x22};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "STP");
+}
+
+//
+// Test: Disassembles opcode 0x23.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x23_instruction_valid) {
+  uint8_t binary_instruction[] = {0x23, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "RLA ($FF,X)");
+}
+
+//
 // Test: Disassembles opcode 0x29.
 //
 BOOST_AUTO_TEST_CASE(disassemble_0x29_instruction_valid) {

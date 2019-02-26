@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2018-2019
+// Copyright 2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,25 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
-#define JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
+#ifndef JONES_DEBUGGER_WINDOWS_WINDOW_HH
+#define JONES_DEBUGGER_WINDOWS_WINDOW_HH
 
-#include "window.hh"
-#include <curses.h>
-
-namespace jones {
-
-class command_window final : public window {
+class window {
 public:
-  command_window(WINDOW *parent_window, int line_count, int column_count);
-  virtual ~command_window();
-
-  void redraw(int line_count, int column_count);
-
-private:
-  WINDOW *window_;
+  virtual ~window() {}
 };
 
-} // namespace jones
-
-#endif // JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
+#endif // JONES_DEBUGGER_WINDOWS_WINDOW_HH
