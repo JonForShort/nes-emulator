@@ -80,26 +80,8 @@ int unregister_signal_handler() {
   signal(SIGQUIT, SIG_DFL);
 }
 
-std::string get_line() {
-  std::string result;
-  while (true) {
-    const auto ch = getch();
-    switch (ch) {
-    case KEY_STAB:
-      result = "";
-      break;
-    case '\n':
-    case ERR:
-      return result;
-    default:
-      result += ch;
-      addch(ch);
-      break;
-    }
-  }
-}
-
 static const unsigned int command_window_height = 5;
+
 } // namespace
 
 interface::interface()
@@ -135,10 +117,8 @@ void interface::show() {
     command_window.on_focus();
     clrtoeol();
     wrefresh(main_window_);
-    const auto line = get_line();
-    if (line == "quit") {
-      is_running_ = false;
-    }
+    command_window.on_key_pressed(getch());
+    is_running_ = false;
   }
 }
 

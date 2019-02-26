@@ -36,6 +36,7 @@ public:
 
   virtual void on_focus();
   virtual void on_unfocus();
+  virtual void on_key_pressed(char key);
   virtual void draw(int start_x, int start_y, int column_count, int line_count);
 
 private:

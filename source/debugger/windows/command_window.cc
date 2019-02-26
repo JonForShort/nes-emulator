@@ -24,6 +24,7 @@
 #include <curses.h>
 
 #include "command_window.hh"
+#include "log.hh"
 
 using namespace jones;
 
@@ -69,4 +70,8 @@ void command_window::on_focus() {
 }
 
 void command_window::on_unfocus() {
+}
+
+void command_window::on_key_pressed(char key) {
+  LOG_DEBUG << "on_key_pressed : " << key;
 }
