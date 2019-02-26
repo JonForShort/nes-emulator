@@ -34,7 +34,9 @@ public:
   command_window(WINDOW *parent_window, int line_count, int column_count);
   virtual ~command_window();
 
-  void redraw(int line_count, int column_count);
+  virtual void on_focus();
+  virtual void on_unfocus();
+  virtual void draw(int line_count, int column_count);
 
 private:
   WINDOW *window_;

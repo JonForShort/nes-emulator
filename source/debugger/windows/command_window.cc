@@ -31,19 +31,24 @@ namespace {
 static const unsigned int command_window_height = 5;
 }
 
-command_window::command_window(WINDOW *parent_window, int line_count,
-                               int column_count)
-    : window_(subwin(parent_window, command_window_height, column_count,
-                     line_count - command_window_height, 0)) {}
+command_window::command_window(WINDOW *parent_window, int line_count, int column_count)
+    : window_(subwin(parent_window, command_window_height, column_count, line_count - command_window_height, 0)) {}
 
 command_window::~command_window() {}
 
-void command_window::redraw(int line_count, int column_count) {
+void command_window::draw(int line_count, int column_count) {
   box(window_, 0, 0);
+
   mvwaddstr(window_, 0, 2, "[ command ]");
   mvwaddstr(window_, 2, 2, "> ");
 
   wrefresh(window_);
 
   clrtoeol();
+}
+
+void command_window::on_focus() {
+}
+
+void command_window::on_unfocus() {
 }

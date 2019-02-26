@@ -132,7 +132,7 @@ void interface::show() {
   noecho();
   is_running_ = true;
   while (is_running_) {
-    command_window.redraw(screen_height_, screen_width_);
+    command_window.draw(screen_height_, screen_width_);
     clrtoeol();
     wrefresh(main_window_);
     const auto line = get_line();

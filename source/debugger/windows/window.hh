@@ -27,6 +27,10 @@
 class window {
 public:
   virtual ~window() {}
+
+  virtual void on_focus() = 0;
+  virtual void on_unfocus() = 0;
+  virtual void draw(int line_count, int column_count) = 0;
 };
 
 #endif // JONES_DEBUGGER_WINDOWS_WINDOW_HH
