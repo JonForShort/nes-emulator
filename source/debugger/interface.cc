@@ -103,8 +103,7 @@ static const unsigned int command_window_height = 5;
 } // namespace
 
 interface::interface()
-    : main_window_(initscr()), is_running_(false), screen_height_(0),
-      screen_width_(0) {}
+    : main_window_(initscr()), is_running_(false), screen_height_(0), screen_width_(0), focus_window_(window_type::COMMAND) {}
 
 interface::~interface() {
   release();
@@ -128,11 +127,12 @@ void interface::release() {
 
 void interface::show() {
   update();
-  command_window command_window(main_window_, screen_height_, screen_width_);
+  command_window command_window(main_window_);
   noecho();
   is_running_ = true;
   while (is_running_) {
-    command_window.draw(screen_height_, screen_width_);
+    command_window.draw(0, screen_height_ - command_window_height, screen_width_, screen_height_);
+    command_window.on_focus();
     clrtoeol();
     wrefresh(main_window_);
     const auto line = get_line();

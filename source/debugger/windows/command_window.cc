@@ -28,15 +28,30 @@
 using namespace jones;
 
 namespace {
+
 static const unsigned int command_window_height = 5;
+
+} // namespace
+
+command_window::command_window(WINDOW *parent_window)
+    : parent_window_(parent_window), window_(nullptr) {}
+
+command_window::~command_window() {
+  release();
 }
 
-command_window::command_window(WINDOW *parent_window, int line_count, int column_count)
-    : window_(subwin(parent_window, command_window_height, column_count, line_count - command_window_height, 0)) {}
+void command_window::release() {
+  if (window_ != nullptr) {
+    delwin(window_);
+    window_ = nullptr;
+  }
+}
 
-command_window::~command_window() {}
+void command_window::draw(int start_x, int start_y, int column_count, int line_count) {
+  release();
 
-void command_window::draw(int line_count, int column_count) {
+  window_ = subwin(parent_window_, line_count, column_count, start_y, start_x);
+
   box(window_, 0, 0);
 
   mvwaddstr(window_, 0, 2, "[ command ]");
@@ -48,6 +63,9 @@ void command_window::draw(int line_count, int column_count) {
 }
 
 void command_window::on_focus() {
+  if (window_ != nullptr) {
+    wmove(window_, 2, 2);
+  }
 }
 
 void command_window::on_unfocus() {

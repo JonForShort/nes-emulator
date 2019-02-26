@@ -31,14 +31,18 @@ namespace jones {
 
 class command_window final : public window {
 public:
-  command_window(WINDOW *parent_window, int line_count, int column_count);
+  command_window(WINDOW *parent_window);
   virtual ~command_window();
 
   virtual void on_focus();
   virtual void on_unfocus();
-  virtual void draw(int line_count, int column_count);
+  virtual void draw(int start_x, int start_y, int column_count, int line_count);
 
 private:
+  void release();
+
+private:
+  WINDOW *parent_window_;
   WINDOW *window_;
 };
 
