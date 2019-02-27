@@ -19,8 +19,5 @@ script:
   - ln -s /usr/bin/gcc-8 /usr/local/bin/gcc
   - ln -s /usr/bin/g++-8 /usr/local/bin/g++
   - gcc -v && g++ -v && cmake --version
-  - mkdir build
-  - pushd build
-  - cmake ..
+  - cmake .
   - make && make test
-  - popd
