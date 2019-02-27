@@ -24,15 +24,12 @@
 #ifndef JONES_DEBUGGER_INTERFACE_HH
 #define JONES_DEBUGGER_INTERFACE_HH
 
+#include "windows/window.hh"
 #include <curses.h>
 #include <memory.h>
+#include <vector>
 
 namespace jones {
-
-enum class window_type {
-  COMMAND,
-  CONTENT
-};
 
 class interface final {
 public:
@@ -41,23 +38,23 @@ public:
 
   void initialize();
   void release();
-
   void show();
   void update();
 
+private:
   void rotate_window_focus();
   bool window_has_focus(window_type window);
   void window_focus(window_type window);
   window_type window_focus();
+  void register_windows();
 
 private:
   WINDOW *main_window_;
   bool is_running_;
-
   unsigned int screen_height_;
   unsigned int screen_width_;
-
   window_type focus_window_;
+  std::vector<window> windows_;
 };
 
 } // namespace jones

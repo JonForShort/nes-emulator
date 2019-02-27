@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2018
+// Copyright 2018-2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -74,4 +74,8 @@ void command_window::on_unfocus() {
 
 void command_window::on_key_pressed(char key) {
   LOG_DEBUG << "on_key_pressed : " << key;
+}
+
+window_type command_window::type() {
+  return window_type::COMMAND;
 }

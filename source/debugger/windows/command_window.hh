@@ -34,6 +34,7 @@ public:
   command_window(WINDOW *parent_window);
   virtual ~command_window();
 
+  virtual window_type type();
   virtual void on_focus();
   virtual void on_unfocus();
   virtual void on_key_pressed(char key);

@@ -24,10 +24,16 @@
 #ifndef JONES_DEBUGGER_WINDOWS_WINDOW_HH
 #define JONES_DEBUGGER_WINDOWS_WINDOW_HH
 
+enum class window_type {
+  COMMAND,
+  CONTENT
+};
+
 class window {
 public:
   virtual ~window() {}
 
+  virtual window_type type() = 0;
   virtual void on_focus() = 0;
   virtual void on_unfocus() = 0;
   virtual void on_key_pressed(char key) = 0;

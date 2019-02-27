@@ -28,6 +28,7 @@
 #include "interface.hh"
 #include "log.hh"
 #include "windows/command_window.hh"
+#include "windows/window.hh"
 
 using namespace jones;
 
@@ -93,6 +94,7 @@ interface::~interface() {
 
 void interface::initialize() {
   register_signal_handler();
+  register_windows();
 }
 
 void interface::release() {
@@ -150,4 +152,7 @@ void interface::rotate_window_focus() {
     update();
     break;
   }
+}
+
+void interface::register_windows() {
 }
