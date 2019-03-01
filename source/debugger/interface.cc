@@ -117,6 +117,8 @@ void interface::unregister_signal_handlers() {
 
 void interface::register_windows() {
   LOG_DEBUG << "registering windows";
+  windows_.push_back(std::make_unique<command_window>(interface_window_));
+  focus_window_ = (*windows_.begin()).get();
 }
 
 void interface::unregister_windows() {
@@ -125,16 +127,19 @@ void interface::unregister_windows() {
 
 void interface::show() {
   update();
-  command_window command_window(interface_window_);
   noecho();
   is_running_ = true;
   while (is_running_) {
-    command_window.draw(0, screen_height_ - command_window_height, screen_width_, screen_height_);
-    command_window.on_focus();
+    focus_window_->draw(0, screen_height_ - command_window_height, screen_width_, screen_height_);
     clrtoeol();
     wrefresh(interface_window_);
-    command_window.on_key_pressed(getch());
-    is_running_ = false;
+    const auto &input = getch();
+    focus_window_->on_key_pressed(input);
+    if (input == 't') {
+      rotate_window_focus();
+    } else {
+      is_running_ = false;
+    }
   }
 }
 
@@ -148,7 +153,6 @@ bool interface::window_has_focus(window_ptr focus_window) {
 
 void interface::window_focus(window_ptr focus_window) {
   focus_window_ = focus_window.get();
-  update();
 }
 
 window *interface::window_focus() {
@@ -156,8 +160,12 @@ window *interface::window_focus() {
 }
 
 void interface::rotate_window_focus() {
+  if (windows_.empty()) {
+    LOG_WARNING << "unable to rotate; windows is empty";
+    return;
+  }
   std::rotate(windows_.begin(), windows_.begin() + 1, windows_.end());
   const auto &first_window = *windows_.begin();
   focus_window_ = first_window.get();
-  update();
+  focus_window_->on_focus();
 }
