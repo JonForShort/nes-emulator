@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2018
+// Copyright 2018-2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,15 @@
 #ifndef JONES_DEBUGGER_INTERFACE_HH
 #define JONES_DEBUGGER_INTERFACE_HH
 
-#include "windows/window.hh"
 #include <curses.h>
-#include <memory.h>
+#include <memory>
 #include <vector>
 
+#include "windows/window.hh"
+
 namespace jones {
+
+using window_ptr = std::unique_ptr<window>;
 
 class interface final {
 public:
@@ -43,18 +46,23 @@ public:
 
 private:
   void rotate_window_focus();
-  bool window_has_focus(window_type window);
-  void window_focus(window_type window);
-  window_type window_focus();
+  bool window_has_focus(window_ptr focus_window);
+  void window_focus(window_ptr focus_window);
+  window *window_focus();
+
+  void register_signal_handlers();
+  void unregister_signal_handlers();
+
   void register_windows();
+  void unregister_windows();
 
 private:
-  WINDOW *main_window_;
+  WINDOW *interface_window_;
   bool is_running_;
   unsigned int screen_height_;
   unsigned int screen_width_;
-  window_type focus_window_;
-  std::vector<window> windows_;
+  window *focus_window_;
+  std::vector<window_ptr> windows_;
 };
 
 } // namespace jones

@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <algorithm>
 #include <curses.h>
 #include <signal.h>
 #include <string>
@@ -43,7 +44,41 @@ void signal_handler(int signo) {
   }
 }
 
-int register_signal_handler() {
+static const unsigned int command_window_height = 5;
+
+} // namespace
+
+interface::interface()
+    : interface_window_(initscr()),
+      is_running_(false),
+      screen_height_(0),
+      screen_width_(0),
+      focus_window_(nullptr),
+      windows_() {}
+
+interface::~interface() {
+  release();
+}
+
+void interface::initialize() {
+  register_signal_handlers();
+  register_windows();
+}
+
+void interface::release() {
+  if (interface_window_ != nullptr) {
+    is_running_ = false;
+
+    unregister_signal_handlers();
+    unregister_windows();
+
+    delwin(interface_window_);
+    interface_window_ = nullptr;
+    endwin();
+  }
+}
+
+void interface::register_signal_handlers() {
   LOG_DEBUG << "registering signal handlers.";
   struct sigaction action;
   action.sa_handler = signal_handler;
@@ -51,29 +86,28 @@ int register_signal_handler() {
   action.sa_flags = 0;
   if (sigaction(SIGWINCH, &action, NULL) < 0) {
     LOG_ERROR << "sigaction failed";
-    return -1;
+    return;
   }
   if (sigaction(SIGINT, &action, NULL) < 0) {
     LOG_ERROR << "sigaction failed";
-    return -1;
+    return;
   }
   if (sigaction(SIGTERM, &action, NULL) < 0) {
     LOG_ERROR << "sigaction failed";
-    return -1;
+    return;
   }
   if (sigaction(SIGQUIT, &action, NULL) < 0) {
     LOG_ERROR << "sigaction failed";
-    return -1;
+    return;
   }
   if (sigaction(SIGCHLD, &action, NULL) < 0) {
     LOG_ERROR << "sigaction failed";
-    return -1;
+    return;
   }
-  return 0;
 }
 
-int unregister_signal_handler() {
-  LOG_DEBUG << "unregistering signal handlers.";
+void interface::unregister_signal_handlers() {
+  LOG_DEBUG << "unregistering signal handlers";
   signal(SIGWINCH, SIG_DFL);
   signal(SIGINT, SIG_DFL);
   signal(SIGTERM, SIG_DFL);
@@ -81,78 +115,49 @@ int unregister_signal_handler() {
   signal(SIGQUIT, SIG_DFL);
 }
 
-static const unsigned int command_window_height = 5;
-
-} // namespace
-
-interface::interface()
-    : main_window_(initscr()), is_running_(false), screen_height_(0), screen_width_(0), focus_window_(window_type::COMMAND) {}
-
-interface::~interface() {
-  release();
+void interface::register_windows() {
+  LOG_DEBUG << "registering windows";
 }
 
-void interface::initialize() {
-  register_signal_handler();
-  register_windows();
-}
-
-void interface::release() {
-  if (main_window_ != nullptr) {
-    is_running_ = false;
-
-    unregister_signal_handler();
-
-    delwin(main_window_);
-    main_window_ = nullptr;
-    endwin();
-  }
+void interface::unregister_windows() {
+  LOG_DEBUG << "unregistering windows";
 }
 
 void interface::show() {
   update();
-  command_window command_window(main_window_);
+  command_window command_window(interface_window_);
   noecho();
   is_running_ = true;
   while (is_running_) {
     command_window.draw(0, screen_height_ - command_window_height, screen_width_, screen_height_);
     command_window.on_focus();
     clrtoeol();
-    wrefresh(main_window_);
+    wrefresh(interface_window_);
     command_window.on_key_pressed(getch());
     is_running_ = false;
   }
 }
 
 void interface::update() {
-  getmaxyx(main_window_, screen_height_, screen_width_);
+  getmaxyx(interface_window_, screen_height_, screen_width_);
 }
 
-bool interface::window_has_focus(window_type window) {
-  return focus_window_ == window;
+bool interface::window_has_focus(window_ptr focus_window) {
+  return focus_window_ == focus_window.get();
 }
 
-void interface::window_focus(window_type window) {
-  focus_window_ = window;
+void interface::window_focus(window_ptr focus_window) {
+  focus_window_ = focus_window.get();
   update();
 }
 
-window_type interface::window_focus() {
+window *interface::window_focus() {
   return focus_window_;
 }
 
 void interface::rotate_window_focus() {
-  switch (focus_window_) {
-  case window_type::COMMAND:
-    focus_window_ = window_type::CONTENT;
-    update();
-    break;
-  case window_type::CONTENT:
-    focus_window_ = window_type::COMMAND;
-    update();
-    break;
-  }
-}
-
-void interface::register_windows() {
+  std::rotate(windows_.begin(), windows_.begin() + 1, windows_.end());
+  const auto &first_window = *windows_.begin();
+  focus_window_ = first_window.get();
+  update();
 }
