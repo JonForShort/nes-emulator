@@ -397,6 +397,54 @@ BOOST_AUTO_TEST_CASE(disassemble_0x29_instruction_valid) {
 }
 
 //
+// Test: Disassembles opcode 0x2A.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x2A_instruction_valid) {
+  uint8_t binary_instruction[] = {0x2A};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "ROL");
+}
+
+//
+// Test: Disassembles opcode 0x2B.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x2B_instruction_valid) {
+  uint8_t binary_instruction[] = {0x2B, 0x2C};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "ANC #$2C");
+}
+
+//
+// Test: Disassembles opcode 0x2C.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x2C_instruction_valid) {
+  uint8_t binary_instruction[] = {0x2C, 0xEE, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "BIT $FFEE");
+}
+
+//
+// Test: Disassembles opcode 0x2D.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x2D_instruction_valid) {
+  uint8_t binary_instruction[] = {0x2D, 0xEE, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "AND $FFEE");
+}
+
+//
+// Test: Disassembles opcode 0x2E.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x2E_instruction_valid) {
+  uint8_t binary_instruction[] = {0x2E, 0xEE, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "ROL $FFEE");
+}
+
+//
+// Test: Disassembles opcode 0x2F.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x2F_instruction_valid) {
+  uint8_t binary_instruction[] = {0x2F, 0xEE, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "RLA $FFEE");
+}
+
+//
 // Test: Decodes an instruction that is too small.  In this case, an empty instruction.
 //
 BOOST_AUTO_TEST_CASE(decode_invalid_instruction_too_small) {
