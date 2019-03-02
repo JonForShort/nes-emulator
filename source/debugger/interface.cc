@@ -50,7 +50,7 @@ static const unsigned int command_window_height = 5;
 
 interface::interface()
     : interface_window_(initscr()),
-      is_running_(false),
+      is_running_(true),
       screen_height_(0),
       screen_width_(0),
       focus_window_(nullptr),
@@ -84,24 +84,24 @@ void interface::register_signal_handlers() {
   action.sa_handler = signal_handler;
   sigemptyset(&action.sa_mask);
   action.sa_flags = 0;
-  if (sigaction(SIGWINCH, &action, NULL) < 0) {
+  if (sigaction(SIGWINCH, &action, nullptr) < 0) {
     LOG_ERROR << "sigaction failed";
     return;
   }
-  if (sigaction(SIGINT, &action, NULL) < 0) {
-    LOG_ERROR << "sigaction failed";
+  if (sigaction(SIGINT, &action, nullptr) < 0) {
+    LOG_ERROR << "sigint failed";
     return;
   }
-  if (sigaction(SIGTERM, &action, NULL) < 0) {
-    LOG_ERROR << "sigaction failed";
+  if (sigaction(SIGTERM, &action, nullptr) < 0) {
+    LOG_ERROR << "sigterm failed";
     return;
   }
-  if (sigaction(SIGQUIT, &action, NULL) < 0) {
-    LOG_ERROR << "sigaction failed";
+  if (sigaction(SIGQUIT, &action, nullptr) < 0) {
+    LOG_ERROR << "sigquit failed";
     return;
   }
-  if (sigaction(SIGCHLD, &action, NULL) < 0) {
-    LOG_ERROR << "sigaction failed";
+  if (sigaction(SIGCHLD, &action, nullptr) < 0) {
+    LOG_ERROR << "sigchld failed";
     return;
   }
 }
@@ -128,10 +128,8 @@ void interface::unregister_windows() {
 void interface::show() {
   update();
   noecho();
-  is_running_ = true;
   while (is_running_) {
     focus_window_->draw(0, screen_height_ - command_window_height, screen_width_, screen_height_);
-    clrtoeol();
     wrefresh(interface_window_);
     const auto &input = getch();
     focus_window_->on_key_pressed(input);
