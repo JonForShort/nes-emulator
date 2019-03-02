@@ -147,12 +147,13 @@ void interface::update() {
   getmaxyx(interface_window_, screen_height_, screen_width_);
 }
 
-bool interface::window_has_focus(window_ptr focus_window) {
-  return focus_window_ == focus_window.get();
+bool interface::window_has_focus(window *focus_window) {
+  return focus_window_ == focus_window;
 }
 
-void interface::window_focus(window_ptr focus_window) {
-  focus_window_ = focus_window.get();
+void interface::window_focus(window *focus_window) {
+  focus_window_ = focus_window;
+  focus_window_->on_focus();
 }
 
 window *interface::window_focus() {
@@ -165,7 +166,6 @@ void interface::rotate_window_focus() {
     return;
   }
   std::rotate(windows_.begin(), windows_.begin() + 1, windows_.end());
-  const auto &first_window = *windows_.begin();
-  focus_window_ = first_window.get();
-  focus_window_->on_focus();
+  const auto &next_window = *windows_.begin();
+  window_focus(next_window.get());
 }

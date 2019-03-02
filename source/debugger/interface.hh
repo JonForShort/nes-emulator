@@ -46,8 +46,8 @@ public:
 
 private:
   void rotate_window_focus();
-  bool window_has_focus(window_ptr focus_window);
-  void window_focus(window_ptr focus_window);
+  bool window_has_focus(window *focus_window);
+  void window_focus(window *focus_window);
   window *window_focus();
 
   void register_signal_handlers();
