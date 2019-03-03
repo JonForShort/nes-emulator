@@ -445,6 +445,78 @@ BOOST_AUTO_TEST_CASE(disassemble_0x2F_instruction_valid) {
 }
 
 //
+// Test: Disassembles opcode 0x30.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x30_instruction_valid) {
+  uint8_t binary_instruction[] = {0x30, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "BMI $FF");
+}
+
+//
+// Test: Disassembles opcode 0x31.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x31_instruction_valid) {
+  uint8_t binary_instruction[] = {0x31, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "AND ($FF),Y");
+}
+
+//
+// Test: Disassembles opcode 0x32.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x32_instruction_valid) {
+  uint8_t binary_instruction[] = {0x32};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "STP");
+}
+
+//
+// Test: Disassembles opcode 0x33.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x33_instruction_valid) {
+  uint8_t binary_instruction[] = {0x33, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "RLA ($FF),Y");
+}
+
+//
+// Test: Disassembles opcode 0x34.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x34_instruction_valid) {
+  uint8_t binary_instruction[] = {0x34, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "NOP $FF,X");
+}
+
+//
+// Test: Disassembles opcode 0x35.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x35_instruction_valid) {
+  uint8_t binary_instruction[] = {0x35, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "AND $FF,X");
+}
+
+//
+// Test: Disassembles opcode 0x36.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x36_instruction_valid) {
+  uint8_t binary_instruction[] = {0x36, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "ROL $FF,X");
+}
+
+//
+// Test: Disassembles opcode 0x37.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x37_instruction_valid) {
+  uint8_t binary_instruction[] = {0x37, 0xFF};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "RLA $FF,X");
+}
+
+//
+// Test: Disassembles opcode 0x38.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x38_instruction_valid) {
+  uint8_t binary_instruction[] = {0x38};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "SEC");
+}
+
+//
 // Test: Decodes an instruction that is too small.  In this case, an empty instruction.
 //
 BOOST_AUTO_TEST_CASE(decode_invalid_instruction_too_small) {
