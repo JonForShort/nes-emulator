@@ -517,6 +517,30 @@ BOOST_AUTO_TEST_CASE(disassemble_0x38_instruction_valid) {
 }
 
 //
+// Test: Disassembles opcode 0x39.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x39_instruction_valid) {
+  uint8_t binary_instruction[] = {0x39, 0xFF, 0xEE};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "AND $EEFF,Y");
+}
+
+//
+// Test: Disassembles opcode 0x3A.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x3A_instruction_valid) {
+  uint8_t binary_instruction[] = {0x3A};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "NOP");
+}
+
+//
+// Test: Disassembles opcode 0x3B.
+//
+BOOST_AUTO_TEST_CASE(disassemble_0x3B_instruction_valid) {
+  uint8_t binary_instruction[] = {0x3B, 0xFF, 0xEE};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "RLA $EEFF,Y");
+}
+
+//
 // Test: Decodes an instruction that is too small.  In this case, an empty instruction.
 //
 BOOST_AUTO_TEST_CASE(decode_invalid_instruction_too_small) {
