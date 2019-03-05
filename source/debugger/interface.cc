@@ -130,8 +130,11 @@ void interface::show() {
   noecho();
   while (is_running_) {
     focus_window_->draw(0, screen_height_ - command_window_height, screen_width_, screen_height_);
+    focus_window_->on_focus();
+
     wrefresh(interface_window_);
     const auto &input = getch();
+
     focus_window_->on_key_pressed(input);
     if (input == 't') {
       rotate_window_focus();

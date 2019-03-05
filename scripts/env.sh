@@ -11,13 +11,7 @@ jones_debugger() {
 	return -1
     fi
 
-    DEBUG_FILE=$1
-    if [ ! -f "${DEBUG_FILE}" ]; then
-	echo "error: must provide file to debug; path is not valid [${DEBUG_FILE}]"
-	return -2
-    fi
-
-    ${JONES_DEBUGGER} -g -f ${DEBUG_FILE}	
+    ${JONES_DEBUGGER} "$@"
 }
 
 jones_build() {

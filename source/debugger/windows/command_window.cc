@@ -35,38 +35,28 @@ static const unsigned int command_window_height = 5;
 } // namespace
 
 command_window::command_window(WINDOW *parent_window)
-    : parent_window_(parent_window), window_(nullptr) {}
+    : parent_window_(parent_window),
+      window_(subwin(parent_window, 0, 0, 0, 0)) {}
 
 command_window::~command_window() {
   release();
 }
 
 void command_window::release() {
-  if (window_ != nullptr) {
-    delwin(window_);
-    window_ = nullptr;
-  }
+  delwin(window_);
 }
 
 void command_window::draw(int start_x, int start_y, int column_count, int line_count) {
-  release();
-
-  window_ = subwin(parent_window_, line_count, column_count, start_y, start_x);
-
+  mvwin(window_, start_y, start_x);
+  wresize(window_, line_count, column_count);
   box(window_, 0, 0);
-
   mvwaddstr(window_, 0, 2, "[ command ]");
   mvwaddstr(window_, 2, 2, "> ");
-
   wrefresh(window_);
-
-  clrtoeol();
 }
 
 void command_window::on_focus() {
-  if (window_ != nullptr) {
-    wmove(window_, 2, 2);
-  }
+  wmove(window_, 2, 2);
 }
 
 void command_window::on_unfocus() {
