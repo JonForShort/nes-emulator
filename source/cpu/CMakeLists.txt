@@ -9,6 +9,8 @@ set (sources
 
 add_library (cpu STATIC ${sources})
 
+add_dependencies (cpu gsl)
+
 target_include_directories (cpu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 include (${CMAKE_CURRENT_SOURCE_DIR}/test.cmake)
