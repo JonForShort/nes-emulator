@@ -24,8 +24,10 @@
 #ifndef JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
 #define JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
 
-#include "window.hh"
 #include <curses.h>
+#include <vector>
+
+#include "window.hh"
 
 namespace jones {
 
@@ -42,10 +44,14 @@ public:
 
 private:
   void release();
+  void reset_input_cursor() const;
+  void update_input() const;
 
 private:
   WINDOW *parent_window_;
   WINDOW *window_;
+
+  std::vector<char> input_buffer_;
 };
 
 } // namespace jones

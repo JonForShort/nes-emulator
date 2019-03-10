@@ -30,13 +30,14 @@ using namespace jones;
 
 namespace {
 
-static const unsigned int command_window_height = 5;
+static const unsigned int KEY_ENTER_ALT = 10;
 
 } // namespace
 
 command_window::command_window(WINDOW *parent_window)
     : parent_window_(parent_window),
-      window_(subwin(parent_window, 0, 0, 0, 0)) {}
+      window_(subwin(parent_window, 0, 0, 0, 0)),
+      input_buffer_() {}
 
 command_window::~command_window() {
   release();
@@ -65,8 +66,35 @@ void command_window::on_unfocus() {
 
 void command_window::on_key_pressed(char key) {
   LOG_DEBUG << "on_key_pressed : " << key;
+
+  switch (key) {
+  case KEY_BACKSPACE:
+    input_buffer_.pop_back();
+    break;
+  case KEY_ENTER:
+  case KEY_ENTER_ALT:
+    input_buffer_.clear();
+    break;
+  default:
+    input_buffer_.push_back(key);
+    break;
+  }
+  update_input();
 }
 
 window_type command_window::type() {
   return window_type::COMMAND;
+}
+
+void command_window::reset_input_cursor() const {
+  wmove(parent_window_, 2, 4);
+}
+
+void command_window::update_input() const {
+  reset_input_cursor();
+  clrtoeol();
+  reset_input_cursor();
+  for (auto &c : input_buffer_) {
+    waddch(parent_window_, c);
+  }
 }
