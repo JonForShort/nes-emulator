@@ -56,7 +56,8 @@ void command_window::draw(int start_x, int start_y, int column_count, int line_c
 }
 
 void command_window::on_focus() {
-  wmove(window_, 2, 2);
+  noecho();
+  wmove(parent_window_, 2, 4);
 }
 
 void command_window::on_unfocus() {

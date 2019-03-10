@@ -112,7 +112,6 @@ void interface::unregister_signal_handlers() {
   signal(SIGINT, SIG_DFL);
   signal(SIGTERM, SIG_DFL);
   signal(SIGQUIT, SIG_DFL);
-  signal(SIGQUIT, SIG_DFL);
 }
 
 void interface::register_windows() {
@@ -127,14 +126,8 @@ void interface::unregister_windows() {
 
 void interface::show() {
   update();
-  noecho();
   while (is_running_) {
-    focus_window_->draw(0, screen_height_ - command_window_height, screen_width_, screen_height_);
-    focus_window_->on_focus();
-
-    wrefresh(interface_window_);
     const auto &input = getch();
-
     focus_window_->on_key_pressed(input);
     if (input == 't') {
       rotate_window_focus();
@@ -146,6 +139,9 @@ void interface::show() {
 
 void interface::update() {
   getmaxyx(interface_window_, screen_height_, screen_width_);
+
+  focus_window_->draw(0, 0, screen_width_, screen_height_);
+  focus_window_->on_focus();
 }
 
 bool interface::window_has_focus(window *focus_window) {
