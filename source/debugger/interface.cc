@@ -35,18 +35,14 @@ using namespace jones;
 
 namespace {
 
-void signal_handler(int signo) {
-  LOG_DEBUG << "signal handled = " << signo;
-  if (signo == SIGWINCH) {
-    endwin();
-    refresh();
-    clear();
-  }
-}
-
 static const unsigned int command_window_height = 5;
 
 } // namespace
+
+interface &interface::instance() {
+  static interface instance;
+  return instance;
+}
 
 interface::interface()
     : interface_window_(initscr()),
@@ -68,6 +64,7 @@ void interface::initialize() {
 void interface::release() {
   if (interface_window_ != nullptr) {
     is_running_ = false;
+    ungetch(0);
 
     unregister_signal_handlers();
     unregister_windows();
@@ -78,10 +75,22 @@ void interface::release() {
   }
 }
 
+void interface::handle_signal(int signal_number) {
+  LOG_DEBUG << "signal handled = " << signal_number;
+  switch (signal_number) {
+  case SIGWINCH:
+    instance().on_window_change();
+    break;
+  case SIGINT:
+    instance().release();
+    break;
+  }
+}
+
 void interface::register_signal_handlers() {
   LOG_DEBUG << "registering signal handlers.";
   struct sigaction action;
-  action.sa_handler = signal_handler;
+  action.sa_handler = interface::handle_signal;
   sigemptyset(&action.sa_mask);
   action.sa_flags = 0;
   if (sigaction(SIGWINCH, &action, nullptr) < 0) {
@@ -122,17 +131,20 @@ void interface::register_windows() {
 
 void interface::unregister_windows() {
   LOG_DEBUG << "unregistering windows";
+  windows_.clear();
 }
 
 void interface::show() {
   update();
   while (is_running_) {
     const auto &input = getch();
-    focus_window_->on_key_pressed(input);
-    if (input == 't') {
+    switch (input) {
+    case KEY_STAB:
       rotate_window_focus();
-    } else {
-      is_running_ = false;
+      break;
+    default:
+      focus_window_->on_key_pressed(input);
+      break;
     }
   }
 }
@@ -165,4 +177,7 @@ void interface::rotate_window_focus() {
   std::rotate(windows_.begin(), windows_.begin() + 1, windows_.end());
   const auto &next_window = *windows_.begin();
   window_focus(next_window.get());
+}
+
+void interface::on_window_change() {
 }

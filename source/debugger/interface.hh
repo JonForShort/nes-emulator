@@ -39,10 +39,14 @@ public:
   interface();
   ~interface();
 
+  static interface &instance();
+
   void initialize();
   void release();
   void show();
   void update();
+
+  static void handle_signal(int signal_number);
 
 private:
   void rotate_window_focus();
@@ -55,6 +59,8 @@ private:
 
   void register_windows();
   void unregister_windows();
+
+  void on_window_change();
 
 private:
   WINDOW *interface_window_;

@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  jo::interface interface;
+  auto &interface = jo::interface::instance();
   interface.initialize();
   interface.show();
   interface.release();
