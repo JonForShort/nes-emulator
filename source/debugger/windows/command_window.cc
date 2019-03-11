@@ -22,6 +22,7 @@
 // SOFTWARE.
 //
 #include <curses.h>
+#include <signal.h>
 
 #include "command_window.hh"
 #include "log.hh"
@@ -73,6 +74,7 @@ void command_window::on_key_pressed(char key) {
     break;
   case KEY_ENTER:
   case KEY_ENTER_ALT:
+    process_command();
     input_buffer_.clear();
     break;
   default:
@@ -96,5 +98,13 @@ void command_window::update_input() const {
   reset_input_cursor();
   for (auto &c : input_buffer_) {
     waddch(parent_window_, c);
+  }
+}
+
+void command_window::process_command() const {
+  const std::string command(input_buffer_.begin(), input_buffer_.end());
+  LOG_DEBUG << "process_command : handling command = " << command;
+  if (command == "quit") {
+    raise(SIGINT);
   }
 }

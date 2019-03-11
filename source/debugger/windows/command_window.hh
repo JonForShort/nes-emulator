@@ -46,6 +46,7 @@ private:
   void release();
   void reset_input_cursor() const;
   void update_input() const;
+  void process_command() const;
 
 private:
   WINDOW *parent_window_;
