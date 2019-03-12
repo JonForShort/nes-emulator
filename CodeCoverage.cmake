@@ -1,0 +1,4 @@
+if ("$ENV{CODE_COVERAGE}" STREQUAL "1")
+  set(JONES_CXX_FLAGS_DEBUG "${JONES_CXX_FLAGS_DEBUG} --coverage")
+endif()
+
