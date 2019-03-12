@@ -21,21 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <boost/assert.hpp>
 #include <cstring>
 
 #include "decode.hh"
+#include "log.hh"
 
 using namespace jones;
 
 namespace {
 
-decode::instruction create_invalid_instruction() {
+decode::instruction create_empty_instruction() {
   return decode::instruction{
       .encoded = {},
       .encoded_length_in_bytes = 0,
       .decoded_opcode = {opcode_type::INVALID, 0},
       .decoded_operand = {operand_type::INVALID, static_cast<uint8_t>(0)},
-  };
+      .decoded_addressing_mode = addressing_mode_type::INVALID};
 }
 
 } // namespace
@@ -45,7 +47,7 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
     //
     // buffer is not sufficient size to hold an instruction
     //
-    return create_invalid_instruction();
+    return create_empty_instruction();
   }
   const auto opcode = buffer[0];
   const auto instruction = instruction_set[opcode];
@@ -53,19 +55,23 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
     //
     // buffer is smaller than expected size
     //
-    return create_invalid_instruction();
+    return create_empty_instruction();
   }
   const auto instruction_length = instruction.length;
-  decode::instruction decoded_instruction = {0};
+  decode::instruction decoded_instruction = create_empty_instruction();
   std::memcpy(decoded_instruction.encoded.data(), buffer, instruction_length);
   decoded_instruction.encoded_length_in_bytes = instruction_length;
   decoded_instruction.decoded_addressing_mode = instruction.addressing_mode;
   decoded_instruction.decoded_opcode = {instruction.opcode, opcode};
+
   switch (instruction.addressing_mode) {
   case addressing_mode_type::ABSOLUTE:
   case addressing_mode_type::ABSOLUTE_X:
   case addressing_mode_type::ABSOLUTE_Y:
     decoded_instruction.decoded_operand = {operand_type::MEMORY, static_cast<uint16_t>(buffer[1] | (buffer[2] << 8))};
+    break;
+  case addressing_mode_type::ACCUMULATOR:
+    decoded_instruction.decoded_operand = {operand_type::REGISTER, static_cast<uint8_t>(0x00)};
     break;
   case addressing_mode_type::IMMEDIATE:
     decoded_instruction.decoded_operand = {operand_type::IMMEDIATE, buffer[1]};
@@ -88,7 +94,13 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
   case addressing_mode_type::ZERO_PAGE_Y:
     decoded_instruction.decoded_operand = {operand_type::MEMORY, buffer[1]};
     break;
+  case addressing_mode_type::INVALID:
+    LOG_ERROR << "invalid addressing mode type found";
+    break;
   }
+
+  BOOST_ASSERT(instruction.addressing_mode != addressing_mode_type::INVALID);
+
   return decoded_instruction;
 }
 

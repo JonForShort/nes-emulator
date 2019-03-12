@@ -55,7 +55,7 @@ private:
 
   std::string command_buffer_;
   std::vector<std::string> command_history_;
-  int command_offset_;
+  size_t command_offset_;
 };
 
 } // namespace jones

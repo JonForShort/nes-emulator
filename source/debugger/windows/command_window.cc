@@ -84,7 +84,7 @@ void command_window::on_key_pressed(int key) {
     }
     break;
   case KEY_DOWN:
-    if (command_offset_ >= 0) {
+    if (command_offset_ > 0) {
       command_buffer_.insert(command_offset_, command_buffer_);
       command_offset_--;
     }

@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <boost/core/ignore_unused.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/interprocess/file_mapping.hpp>
 #include <boost/interprocess/mapped_region.hpp>
@@ -45,7 +46,7 @@ namespace {
 std::string to_hex_string(uint8_t *data, size_t size, size_t width, bool left_to_right = true) {
   std::ostringstream oss;
   if (left_to_right) {
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < static_cast<int>(size); i++) {
       oss << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(data[i]);
     }
   } else {
@@ -53,13 +54,16 @@ std::string to_hex_string(uint8_t *data, size_t size, size_t width, bool left_to
       oss << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(data[i]);
     }
   }
-  for (int i = 0; i < (width - (size * 2)); i++) {
+  for (int i = 0; i < static_cast<int>(width - (size * 2)); i++) {
     oss << " ";
   }
   return oss.str();
 }
 
 void dump_code(const fs::path &root_path, const jo::cartridge &rom, const uint8_t *const base_address, const size_t length_in_bytes) {
+  boost::ignore_unused(rom);
+  boost::ignore_unused(length_in_bytes);
+
   const fs::path code_path = root_path / "code";
   fs::create_directories(code_path);
   fs::ofstream code_file{code_path / "prgrom.a65"};
@@ -77,11 +81,19 @@ void dump_code(const fs::path &root_path, const jo::cartridge &rom, const uint8_
 }
 
 void dump_audio(const fs::path &root_path, const jo::cartridge &rom, const uint8_t *const base_address, const size_t length_in_bytes) {
+  boost::ignore_unused(rom);
+  boost::ignore_unused(base_address);
+  boost::ignore_unused(length_in_bytes);
+
   const fs::path audio_path = root_path / "audio";
   fs::create_directories(audio_path);
 }
 
 void dump_image(const fs::path &root_path, const jo::cartridge &rom, const uint8_t *const base_address, const size_t length_in_bytes) {
+  boost::ignore_unused(rom);
+  boost::ignore_unused(base_address);
+  boost::ignore_unused(length_in_bytes);
+
   const fs::path image_path = root_path / "image";
   fs::create_directories(image_path);
 }

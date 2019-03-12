@@ -63,9 +63,17 @@ std::string disassemble_operand_memory(const jde::operand &decoded_operand, cons
     operand_string << " $" << std::hex << std::uppercase << memory_value << ",Y";
     break;
   }
-  case addressing_mode_type::RELATIVE: {
-    const int memory_value = std::get<uint8_t>(decoded_operand.value);
-    operand_string << " $" << std::hex << std::uppercase << memory_value;
+  case addressing_mode_type::ACCUMULATOR: {
+    operand_string << " A";
+    break;
+  }
+  case addressing_mode_type::IMMEDIATE: {
+    const int immediate_value = std::get<uint16_t>(decoded_operand.value);
+    operand_string << " #" << std::hex << std::uppercase << immediate_value;
+    break;
+  }
+  case addressing_mode_type::IMPLICIT: {
+    operand_string << "";
     break;
   }
   case addressing_mode_type::INDEXED_INDIRECT: {
@@ -76,6 +84,20 @@ std::string disassemble_operand_memory(const jde::operand &decoded_operand, cons
   case addressing_mode_type::INDIRECT_INDEXED: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
     operand_string << " ($" << std::hex << std::uppercase << memory_value << "),Y";
+    break;
+  }
+  case addressing_mode_type::INDIRECT: {
+    const int memory_value = std::get<uint16_t>(decoded_operand.value);
+    operand_string << " ($" << std::hex << std::uppercase << memory_value << ")";
+    break;
+  }
+  case addressing_mode_type::INVALID: {
+    operand_string << "";
+    break;
+  }
+  case addressing_mode_type::RELATIVE: {
+    const int memory_value = std::get<uint8_t>(decoded_operand.value);
+    operand_string << " $" << std::hex << std::uppercase << memory_value;
     break;
   }
   case addressing_mode_type::ZERO_PAGE: {

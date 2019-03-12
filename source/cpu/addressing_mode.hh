@@ -32,6 +32,9 @@ namespace jones {
 
 enum class addressing_mode_type {
 
+  // Addressing mode is unknown or invalid
+  INVALID,
+
   // d : Zero Page Indexed
   ZERO_PAGE,
 
