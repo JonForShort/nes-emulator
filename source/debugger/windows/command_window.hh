@@ -25,6 +25,7 @@
 #define JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
 
 #include <curses.h>
+#include <string>
 #include <vector>
 
 #include "window.hh"
@@ -39,20 +40,22 @@ public:
   virtual window_type type();
   virtual void on_focus();
   virtual void on_unfocus();
-  virtual void on_key_pressed(char key);
+  virtual void on_key_pressed(int key);
   virtual void draw(int start_x, int start_y, int column_count, int line_count);
 
 private:
   void release();
-  void reset_input_cursor() const;
-  void update_input() const;
-  void process_command() const;
+  void reset_command_cursor() const;
+  void update_command_prompt() const;
+  void process_command();
 
 private:
   WINDOW *parent_window_;
   WINDOW *window_;
 
-  std::vector<char> input_buffer_;
+  std::string command_buffer_;
+  std::vector<std::string> command_history_;
+  int command_offset_;
 };
 
 } // namespace jones
