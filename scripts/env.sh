@@ -21,7 +21,7 @@ jones_build() {
     mkdir -p ${JONES_BUILD_DIR}
 
     pushd ${JONES_BUILD_DIR}
-        cmake ..
+        cmake -DCMAKE_BUILD_TYPE=Debug ..
         make && make test
     popd
 }
