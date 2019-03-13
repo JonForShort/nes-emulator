@@ -57,6 +57,7 @@ interface::~interface() {
 }
 
 void interface::initialize() {
+  keypad(stdscr, TRUE);
   register_signal_handlers();
   register_windows();
 }

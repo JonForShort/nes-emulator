@@ -46,7 +46,7 @@ public:
 private:
   void release();
   void reset_command_cursor() const;
-  void update_command_prompt() const;
+  void update_command_prompt();
   void process_command();
 
 private:

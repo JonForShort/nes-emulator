@@ -39,6 +39,7 @@ command_window::command_window(WINDOW *parent_window)
     : parent_window_(parent_window),
       window_(subwin(parent_window, 0, 0, 0, 0)),
       command_buffer_(),
+      command_history_{""},
       command_offset_(0) {}
 
 command_window::~command_window() {
@@ -66,7 +67,10 @@ void command_window::on_unfocus() {
 }
 
 void command_window::on_key_pressed(int key) {
-  LOG_DEBUG << "on_key_pressed : " << key;
+  LOG_TRACE << "on_key_pressed : "
+            << "key [" << key << "] "
+            << "offset [" << command_offset_ << "] "
+            << "buffer [" << command_buffer_ << "]";
 
   switch (key) {
   case KEY_BACKSPACE:
@@ -75,17 +79,20 @@ void command_window::on_key_pressed(int key) {
   case KEY_ENTER:
   case KEY_ENTER_ALT:
     process_command();
+    command_history_.at(command_offset_) = command_buffer_;
     command_buffer_.clear();
+    command_history_.push_back("");
+    command_offset_ = 0;
     break;
   case KEY_UP:
-    if (command_offset_ < command_history_.size()) {
-      command_buffer_.insert(command_offset_, command_buffer_);
+    if (command_offset_ < (command_history_.size() - 1)) {
+      command_history_.at(command_offset_) = command_buffer_;
       command_offset_++;
     }
     break;
   case KEY_DOWN:
     if (command_offset_ > 0) {
-      command_buffer_.insert(command_offset_, command_buffer_);
+      command_history_.at(command_offset_) = command_buffer_;
       command_offset_--;
     }
     break;
@@ -108,7 +115,7 @@ void command_window::reset_command_cursor() const {
   mvwaddstr(window_, line_count - 2, 2, "> ");
 }
 
-void command_window::update_command_prompt() const {
+void command_window::update_command_prompt() {
   reset_command_cursor();
   clrtoeol();
   box(window_, 0, 0);
