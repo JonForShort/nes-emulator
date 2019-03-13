@@ -21,8 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include "log.hh"
-
 #include <boost/core/null_deleter.hpp>
 #include <boost/log/core/core.hpp>
 #include <boost/log/expressions.hpp>
@@ -37,6 +35,8 @@
 #include <boost/shared_ptr.hpp>
 #include <fstream>
 #include <ostream>
+
+#include "log.hh"
 
 namespace logging = boost::log;
 namespace src = boost::log::sources;
@@ -61,10 +61,14 @@ BOOST_LOG_GLOBAL_LOGGER_INIT(logger, src::severity_logger_mt) {
   boost::shared_ptr<text_sink> sink = boost::make_shared<text_sink>();
 
   // add a logfile stream to our sink
-  sink->locked_backend()->add_stream(boost::make_shared<std::ofstream>(LOGFILE));
+  if (LOG_USE_FILE) {
+    sink->locked_backend()->add_stream(boost::make_shared<std::ofstream>(LOG_FILE));
+  }
 
   // add "console" output stream to our sink
-  sink->locked_backend()->add_stream(boost::shared_ptr<std::ostream>(&std::clog, boost::null_deleter()));
+  if (LOG_USE_CONSOLE) {
+    sink->locked_backend()->add_stream(boost::shared_ptr<std::ostream>(&std::clog, boost::null_deleter()));
+  }
 
   // specify the format of the log message
   logging::formatter formatter = expr::stream

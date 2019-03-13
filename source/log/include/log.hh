@@ -27,7 +27,9 @@
 #include <boost/log/sources/global_logger_storage.hpp>
 #include <boost/log/trivial.hpp>
 
-#define LOGFILE "jones.log"
+#define LOG_FILE "jones.log"
+#define LOG_USE_CONSOLE false
+#define LOG_USE_FILE true
 
 #define SEVERITY_THRESHOLD logging::trivial::warning
 
