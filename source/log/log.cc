@@ -63,6 +63,9 @@ BOOST_LOG_GLOBAL_LOGGER_INIT(logger, src::severity_logger_mt) {
   // add a logfile stream to our sink
   if (LOG_USE_FILE) {
     sink->locked_backend()->add_stream(boost::make_shared<std::ofstream>(LOG_FILE));
+
+    // automatically flushing the logs
+    sink->locked_backend()->auto_flush(true);
   }
 
   // add "console" output stream to our sink

@@ -31,7 +31,7 @@
 #define LOG_USE_CONSOLE false
 #define LOG_USE_FILE true
 
-#define SEVERITY_THRESHOLD logging::trivial::warning
+#define SEVERITY_THRESHOLD logging::trivial::trace
 
 BOOST_LOG_GLOBAL_LOGGER(logger, boost::log::sources::severity_logger_mt<boost::log::trivial::severity_level>)
 
