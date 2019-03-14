@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <boost/algorithm/string.hpp>
 #include <curses.h>
 #include <signal.h>
 
@@ -39,8 +40,8 @@ command_window::command_window(WINDOW *parent_window)
     : parent_window_(parent_window),
       window_(subwin(parent_window, 0, 0, 0, 0)),
       command_buffer_(),
-      command_history_{""},
-      command_offset_(0) {}
+      command_history_(),
+      command_offset_(-1) {}
 
 command_window::~command_window() {
   release();
@@ -67,7 +68,7 @@ void command_window::on_unfocus() {
 }
 
 void command_window::on_key_pressed(int key) {
-  LOG_TRACE << "on_key_pressed : "
+  LOG_TRACE << "on_key_pressed : [before] "
             << "key [" << key << "] "
             << "offset [" << command_offset_ << "] "
             << "buffer [" << command_buffer_ << "]";
@@ -78,29 +79,41 @@ void command_window::on_key_pressed(int key) {
     break;
   case KEY_ENTER:
   case KEY_ENTER_ALT:
-    process_command();
-    command_history_.at(command_offset_) = command_buffer_;
-    command_buffer_.clear();
-    command_history_.push_back("");
-    command_offset_ = 0;
+    boost::trim(command_buffer_);
+    if (!command_buffer_.empty()) {
+      process_command();
+      command_history_.push_back(command_buffer_);
+      command_buffer_.clear();
+      command_offset_ = command_history_.size();
+    }
     break;
   case KEY_UP:
-    if (command_offset_ < (command_history_.size() - 1)) {
-      command_history_.at(command_offset_) = command_buffer_;
-      command_offset_++;
+    if (command_offset_ > 0) {
+      command_offset_--;
+      command_buffer_ = command_history_[command_offset_];
     }
     break;
   case KEY_DOWN:
-    if (command_offset_ > 0) {
-      command_history_.at(command_offset_) = command_buffer_;
-      command_offset_--;
+    if (command_offset_ >= 0 && (command_offset_ < static_cast<int>(command_history_.size()))) {
+      command_offset_++;
+      if (command_offset_ >= static_cast<int>(command_history_.size())) {
+        command_buffer_.clear();
+      } else {
+        command_buffer_ = command_history_[command_offset_];
+      }
     }
     break;
   default:
     command_buffer_.push_back(key);
     break;
   }
+
   update_command_prompt();
+
+  LOG_TRACE << "on_key_pressed : [after] "
+            << "key [" << key << "] "
+            << "offset [" << command_offset_ << "] "
+            << "buffer [" << command_buffer_ << "]";
 }
 
 window_type command_window::type() {
@@ -128,8 +141,6 @@ void command_window::update_command_prompt() {
 void command_window::process_command() {
   const std::string copied_command_buffer(command_buffer_);
   LOG_DEBUG << "process_command : handling command = " << copied_command_buffer;
-  command_history_.push_back(copied_command_buffer);
-  command_offset_++;
   if (copied_command_buffer == "quit") {
     raise(SIGINT);
   }
