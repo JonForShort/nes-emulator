@@ -47,7 +47,10 @@ private:
   void release();
   void reset_command_cursor() const;
   void update_command_prompt();
+
   void process_command();
+  void process_history_command();
+  void process_clear_command();
 
 private:
   WINDOW *parent_window_;

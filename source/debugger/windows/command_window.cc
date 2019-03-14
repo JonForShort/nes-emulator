@@ -33,6 +33,8 @@ using namespace jones;
 namespace {
 
 static const unsigned int KEY_ENTER_ALT = 10;
+static const unsigned int SCREEN_CURSOR_X_POSITION = 2;
+static const unsigned int SCREEN_CURSOR_Y_POSITION = 2;
 
 } // namespace
 
@@ -124,8 +126,8 @@ void command_window::reset_command_cursor() const {
   int column_count = 0;
   int line_count = 0;
   getmaxyx(window_, line_count, column_count);
-  wmove(parent_window_, line_count - 2, 4);
-  mvwaddstr(window_, line_count - 2, 2, "> ");
+  wmove(parent_window_, line_count - SCREEN_CURSOR_Y_POSITION, SCREEN_CURSOR_X_POSITION + 2);
+  mvwaddstr(window_, line_count - SCREEN_CURSOR_Y_POSITION, SCREEN_CURSOR_X_POSITION, "> ");
 }
 
 void command_window::update_command_prompt() {
@@ -144,4 +146,17 @@ void command_window::process_command() {
   if (copied_command_buffer == "quit") {
     raise(SIGINT);
   }
+  if (copied_command_buffer == "history") {
+    process_history_command();
+  }
+
+  if (copied_command_buffer == "clear") {
+    process_clear_command();
+  }
+}
+
+void command_window::process_history_command() {
+}
+
+void command_window::process_clear_command() {
 }
