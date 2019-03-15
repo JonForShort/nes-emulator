@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2018-2019
+// Copyright 2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,21 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
-#define JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
+#ifndef JONES_DEBUGGER_WINDOWS_CONTENT_WINDOW_HH
+#define JONES_DEBUGGER_WINDOWS_CONTENT_WINDOW_HH
 
 #include <curses.h>
-#include <string>
-#include <vector>
 
 #include "window.hh"
 
 namespace jones {
 
-class command_window final : public window {
+class content_window final : public window {
 public:
-  command_window(WINDOW *parent_window);
-  virtual ~command_window();
+  content_window(WINDOW *parent_window);
+  virtual ~content_window();
 
   virtual window_type type();
   virtual void on_focus();
@@ -44,22 +42,10 @@ public:
   virtual void draw(int start_x, int start_y, int column_count, int line_count);
 
 private:
-  void reset_command_cursor() const;
-  void update_command_prompt();
-
-  void process_command();
-  void process_history_command();
-  void process_clear_command();
-
-private:
   WINDOW *parent_window_;
   WINDOW *window_;
-
-  std::string command_buffer_;
-  std::vector<std::string> command_history_;
-  int command_offset_;
 };
 
 } // namespace jones
 
-#endif // JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
+#endif // JONES_DEBUGGER_WINDOWS_CONTENT_WINDOW_HH

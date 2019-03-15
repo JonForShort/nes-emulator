@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2018-2019
+// Copyright 2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,45 +21,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
-#define JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
-
 #include <curses.h>
-#include <string>
-#include <vector>
 
-#include "window.hh"
+#include "content_window.hh"
+#include "log.hh"
 
-namespace jones {
+using namespace jones;
 
-class command_window final : public window {
-public:
-  command_window(WINDOW *parent_window);
-  virtual ~command_window();
+namespace {
 
-  virtual window_type type();
-  virtual void on_focus();
-  virtual void on_unfocus();
-  virtual void on_key_pressed(int key);
-  virtual void draw(int start_x, int start_y, int column_count, int line_count);
+static const char *const SCREEN_TITLE_FOCUSED = "[ *** content *** ]";
+static const char *const SCREEN_TITLE_UNFOCUSED = "[ content ]";
 
-private:
-  void reset_command_cursor() const;
-  void update_command_prompt();
+} // namespace
 
-  void process_command();
-  void process_history_command();
-  void process_clear_command();
+content_window::content_window(WINDOW *parent_window)
+    : parent_window_(parent_window),
+      window_(subwin(parent_window, 0, 0, 0, 0)) {}
 
-private:
-  WINDOW *parent_window_;
-  WINDOW *window_;
+content_window::~content_window() {
+  delwin(window_);
+}
 
-  std::string command_buffer_;
-  std::vector<std::string> command_history_;
-  int command_offset_;
-};
+void content_window::draw(int start_x, int start_y, int column_count, int line_count) {
+  mvwin(window_, start_y, start_x);
+  wresize(window_, line_count, column_count);
+  box(window_, 0, 0);
+  wrefresh(window_);
+}
 
-} // namespace jones
+void content_window::on_focus() {
+  mvwaddstr(window_, 0, 2, SCREEN_TITLE_FOCUSED);
+}
 
-#endif // JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
+void content_window::on_unfocus() {
+  mvwaddstr(window_, 0, 2, SCREEN_TITLE_UNFOCUSED);
+}
+
+void content_window::on_key_pressed(int key) {
+  LOG_TRACE << "on_key_pressed : "
+            << "key [" << key << "]";
+}
+
+window_type content_window::type() {
+  return window_type::CONTENT;
+}

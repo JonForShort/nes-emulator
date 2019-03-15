@@ -35,7 +35,7 @@ using namespace jones;
 
 namespace {
 
-static const unsigned int command_window_height = 5;
+static const unsigned int KEY_STAB_ALT = '\t';
 
 } // namespace
 
@@ -141,6 +141,7 @@ void interface::show() {
     const auto &input = getch();
     switch (input) {
     case KEY_STAB:
+    case KEY_STAB_ALT:
       rotate_window_focus();
       break;
     default:

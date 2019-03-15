@@ -33,8 +33,12 @@ using namespace jones;
 namespace {
 
 static const unsigned int KEY_ENTER_ALT = 10;
+
 static const unsigned int SCREEN_CURSOR_X_POSITION = 2;
 static const unsigned int SCREEN_CURSOR_Y_POSITION = 2;
+
+static const char *const SCREEN_TITLE_FOCUSED = "[ *** command *** ]";
+static const char *const SCREEN_TITLE_UNFOCUSED = "[ command ]";
 
 } // namespace
 
@@ -46,10 +50,6 @@ command_window::command_window(WINDOW *parent_window)
       command_offset_(-1) {}
 
 command_window::~command_window() {
-  release();
-}
-
-void command_window::release() {
   delwin(window_);
 }
 
@@ -57,16 +57,17 @@ void command_window::draw(int start_x, int start_y, int column_count, int line_c
   mvwin(window_, start_y, start_x);
   wresize(window_, line_count, column_count);
   box(window_, 0, 0);
-  mvwaddstr(window_, 0, 2, "[ command ]");
   wrefresh(window_);
 }
 
 void command_window::on_focus() {
+  mvwaddstr(window_, 0, 2, SCREEN_TITLE_FOCUSED);
   noecho();
   reset_command_cursor();
 }
 
 void command_window::on_unfocus() {
+  mvwaddstr(window_, 0, 2, SCREEN_TITLE_UNFOCUSED);
 }
 
 void command_window::on_key_pressed(int key) {

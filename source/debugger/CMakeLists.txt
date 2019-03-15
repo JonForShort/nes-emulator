@@ -12,6 +12,7 @@ set (source-files
   debugger.cc
   interface.cc
   windows/command_window.cc
+  windows/content_window.cc
 )
 
 add_executable (jones-debugger ${source-files})
