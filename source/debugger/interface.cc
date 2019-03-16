@@ -37,6 +37,12 @@ namespace {
 
 static const unsigned int KEY_STAB_ALT = '\t';
 
+void initialize_curses() {
+  cbreak();
+  keypad(stdscr, TRUE);
+  noecho();
+}
+
 } // namespace
 
 interface &interface::instance() {
@@ -57,7 +63,7 @@ interface::~interface() {
 }
 
 void interface::initialize() {
-  keypad(stdscr, TRUE);
+  initialize_curses();
   register_signal_handlers();
   register_windows();
 }
@@ -174,6 +180,10 @@ window *interface::window_focus() {
 void interface::rotate_window_focus() {
   if (windows_.empty()) {
     LOG_WARNING << "unable to rotate; windows is empty";
+    return;
+  }
+  if (windows_.size() == 1) {
+    LOG_DEBUG << "only one window; no need to rotate";
     return;
   }
   std::rotate(windows_.begin(), windows_.begin() + 1, windows_.end());
