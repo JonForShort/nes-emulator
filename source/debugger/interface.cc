@@ -28,7 +28,7 @@
 
 #include "interface.hh"
 #include "log.hh"
-#include "windows/command_window.hh"
+#include "windows/command/command_window.hh"
 #include "windows/window.hh"
 
 using namespace jones;

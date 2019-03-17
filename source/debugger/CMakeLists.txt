@@ -11,7 +11,8 @@ set (ncurses-lib     ${DIR_ROOT_OUT}/ncurses/lib)
 set (source-files
   debugger.cc
   interface.cc
-  windows/command_window.cc
+  windows/command/command.cc
+  windows/command/command_window.cc
   windows/content_window.cc
 )
 
