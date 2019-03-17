@@ -30,8 +30,8 @@ using namespace jones;
 
 namespace {
 
-static const char *const SCREEN_TITLE_FOCUSED = "[ *** content *** ]";
-static const char *const SCREEN_TITLE_UNFOCUSED = "[ content ]";
+const char *const SCREEN_TITLE_FOCUSED = "[ *** content *** ]";
+const char *const SCREEN_TITLE_UNFOCUSED = "[ content ]";
 
 } // namespace
 

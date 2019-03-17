@@ -24,6 +24,7 @@
 #include <boost/algorithm/string.hpp>
 #include <curses.h>
 #include <signal.h>
+#include <sstream>
 
 #include "command_window.hh"
 #include "log.hh"
@@ -32,13 +33,23 @@ using namespace jones;
 
 namespace {
 
-static const unsigned int KEY_ENTER_ALT = 10;
+const unsigned int KEY_ENTER_ALT = 10;
 
-static const unsigned int SCREEN_CURSOR_X_POSITION = 2;
-static const unsigned int SCREEN_CURSOR_Y_POSITION = 2;
+const unsigned int SCREEN_CURSOR_X_POSITION = 2;
 
-static const char *const SCREEN_TITLE_FOCUSED = "[ *** command *** ]";
-static const char *const SCREEN_TITLE_UNFOCUSED = "[ command ]";
+const unsigned int SCREEN_CURSOR_Y_POSITION = 2;
+
+const char *const SCREEN_TITLE_FOCUSED = "[ *** command *** ]";
+
+const char *const SCREEN_TITLE_UNFOCUSED = "[ command ]";
+
+std::string command_to_string(const std::vector<int> &command_buffer) {
+  std::stringstream command;
+  for (const auto &i : command_buffer) {
+    command << static_cast<char>(i);
+  }
+  return command.str();
+}
 
 } // namespace
 
@@ -74,7 +85,7 @@ void command_window::on_key_pressed(int key) {
   LOG_TRACE << "on_key_pressed : [before] "
             << "key [" << key << "] "
             << "offset [" << command_offset_ << "] "
-            << "buffer [" << command_buffer_ << "]";
+            << "buffer [" << command_to_string(command_buffer_) << "]";
 
   switch (key) {
   case KEY_BACKSPACE:
@@ -82,12 +93,11 @@ void command_window::on_key_pressed(int key) {
     break;
   case KEY_ENTER:
   case KEY_ENTER_ALT:
-    boost::trim(command_buffer_);
     if (!command_buffer_.empty()) {
       process_command();
       command_history_.push_back(command_buffer_);
       command_buffer_.clear();
-      command_offset_ = command_history_.size();
+      command_offset_ = static_cast<int>(command_history_.size());
     }
     break;
   case KEY_UP:
@@ -116,7 +126,7 @@ void command_window::on_key_pressed(int key) {
   LOG_TRACE << "on_key_pressed : [after] "
             << "key [" << key << "] "
             << "offset [" << command_offset_ << "] "
-            << "buffer [" << command_buffer_ << "]";
+            << "buffer [" << command_to_string(command_buffer_) << "]";
 }
 
 window_type command_window::type() {
@@ -137,21 +147,20 @@ void command_window::update_command_prompt() {
   box(window_, 0, 0);
   reset_command_cursor();
   for (auto &c : command_buffer_) {
-    waddch(parent_window_, c);
+    waddch(parent_window_, static_cast<chtype>(c));
   }
 }
 
 void command_window::process_command() {
-  const std::string copied_command_buffer(command_buffer_);
-  LOG_DEBUG << "process_command : handling command = " << copied_command_buffer;
-  if (copied_command_buffer == "quit") {
+  const std::string command = command_to_string(command_buffer_);
+  LOG_DEBUG << "process_command : handling command = " << command;
+  if (command == "quit") {
     raise(SIGINT);
   }
-  if (copied_command_buffer == "history") {
+  if (command == "history") {
     process_history_command();
   }
-
-  if (copied_command_buffer == "clear") {
+  if (command == "clear") {
     process_clear_command();
   }
 }

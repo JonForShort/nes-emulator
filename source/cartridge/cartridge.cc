@@ -60,7 +60,7 @@ uint16_t cartridge::get_prgrom_offset() const {
 }
 
 uint16_t cartridge::get_prgrom_size() const {
-  return rom_file_header_.prgrom_size * 16384;
+  return static_cast<uint16_t>(rom_file_header_.prgrom_size * 16384);
 }
 
 uint16_t cartridge::get_chrrom_offset() const {
@@ -68,7 +68,7 @@ uint16_t cartridge::get_chrrom_offset() const {
 }
 
 uint16_t cartridge::get_chrrom_size() const {
-  return rom_file_header_.chrrom_size * 8192;
+  return static_cast<uint16_t>(rom_file_header_.chrrom_size * 8192);
 }
 
 void cartridge::print_header(std::ostream &out) const {

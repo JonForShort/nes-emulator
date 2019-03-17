@@ -32,14 +32,14 @@ namespace jones {
 
 class content_window final : public window {
 public:
-  content_window(WINDOW *parent_window);
-  virtual ~content_window();
+  explicit content_window(WINDOW *parent_window);
+  ~content_window() override;
 
-  virtual window_type type();
-  virtual void on_focus();
-  virtual void on_unfocus();
-  virtual void on_key_pressed(int key);
-  virtual void draw(int start_x, int start_y, int column_count, int line_count);
+  window_type type() override;
+  void on_focus() override;
+  void on_unfocus() override;
+  void on_key_pressed(int key) override;
+  void draw(int start_x, int start_y, int column_count, int line_count) override;
 
 private:
   WINDOW *parent_window_;

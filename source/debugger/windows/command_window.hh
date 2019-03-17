@@ -34,14 +34,13 @@ namespace jones {
 
 class command_window final : public window {
 public:
-  command_window(WINDOW *parent_window);
-  virtual ~command_window();
-
-  virtual window_type type();
-  virtual void on_focus();
-  virtual void on_unfocus();
-  virtual void on_key_pressed(int key);
-  virtual void draw(int start_x, int start_y, int column_count, int line_count);
+  explicit command_window(WINDOW *parent_window);
+  ~command_window() override;
+  window_type type() override;
+  void on_focus() override;
+  void on_unfocus() override;
+  void on_key_pressed(int key) override;
+  void draw(int start_x, int start_y, int column_count, int line_count) override;
 
 private:
   void reset_command_cursor() const;
@@ -54,9 +53,8 @@ private:
 private:
   WINDOW *parent_window_;
   WINDOW *window_;
-
-  std::string command_buffer_;
-  std::vector<std::string> command_history_;
+  std::vector<int> command_buffer_;
+  std::vector<std::vector<int>> command_history_;
   int command_offset_;
 };
 

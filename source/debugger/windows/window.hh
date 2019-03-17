@@ -31,7 +31,7 @@ enum class window_type {
 
 class window {
 public:
-  virtual ~window() {}
+  virtual ~window() = default;
 
   virtual window_type type() = 0;
   virtual void on_focus() = 0;

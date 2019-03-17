@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
     po::store(command_line_args, vm);
     po::notify(vm);
 
-    has_file_argument = vm.count("file");
+    has_file_argument = vm.count("file") > 0;
   } catch (const po::error &ex) {
     std::cerr << ex.what() << '\n';
     return -1;

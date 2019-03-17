@@ -35,7 +35,7 @@ using namespace jones;
 
 namespace {
 
-static const unsigned int KEY_STAB_ALT = '\t';
+const unsigned int KEY_STAB_ALT = '\t';
 
 void initialize_curses() {
   cbreak();
@@ -91,12 +91,14 @@ void interface::handle_signal(int signal_number) {
   case SIGINT:
     instance().release();
     break;
+  default:
+    break;
   }
 }
 
 void interface::register_signal_handlers() {
   LOG_DEBUG << "registering signal handlers.";
-  struct sigaction action;
+  struct sigaction action {};
   action.sa_handler = interface::handle_signal;
   sigemptyset(&action.sa_mask);
   action.sa_flags = 0;
