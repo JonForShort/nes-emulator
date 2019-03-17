@@ -134,7 +134,7 @@ void interface::unregister_signal_handlers() {
 
 void interface::register_windows() {
   LOG_DEBUG << "registering windows";
-  windows_.push_back(std::make_unique<command_window>(interface_window_));
+  windows_.push_back(std::make_unique<command_window::command_window>(interface_window_));
   focus_window_ = (*windows_.begin()).get();
 }
 

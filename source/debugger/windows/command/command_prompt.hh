@@ -21,4 +21,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include "command.hh"
+#ifndef JONES_DEBUGGER_WINDOWS_COMMAND_COMMAND_PROMPT_HH
+#define JONES_DEBUGGER_WINDOWS_COMMAND_COMMAND_PROMPT_HH
+
+#include <functional>
+#include <vector>
+
+#include "command_buffer.hh"
+
+namespace jones::command_window {
+
+enum class prompt_event {
+  PROMPT_EVENT_COMPLETED,
+};
+
+typedef std::function<void(prompt_event, std::string)> event_callback;
+
+class command_prompt {
+
+public:
+  int position() const;
+
+  std::string text() const;
+
+  void register_callback(event_callback callback);
+
+  void handle_input(int input);
+
+private:
+  void notify_callbacks(prompt_event event, std::string parameter) const;
+
+private:
+  command_buffer current_buffer_;
+
+  int current_buffers_offset_;
+
+  int current_cursor_position_;
+
+  std::vector<command_buffer> buffers_;
+
+  std::vector<event_callback> callbacks_;
+};
+
+} // namespace jones::command_window
+
+#endif // JONES_DEBUGGER_WINDOWS_COMMAND_COMMAND_PROMPT_HH

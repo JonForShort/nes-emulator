@@ -29,35 +29,46 @@
 #include <vector>
 
 #include "../window.hh"
+#include "command_prompt.hh"
 
-namespace jones {
+namespace jones::command_window {
 
 class command_window final : public window {
+
 public:
   explicit command_window(WINDOW *parent_window);
+
   ~command_window() override;
+
   window_type type() override;
+
   void on_focus() override;
+
   void on_unfocus() override;
+
   void on_key_pressed(int key) override;
+
   void draw(int start_x, int start_y, int column_count, int line_count) override;
 
 private:
-  void reset_command_cursor() const;
-  void update_command_prompt();
+  void reset_command_cursor(int cursor_offset) const;
 
-  void process_command();
-  void process_history_command();
-  void process_clear_command();
+  void update_command_prompt(const std::string &prompt_text, int prompt_cursor_position) const;
+
+  void process_command(const std::string &command) const;
+
+  void process_history_command() const;
+
+  void process_clear_command() const;
 
 private:
   WINDOW *parent_window_;
+
   WINDOW *window_;
-  std::vector<int> command_buffer_;
-  std::vector<std::vector<int>> command_history_;
-  int command_offset_;
+
+  command_prompt command_prompt_;
 };
 
-} // namespace jones
+} // namespace jones::command_window
 
 #endif // JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH

@@ -21,14 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_DEBUGGER_WINDOWS_COMMAND_COMMAND_HH
-#define JONES_DEBUGGER_WINDOWS_COMMAND_COMMAND_HH
+#ifndef JONES_DEBUGGER_WINDOWS_COMMAND_COMMAND_BUFFER_HH
+#define JONES_DEBUGGER_WINDOWS_COMMAND_COMMAND_BUFFER_HH
 
-namespace jones {
+#include <string>
+#include <vector>
 
-class command {
+namespace jones::command_window {
+
+class command_buffer {
+
+public:
+  void insert(int position, int input);
+
+  void erase(int position);
+
+  void clear();
+
+  bool is_empty() const;
+
+  int size() const;
+
+  std::string get() const;
+
+private:
+  std::vector<int> buffer_;
 };
 
-} // namespace jones
+} // namespace jones::command_window
 
-#endif // JONES_DEBUGGER_WINDOWS_COMMAND_COMMAND_HH
+#endif // JONES_DEBUGGER_WINDOWS_COMMAND_COMMAND_BUFFER_HH
