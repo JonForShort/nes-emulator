@@ -161,7 +161,6 @@ void interface::show() {
 
 void interface::update() {
   getmaxyx(interface_window_, screen_height_, screen_width_);
-
   focus_window_->draw(0, 0, screen_width_, screen_height_);
   focus_window_->on_focus();
 }

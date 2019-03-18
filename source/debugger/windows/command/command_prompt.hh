@@ -46,7 +46,7 @@ public:
 
   void register_callback(event_callback callback);
 
-  void handle_input(int input);
+  void process_input(int input);
 
 private:
   void notify_callbacks(prompt_event event, std::string parameter) const;

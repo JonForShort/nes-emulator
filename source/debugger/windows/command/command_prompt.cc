@@ -36,7 +36,7 @@ const int KEY_BACKSPACE_ALT = 127;
 
 #define KEY_CONTROL_PLUS(key) ((key)&0x1f)
 
-void command_prompt::handle_input(int key) {
+void command_prompt::process_input(int key) {
   switch (key) {
   case KEY_BACKSPACE:
   case KEY_BACKSPACE_ALT:

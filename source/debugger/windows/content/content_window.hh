@@ -26,26 +26,33 @@
 
 #include <curses.h>
 
-#include "window.hh"
+#include "../window.hh"
 
-namespace jones {
+namespace jones::content_window {
 
 class content_window final : public window {
+
 public:
   explicit content_window(WINDOW *parent_window);
+
   ~content_window() override;
 
   window_type type() override;
+
   void on_focus() override;
+
   void on_unfocus() override;
+
   void on_key_pressed(int key) override;
+
   void draw(int start_x, int start_y, int column_count, int line_count) override;
 
 private:
   WINDOW *parent_window_;
+
   WINDOW *window_;
 };
 
-} // namespace jones
+} // namespace jones::content_window
 
 #endif // JONES_DEBUGGER_WINDOWS_CONTENT_WINDOW_HH

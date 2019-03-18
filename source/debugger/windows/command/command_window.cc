@@ -78,7 +78,7 @@ void command_window::on_unfocus() {
 }
 
 void command_window::on_key_pressed(int key) {
-  command_prompt_.handle_input(key);
+  command_prompt_.process_input(key);
   update_command_prompt(command_prompt_.text(), command_prompt_.position());
 }
 

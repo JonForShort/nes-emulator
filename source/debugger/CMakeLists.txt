@@ -14,7 +14,7 @@ set (source-files
   windows/command/command_buffer.cc
   windows/command/command_prompt.cc
   windows/command/command_window.cc
-  windows/content_window.cc
+  windows/content/content_window.cc
 )
 
 add_executable (jones-debugger ${source-files})

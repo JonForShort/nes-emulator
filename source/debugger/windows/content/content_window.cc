@@ -26,7 +26,7 @@
 #include "content_window.hh"
 #include "log.hh"
 
-using namespace jones;
+using namespace jones::content_window;
 
 namespace {
 

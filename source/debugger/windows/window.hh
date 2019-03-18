@@ -30,13 +30,18 @@ enum class window_type {
 };
 
 class window {
+
 public:
   virtual ~window() = default;
 
   virtual window_type type() = 0;
+
   virtual void on_focus() = 0;
+
   virtual void on_unfocus() = 0;
+
   virtual void on_key_pressed(int key) = 0;
+
   virtual void draw(int start_x, int start_y, int line_count, int column_count) = 0;
 };
 
