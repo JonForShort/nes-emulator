@@ -26,7 +26,7 @@
 
 #include <curses.h>
 
-#include "../window.hh"
+#include "window.hh"
 
 namespace jones::content_window {
 

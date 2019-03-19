@@ -31,3 +31,4 @@ target_link_libraries (jones-debugger pthread)
 
 target_include_directories (jones-debugger PRIVATE ${boost-include})
 target_include_directories (jones-debugger PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories (jones-debugger PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/windows/include)

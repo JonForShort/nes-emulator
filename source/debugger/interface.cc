@@ -29,7 +29,6 @@
 #include "interface.hh"
 #include "log.hh"
 #include "windows/command/command_window.hh"
-#include "windows/window.hh"
 
 using namespace jones;
 
@@ -74,7 +73,9 @@ void interface::release() {
     ungetch(0);
 
     unregister_signal_handlers();
-    unregister_windows();
+
+    // todo: causes segmentation fault
+    //    unregister_windows();
 
     delwin(interface_window_);
     interface_window_ = nullptr;

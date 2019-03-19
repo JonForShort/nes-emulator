@@ -57,7 +57,10 @@ command_window::command_window(WINDOW *parent_window)
 }
 
 command_window::~command_window() {
-  delwin(window_);
+  if (window_ != nullptr) {
+    delwin(window_);
+    window_ = nullptr;
+  }
 }
 
 void command_window::draw(int start_x, int start_y, int column_count, int line_count) {

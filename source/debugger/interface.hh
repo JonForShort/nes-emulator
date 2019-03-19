@@ -28,7 +28,7 @@
 #include <memory>
 #include <vector>
 
-#include "windows/window.hh"
+#include "window.hh"
 
 namespace jones {
 

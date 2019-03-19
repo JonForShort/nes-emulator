@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include "../window.hh"
+#include "window.hh"
 #include "command_prompt.hh"
 
 namespace jones::command_window {
