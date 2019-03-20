@@ -35,6 +35,7 @@ void layout_manager::register_window(windows::window_ptr registered_window, layo
 
 void layout_manager::update_layout(int height, int width) const {
   focus_window_->draw(0, 0, height, width);
+  focus_window_->on_focus();
 }
 
 void layout_manager::update_focus() const {
