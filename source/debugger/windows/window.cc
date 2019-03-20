@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2018-2019
+// Copyright 2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,54 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
-#define JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
-
-#include <curses.h>
-#include <string>
-#include <vector>
-
-#include "command_prompt.hh"
 #include "window.hh"
 
-namespace jones::windows {
+using namespace jones::windows;
 
-class command_window final : public windows::window {
+void window::set_last_drawn(int start_y, int start_x) {
+  start_y_ = start_y;
+  start_x_ = start_x;
+}
 
-public:
-  explicit command_window(WINDOW *parent_window);
+int window::get_last_start_y() {
+  return start_y_;
+}
 
-  ~command_window() override;
-
-  windows::window_type type() override;
-
-  void on_focus() override;
-
-  void on_unfocus() override;
-
-  void on_key_pressed(int key) override;
-
-  void draw(int start_y, int start_x, int line_count, int column_count) override;
-
-private:
-  void reset_command_cursor(int cursor_offset) const;
-
-  void update_command_prompt(const std::string &prompt_text, int prompt_cursor_position) const;
-
-  void process_command(const std::string &command) const;
-
-  void process_history_command() const;
-
-  void process_clear_command() const;
-
-private:
-  WINDOW *parent_window_;
-
-  WINDOW *window_;
-
-  command_prompt command_prompt_;
-};
-
-} // namespace jones::windows
-
-#endif // JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH
+int window::get_last_start_x() {
+  return start_x_;
+}

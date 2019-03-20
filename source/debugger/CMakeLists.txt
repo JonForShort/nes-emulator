@@ -13,6 +13,7 @@ set (source-files
   input.cc
   interface.cc
   layout_manager.cc
+  windows/window.cc
   windows/command/command_buffer.cc
   windows/command/command_prompt.cc
   windows/command/command_window.cc

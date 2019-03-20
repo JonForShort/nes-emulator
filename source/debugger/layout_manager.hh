@@ -47,13 +47,15 @@ class layout_manager final {
 public:
   void register_window(windows::window_ptr registered_window, layout_position position);
 
-  void update_layout(int height, int width) const;
+  void update_layout(int line_count, int column_count) const;
 
   void rotate_window_focus();
 
   void rotate_position_focus();
 
   void handle_input(int key);
+
+  void focus_window(layout_position position, windows::window_type type);
 
 private:
   void update_focus() const;

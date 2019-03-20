@@ -31,6 +31,7 @@ using namespace jones::windows;
 namespace {
 
 const char *const SCREEN_TITLE_FOCUSED = "[ *** content *** ]";
+
 const char *const SCREEN_TITLE_UNFOCUSED = "[ content ]";
 
 } // namespace
@@ -43,19 +44,36 @@ content_window::~content_window() {
   delwin(window_);
 }
 
-void content_window::draw(int start_x, int start_y, int column_count, int line_count) {
-  mvwin(window_, start_y, start_x);
-  wresize(window_, line_count, column_count);
-  box(window_, 0, 0);
-  wrefresh(window_);
+void content_window::draw(int start_y, int start_x, int line_count, int column_count) {
+  if (mvwin(window_, start_y, start_x) == ERR) {
+    LOG_ERROR << "failed to move window";
+    return;
+  }
+  if (wresize(window_, line_count, column_count) == ERR) {
+    LOG_ERROR << "failed to resize window";
+    return;
+  }
+  if (box(window_, 0, 0)) {
+    LOG_ERROR << "failed to draw box around window";
+    return;
+  }
+  if (mvwaddstr(window_, start_y, start_x + 2, SCREEN_TITLE_UNFOCUSED) < 0) {
+    LOG_ERROR << "failed to put title on window";
+    return;
+  }
+  if (wrefresh(window_) == ERR) {
+    LOG_ERROR << "failed to refresh window";
+    return;
+  }
+  set_last_drawn(start_y, start_x);
 }
 
 void content_window::on_focus() {
-  mvwaddstr(window_, 0, 2, SCREEN_TITLE_FOCUSED);
+  mvwaddstr(window_, get_last_start_y(), get_last_start_x() + 2, SCREEN_TITLE_FOCUSED);
 }
 
 void content_window::on_unfocus() {
-  mvwaddstr(window_, 0, 2, SCREEN_TITLE_UNFOCUSED);
+  mvwaddstr(window_, get_last_start_y(), get_last_start_x() + 2, SCREEN_TITLE_UNFOCUSED);
 }
 
 void content_window::on_key_pressed(int key) {

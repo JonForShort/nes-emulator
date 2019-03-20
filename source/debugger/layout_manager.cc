@@ -27,15 +27,25 @@
 using namespace jones;
 
 void layout_manager::register_window(windows::window_ptr registered_window, layout_position position) {
-  windows_.push_back(std::move(registered_window));
   window_layout_[position].push_back(registered_window.get());
+  focus_window_ = registered_window.get();
 
-  focus_window_ = windows_.front().get();
+  windows_.push_back(std::move(registered_window));
 }
 
-void layout_manager::update_layout(int height, int width) const {
-  focus_window_->draw(0, 0, height, width);
-  focus_window_->on_focus();
+void layout_manager::update_layout(int line_count, int column_count) const {
+  const auto &top_windows = window_layout_.at(layout_position::POSITION_TOP);
+  const auto &front_top_window = *top_windows.begin();
+  const int middle = line_count / 2;
+  front_top_window->draw(0, 0, line_count - middle, column_count);
+
+  const auto &bottom_windows = window_layout_.at(layout_position::POSITION_BOTTOM);
+  const auto &front_bottom_window = *bottom_windows.begin();
+  front_bottom_window->draw(middle, 0, line_count - middle, column_count - 1);
+
+  if (focus_window_ != nullptr) {
+    focus_window_->on_focus();
+  }
 }
 
 void layout_manager::update_focus() const {
@@ -71,4 +81,15 @@ void layout_manager::rotate_position_focus() {
 
 void layout_manager::handle_input(int input) {
   focus_window_->on_key_pressed(input);
+}
+
+void layout_manager::focus_window(layout_position position, windows::window_type type) {
+  if (window_layout_.find(position) != window_layout_.end()) {
+    const auto &windows = window_layout_.at(position);
+    for (auto &window : windows) {
+      if (window->type() == type) {
+        focus_window_ = window;
+      }
+    }
+  }
 }

@@ -46,7 +46,19 @@ public:
 
   virtual void on_key_pressed(int key) = 0;
 
-  virtual void draw(int start_x, int start_y, int line_count, int column_count) = 0;
+  virtual void draw(int start_y, int start_x, int line_count, int column_count) = 0;
+
+protected:
+  virtual void set_last_drawn(int start_y, int start_x) final;
+
+  virtual int get_last_start_y() final;
+
+  virtual int get_last_start_x() final;
+
+private:
+  int start_y_;
+
+  int start_x_;
 };
 
 using window_ptr = std::unique_ptr<window>;

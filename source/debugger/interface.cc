@@ -137,6 +137,11 @@ void interface::register_windows() {
 
   window_ptr command_window = std::make_unique<windows::command_window>(interface_window_);
   layout_manager_.register_window(std::move(command_window), layout_position ::POSITION_BOTTOM);
+
+  window_ptr content_window = std::make_unique<windows::content_window>(interface_window_);
+  layout_manager_.register_window(std::move(content_window), layout_position ::POSITION_TOP);
+
+  layout_manager_.focus_window(layout_position::POSITION_BOTTOM, window_type::COMMAND);
 }
 
 void interface::unregister_windows() {
@@ -159,6 +164,9 @@ void interface::show() {
 
 void interface::update() {
   getmaxyx(interface_window_, screen_height_, screen_width_);
+  wresize(interface_window_, screen_height_, screen_width_);
+  wrefresh(interface_window_);
+
   layout_manager_.update_layout(screen_height_, screen_width_);
 }
 

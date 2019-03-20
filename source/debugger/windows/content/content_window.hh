@@ -45,7 +45,7 @@ public:
 
   void on_key_pressed(int key) override;
 
-  void draw(int start_x, int start_y, int column_count, int line_count) override;
+  void draw(int start_y, int start_x, int line_count, int column_count) override;
 
 private:
   WINDOW *parent_window_;

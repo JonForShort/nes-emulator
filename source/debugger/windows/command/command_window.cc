@@ -63,21 +63,38 @@ command_window::~command_window() {
   }
 }
 
-void command_window::draw(int start_x, int start_y, int column_count, int line_count) {
-  mvwin(window_, start_y, start_x);
-  wresize(window_, line_count, column_count);
-  box(window_, 0, 0);
-  wrefresh(window_);
+void command_window::draw(int start_y, int start_x, int line_count, int column_count) {
+  if (mvwin(window_, start_y, start_x) == ERR) {
+    LOG_ERROR << "failed to move window";
+    return;
+  }
+  if (wresize(window_, line_count, column_count) == ERR) {
+    LOG_ERROR << "failed to resize window";
+    return;
+  }
+  if (box(window_, 0, 0)) {
+    LOG_ERROR << "failed to draw box around window";
+    return;
+  }
+  if (mvwaddstr(window_, start_y, start_x + 2, SCREEN_TITLE_UNFOCUSED) < 0) {
+    LOG_ERROR << "failed to put title on window";
+    return;
+  }
+  if (wrefresh(window_) == ERR) {
+    LOG_ERROR << "failed to refresh window";
+    return;
+  }
+  set_last_drawn(start_y, start_x);
 }
 
 void command_window::on_focus() {
-  mvwaddstr(window_, 0, 2, SCREEN_TITLE_FOCUSED);
+  mvwaddstr(window_, get_last_start_y(), get_last_start_x() + 2, SCREEN_TITLE_FOCUSED);
   noecho();
   reset_command_cursor(0);
 }
 
 void command_window::on_unfocus() {
-  mvwaddstr(window_, 0, 2, SCREEN_TITLE_UNFOCUSED);
+  mvwaddstr(window_, get_last_start_y(), get_last_start_x() + 2, SCREEN_TITLE_UNFOCUSED);
 }
 
 void command_window::on_key_pressed(int key) {
