@@ -26,15 +26,17 @@
 #include <signal.h>
 #include <string>
 
+#include "input.hh"
 #include "interface.hh"
+#include "layout_manager.hh"
 #include "log.hh"
 #include "windows/command/command_window.hh"
+#include "windows/content/content_window.hh"
 
 using namespace jones;
+using namespace jones::windows;
 
 namespace {
-
-const unsigned int KEY_STAB_ALT = '\t';
 
 void initialize_curses() {
   cbreak();
@@ -51,11 +53,10 @@ interface &interface::instance() {
 
 interface::interface()
     : interface_window_(initscr()),
+      layout_manager_(),
       is_running_(true),
       screen_height_(0),
-      screen_width_(0),
-      focus_window_(nullptr),
-      windows_() {}
+      screen_width_(0) {}
 
 interface::~interface() {
   release();
@@ -73,9 +74,7 @@ void interface::release() {
     ungetch(0);
 
     unregister_signal_handlers();
-
-    // todo: causes segmentation fault
-    //    unregister_windows();
+    unregister_windows();
 
     delwin(interface_window_);
     interface_window_ = nullptr;
@@ -135,63 +134,32 @@ void interface::unregister_signal_handlers() {
 
 void interface::register_windows() {
   LOG_DEBUG << "registering windows";
-  windows_.push_back(std::make_unique<command_window::command_window>(interface_window_));
-  focus_window_ = (*windows_.begin()).get();
+
+  window_ptr command_window = std::make_unique<windows::command_window>(interface_window_);
+  layout_manager_.register_window(std::move(command_window), layout_position ::POSITION_BOTTOM);
 }
 
 void interface::unregister_windows() {
   LOG_DEBUG << "unregistering windows";
-  windows_.clear();
 }
 
 void interface::show() {
   update();
   while (is_running_) {
     const auto &input = getch();
-    switch (input) {
-    case KEY_STAB:
-    case KEY_STAB_ALT:
-      rotate_window_focus();
-      break;
-    default:
-      focus_window_->on_key_pressed(input);
-      break;
+    if (input::is_tab(input)) {
+      layout_manager_.rotate_position_focus();
+    } else {
+      layout_manager_.handle_input(input);
     }
   }
 }
 
 void interface::update() {
   getmaxyx(interface_window_, screen_height_, screen_width_);
-  focus_window_->draw(0, 0, screen_width_, screen_height_);
-  focus_window_->on_focus();
-}
-
-bool interface::window_has_focus(window *focus_window) {
-  return focus_window_ == focus_window;
-}
-
-void interface::window_focus(window *focus_window) {
-  focus_window_ = focus_window;
-  focus_window_->on_focus();
-}
-
-window *interface::window_focus() {
-  return focus_window_;
-}
-
-void interface::rotate_window_focus() {
-  if (windows_.empty()) {
-    LOG_WARNING << "unable to rotate; windows is empty";
-    return;
-  }
-  if (windows_.size() == 1) {
-    LOG_DEBUG << "only one window; no need to rotate";
-    return;
-  }
-  std::rotate(windows_.begin(), windows_.begin() + 1, windows_.end());
-  const auto &next_window = *windows_.begin();
-  window_focus(next_window.get());
+  layout_manager_.update_layout(screen_height_, screen_width_);
 }
 
 void interface::on_window_change() {
+  update();
 }

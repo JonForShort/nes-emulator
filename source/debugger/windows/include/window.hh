@@ -24,6 +24,10 @@
 #ifndef JONES_DEBUGGER_WINDOWS_WINDOW_HH
 #define JONES_DEBUGGER_WINDOWS_WINDOW_HH
 
+#include <memory>
+
+namespace jones::windows {
+
 enum class window_type {
   COMMAND,
   CONTENT
@@ -44,5 +48,9 @@ public:
 
   virtual void draw(int start_x, int start_y, int line_count, int column_count) = 0;
 };
+
+using window_ptr = std::unique_ptr<window>;
+
+} // namespace jones::windows
 
 #endif // JONES_DEBUGGER_WINDOWS_WINDOW_HH

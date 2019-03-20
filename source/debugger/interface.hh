@@ -28,47 +28,51 @@
 #include <memory>
 #include <vector>
 
+#include "layout_manager.hh"
 #include "window.hh"
 
 namespace jones {
 
-using window_ptr = std::unique_ptr<window>;
-
 class interface final {
+
 public:
   interface();
+
   ~interface();
 
   static interface &instance();
 
   void initialize();
+
   void release();
+
   void show();
+
   void update();
 
   static void handle_signal(int signal_number);
 
 private:
-  void rotate_window_focus();
-  bool window_has_focus(window *focus_window);
-  void window_focus(window *focus_window);
-  window *window_focus();
-
   void register_signal_handlers();
+
   void unregister_signal_handlers();
 
   void register_windows();
+
   void unregister_windows();
 
   void on_window_change();
 
 private:
   WINDOW *interface_window_;
+
+  layout_manager layout_manager_;
+
   bool is_running_;
+
   unsigned int screen_height_;
+
   unsigned int screen_width_;
-  window *focus_window_;
-  std::vector<window_ptr> windows_;
 };
 
 } // namespace jones

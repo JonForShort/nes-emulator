@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2019
+// Copyright 2018-2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,41 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <boost/algorithm/string.hpp>
-#include <sstream>
+#ifndef JONES_DEBUGGER_INPUT_HH
+#define JONES_DEBUGGER_INPUT_HH
 
-#include "command_buffer.hh"
+#include <curses.h>
 
-using namespace jones::windows;
+namespace jones::input {
 
-void command_buffer::insert(int position, int input) {
-  buffer_.insert(buffer_.begin() + position, input);
-}
+bool is_enter(int key);
 
-void command_buffer::erase(int position) {
-  if (!buffer_.empty()) {
-    buffer_.erase(buffer_.begin() + position);
-  }
-}
+bool is_backspace(int key);
 
-void command_buffer::clear() {
-  buffer_.clear();
-}
+bool is_key_up(int key);
 
-bool command_buffer::is_empty() const {
-  std::string as_string = get();
-  boost::trim(as_string);
-  return buffer_.empty();
-}
+bool is_key_down(int key);
 
-int command_buffer::size() const {
-  return static_cast<int>(get().size());
-}
+bool is_key_left(int key);
 
-std::string command_buffer::get() const {
-  std::stringstream command;
-  for (const auto &i : buffer_) {
-    command << static_cast<char>(i);
-  }
-  return command.str();
-}
+bool is_key_right(int key);
+
+bool is_control_plus(char c, int key);
+
+bool is_tab(int key);
+
+} // namespace jones::input
+
+#endif // JONES_DEBUGGER_INPUT_HH

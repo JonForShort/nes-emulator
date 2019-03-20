@@ -29,7 +29,7 @@
 #include "command_window.hh"
 #include "log.hh"
 
-using namespace jones::command_window;
+using namespace jones::windows;
 
 namespace {
 

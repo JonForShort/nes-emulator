@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace jones::command_window {
+namespace jones::windows {
 
 class command_buffer {
 
@@ -48,6 +48,6 @@ private:
   std::vector<int> buffer_;
 };
 
-} // namespace jones::command_window
+} // namespace jones::windows
 
 #endif // JONES_DEBUGGER_WINDOWS_COMMAND_COMMAND_BUFFER_HH

@@ -29,7 +29,7 @@
 
 #include "command_buffer.hh"
 
-namespace jones::command_window {
+namespace jones::windows {
 
 enum class prompt_event {
   PROMPT_EVENT_COMPLETED,
@@ -63,6 +63,6 @@ private:
   std::vector<event_callback> callbacks_;
 };
 
-} // namespace jones::command_window
+} // namespace jones::windows
 
 #endif // JONES_DEBUGGER_WINDOWS_COMMAND_COMMAND_PROMPT_HH

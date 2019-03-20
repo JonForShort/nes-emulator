@@ -28,19 +28,19 @@
 #include <string>
 #include <vector>
 
-#include "window.hh"
 #include "command_prompt.hh"
+#include "window.hh"
 
-namespace jones::command_window {
+namespace jones::windows {
 
-class command_window final : public window {
+class command_window final : public windows::window {
 
 public:
   explicit command_window(WINDOW *parent_window);
 
   ~command_window() override;
 
-  window_type type() override;
+  windows::window_type type() override;
 
   void on_focus() override;
 
@@ -69,6 +69,6 @@ private:
   command_prompt command_prompt_;
 };
 
-} // namespace jones::command_window
+} // namespace jones::windows
 
 #endif // JONES_DEBUGGER_WINDOWS_COMMAND_WINDOW_HH

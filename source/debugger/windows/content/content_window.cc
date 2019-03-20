@@ -26,7 +26,7 @@
 #include "content_window.hh"
 #include "log.hh"
 
-using namespace jones::content_window;
+using namespace jones::windows;
 
 namespace {
 
@@ -59,8 +59,7 @@ void content_window::on_unfocus() {
 }
 
 void content_window::on_key_pressed(int key) {
-  LOG_TRACE << "on_key_pressed : "
-            << "key [" << key << "]";
+  LOG_TRACE << "on_key_pressed : key [" << key << "]";
 }
 
 window_type content_window::type() {

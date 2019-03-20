@@ -28,16 +28,16 @@
 
 #include "window.hh"
 
-namespace jones::content_window {
+namespace jones::windows {
 
-class content_window final : public window {
+class content_window final : public windows::window {
 
 public:
   explicit content_window(WINDOW *parent_window);
 
   ~content_window() override;
 
-  window_type type() override;
+  windows::window_type type() override;
 
   void on_focus() override;
 
@@ -53,6 +53,6 @@ private:
   WINDOW *window_;
 };
 
-} // namespace jones::content_window
+} // namespace jones::windows
 
 #endif // JONES_DEBUGGER_WINDOWS_CONTENT_WINDOW_HH

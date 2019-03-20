@@ -21,41 +21,66 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <boost/algorithm/string.hpp>
-#include <sstream>
+#include <input.hh>
 
-#include "command_buffer.hh"
+using namespace jones;
 
-using namespace jones::windows;
+namespace {
 
-void command_buffer::insert(int position, int input) {
-  buffer_.insert(buffer_.begin() + position, input);
-}
+const int KEY_ENTER_ALT = 10;
 
-void command_buffer::erase(int position) {
-  if (!buffer_.empty()) {
-    buffer_.erase(buffer_.begin() + position);
+const int KEY_BACKSPACE_ALT = 127;
+
+const int KEY_STAB_ALT = '\t';
+
+} // namespace
+
+bool input::is_enter(int key) {
+  switch (key) {
+  case KEY_ENTER:
+  case KEY_ENTER_ALT:
+    return true;
+  default:
+    return false;
   }
 }
 
-void command_buffer::clear() {
-  buffer_.clear();
-}
-
-bool command_buffer::is_empty() const {
-  std::string as_string = get();
-  boost::trim(as_string);
-  return buffer_.empty();
-}
-
-int command_buffer::size() const {
-  return static_cast<int>(get().size());
-}
-
-std::string command_buffer::get() const {
-  std::stringstream command;
-  for (const auto &i : buffer_) {
-    command << static_cast<char>(i);
+bool input::is_backspace(int key) {
+  switch (key) {
+  case KEY_BACKSPACE:
+  case KEY_BACKSPACE_ALT:
+    return true;
+  default:
+    return false;
   }
-  return command.str();
+}
+
+bool input::is_key_up(int key) {
+  return KEY_UP == key;
+}
+
+bool input::is_key_down(int key) {
+  return KEY_DOWN == key;
+}
+
+bool input::is_key_left(int key) {
+  return KEY_LEFT == key;
+}
+
+bool input::is_key_right(int key) {
+  return KEY_RIGHT == key;
+}
+
+bool input::is_control_plus(char c, int key) {
+  return (c & 0x1f) == key;
+}
+
+bool input::is_tab(int key) {
+  switch (key) {
+  case KEY_STAB:
+  case KEY_STAB_ALT:
+    return true;
+  default:
+    return false;
+  }
 }
