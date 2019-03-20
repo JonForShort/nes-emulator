@@ -49,7 +49,7 @@ public:
 
   void update_layout(int height, int width) const;
 
-  void rotate_window_focus(layout_position position);
+  void rotate_window_focus();
 
   void rotate_position_focus();
 

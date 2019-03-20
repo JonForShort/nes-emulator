@@ -149,6 +149,8 @@ void interface::show() {
     const auto &input = getch();
     if (input::is_tab(input)) {
       layout_manager_.rotate_position_focus();
+    } else if (input::is_control_plus_tab(input)) {
+      layout_manager_.rotate_window_focus();
     } else {
       layout_manager_.handle_input(input);
     }

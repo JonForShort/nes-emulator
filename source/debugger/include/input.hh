@@ -42,6 +42,8 @@ bool is_key_right(int key);
 
 bool is_control_plus(char c, int key);
 
+bool is_control_plus_tab(int key);
+
 bool is_tab(int key);
 
 } // namespace jones::input

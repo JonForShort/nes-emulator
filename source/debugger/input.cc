@@ -75,6 +75,11 @@ bool input::is_control_plus(char c, int key) {
   return (c & 0x1f) == key;
 }
 
+bool input::is_control_plus_tab(int key) {
+  return (KEY_STAB & 0x1f) == key ||
+         (KEY_STAB_ALT & 0x1f) == key;
+};
+
 bool input::is_tab(int key) {
   switch (key) {
   case KEY_STAB:

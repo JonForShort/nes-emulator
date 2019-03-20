@@ -41,7 +41,7 @@ void layout_manager::update_layout(int height, int width) const {
 void layout_manager::update_focus() const {
 }
 
-void layout_manager::rotate_window_focus(layout_position position) {
+void layout_manager::rotate_window_focus() {
   if (window_layout_.empty()) {
     LOG_WARNING << "unable to rotate; windows is empty";
     return;
@@ -50,7 +50,7 @@ void layout_manager::rotate_window_focus(layout_position position) {
     LOG_DEBUG << "only one window; no need to rotate";
     return;
   }
-  auto &position_windows = window_layout_.at(position);
+  auto &position_windows = window_layout_.at(focus_position_);
   std::rotate(position_windows.begin(), position_windows.begin() + 1, position_windows.end());
   update_focus();
 }
