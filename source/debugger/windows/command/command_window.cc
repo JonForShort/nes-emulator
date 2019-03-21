@@ -72,11 +72,11 @@ void command_window::draw(int start_y, int start_x, int line_count, int column_c
     LOG_ERROR << "failed to resize window";
     return;
   }
-  if (box(window_, 0, 0)) {
+  if (box(window_, 0, 0) == ERR) {
     LOG_ERROR << "failed to draw box around window";
     return;
   }
-  if (mvwaddstr(window_, start_y, start_x + 2, SCREEN_TITLE_UNFOCUSED) < 0) {
+  if (mvwaddstr(window_, start_y, start_x + 2, SCREEN_TITLE_UNFOCUSED) == ERR) {
     LOG_ERROR << "failed to put title on window";
     return;
   }

@@ -34,9 +34,10 @@ void layout_manager::register_window(windows::window_ptr registered_window, layo
 }
 
 void layout_manager::update_layout(int line_count, int column_count) const {
+  const int middle = line_count / 2;
+
   const auto &top_windows = window_layout_.at(layout_position::POSITION_TOP);
   const auto &front_top_window = *top_windows.begin();
-  const int middle = line_count / 2;
   front_top_window->draw(0, 0, line_count - middle, column_count);
 
   const auto &bottom_windows = window_layout_.at(layout_position::POSITION_BOTTOM);
