@@ -21,19 +21,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include "window.hh"
+#ifndef JONES_DEBUGGER_WINDOWS_BASE_WINDOW_HH
+#define JONES_DEBUGGER_WINDOWS_BASE_WINDOW_HH
 
-using namespace jones::windows;
+#include <curses.h>
+#include <memory>
 
-void window::set_last_drawn(int start_y, int start_x) {
-  start_y_ = start_y;
-  start_x_ = start_x;
-}
+namespace jones::windows {
 
-int window::get_last_start_y() {
-  return start_y_;
-}
+enum class window_type {
+  COMMAND,
+  CONTENT
+};
 
-int window::get_last_start_x() {
-  return start_x_;
-}
+class base_window {
+
+public:
+  explicit base_window(WINDOW *parent_window);
+
+  virtual ~base_window();
+
+  virtual window_type type() = 0;
+
+  virtual void on_focus() final;
+
+  virtual void on_unfocus() final;
+
+  virtual void on_key_pressed(int key) = 0;
+
+  virtual void draw(int start_y, int start_x, int line_count, int column_count) final;
+
+protected:
+  virtual const char *title() const = 0;
+
+  virtual WINDOW *window() const;
+
+private:
+  void set_last_drawn(int start_y, int start_x);
+
+private:
+  WINDOW *parent_window_;
+
+  WINDOW *window_;
+
+  int start_y_;
+
+  int start_x_;
+};
+
+using window_ptr = std::unique_ptr<base_window>;
+
+} // namespace jones::windows
+
+#endif // JONES_DEBUGGER_WINDOWS_BASE_WINDOW_HH

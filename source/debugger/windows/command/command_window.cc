@@ -39,15 +39,10 @@ const int SCREEN_CURSOR_Y_POSITION = 2;
 
 const int SCREEN_CURSOR_PADDING = 2;
 
-const char *const SCREEN_TITLE_FOCUSED = "[ *** command *** ]";
-
-const char *const SCREEN_TITLE_UNFOCUSED = "[ command ]";
-
 } // namespace
 
 command_window::command_window(WINDOW *parent_window)
-    : parent_window_(parent_window),
-      window_(subwin(parent_window, 0, 0, 0, 0)),
+    : base_window(parent_window),
       command_prompt_() {
   command_prompt_.register_callback([this](prompt_event event, std::string command) {
     if (event == prompt_event::PROMPT_EVENT_COMPLETED) {
@@ -56,45 +51,8 @@ command_window::command_window(WINDOW *parent_window)
   });
 }
 
-command_window::~command_window() {
-  if (window_ != nullptr) {
-    delwin(window_);
-    window_ = nullptr;
-  }
-}
-
-void command_window::draw(int start_y, int start_x, int line_count, int column_count) {
-  if (mvwin(window_, start_y, start_x) == ERR) {
-    LOG_ERROR << "failed to move window";
-    return;
-  }
-  if (wresize(window_, line_count, column_count) == ERR) {
-    LOG_ERROR << "failed to resize window";
-    return;
-  }
-  if (box(window_, 0, 0) == ERR) {
-    LOG_ERROR << "failed to draw box around window";
-    return;
-  }
-  if (mvwaddstr(window_, start_y, start_x + 2, SCREEN_TITLE_UNFOCUSED) == ERR) {
-    LOG_ERROR << "failed to put title on window";
-    return;
-  }
-  if (wrefresh(window_) == ERR) {
-    LOG_ERROR << "failed to refresh window";
-    return;
-  }
-  set_last_drawn(start_y, start_x);
-}
-
-void command_window::on_focus() {
-  mvwaddstr(window_, get_last_start_y(), get_last_start_x() + 2, SCREEN_TITLE_FOCUSED);
-  noecho();
-  reset_command_cursor(0);
-}
-
-void command_window::on_unfocus() {
-  mvwaddstr(window_, get_last_start_y(), get_last_start_x() + 2, SCREEN_TITLE_UNFOCUSED);
+const char *command_window::title() const {
+  return "command";
 }
 
 void command_window::on_key_pressed(int key) {
@@ -109,18 +67,37 @@ window_type command_window::type() {
 void command_window::reset_command_cursor(int cursor_offset) const {
   int column_count = 0;
   int line_count = 0;
-  getmaxyx(window_, line_count, column_count);
+  getmaxyx(window(), line_count, column_count);
 
   const auto cursor_x_position = SCREEN_CURSOR_X_POSITION + SCREEN_CURSOR_PADDING + cursor_offset;
-  wmove(parent_window_, line_count - SCREEN_CURSOR_Y_POSITION, cursor_x_position);
-  mvwaddstr(window_, line_count - SCREEN_CURSOR_Y_POSITION, SCREEN_CURSOR_X_POSITION, "> ");
+  const auto cursor_y_position = line_count - SCREEN_CURSOR_Y_POSITION;
+  if (wmove(window(), cursor_y_position, cursor_x_position) == ERR) {
+    LOG_ERROR << "failed to move window";
+    return;
+  }
+  if (mvwaddstr(window(), cursor_y_position, SCREEN_CURSOR_X_POSITION, "> ") == ERR) {
+    LOG_ERROR << "failed to draw caret";
+    return;
+  }
 }
 
 void command_window::update_command_prompt(const std::string &prompt_text, const int prompt_cursor_position) const {
-  reset_command_cursor(0);
-  clrtoeol();
-  box(window_, 0, 0);
-  waddstr(parent_window_, prompt_text.c_str());
+  if (wrefresh(window()) == ERR) {
+    LOG_ERROR << "failed to refresh window";
+    return;
+  }
+  if (clrtoeol() == ERR) {
+    LOG_ERROR << "failed to clear line";
+    return;
+  }
+  if (box(window(), 0, 0) == ERR) {
+    LOG_ERROR << "failed to draw box around window";
+    return;
+  }
+  if (waddstr(window(), prompt_text.c_str()) == ERR) {
+    LOG_ERROR << "failed to draw box around window";
+    return;
+  }
   reset_command_cursor(prompt_cursor_position);
 }
 

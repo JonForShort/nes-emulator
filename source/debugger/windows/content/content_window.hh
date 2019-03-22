@@ -26,31 +26,20 @@
 
 #include <curses.h>
 
-#include "window.hh"
+#include "base_window.hh"
 
 namespace jones::windows {
 
-class content_window final : public windows::window {
+class content_window final : public windows::base_window {
 
 public:
   explicit content_window(WINDOW *parent_window);
 
-  ~content_window() override;
-
   windows::window_type type() override;
-
-  void on_focus() override;
-
-  void on_unfocus() override;
 
   void on_key_pressed(int key) override;
 
-  void draw(int start_y, int start_x, int line_count, int column_count) override;
-
-private:
-  WINDOW *parent_window_;
-
-  WINDOW *window_;
+  const char *title() const override;
 };
 
 } // namespace jones::windows

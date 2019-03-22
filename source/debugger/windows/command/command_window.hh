@@ -28,27 +28,21 @@
 #include <string>
 #include <vector>
 
+#include "base_window.hh"
 #include "command_prompt.hh"
-#include "window.hh"
 
 namespace jones::windows {
 
-class command_window final : public windows::window {
+class command_window final : public windows::base_window {
 
 public:
   explicit command_window(WINDOW *parent_window);
 
-  ~command_window() override;
-
   windows::window_type type() override;
-
-  void on_focus() override;
-
-  void on_unfocus() override;
 
   void on_key_pressed(int key) override;
 
-  void draw(int start_y, int start_x, int line_count, int column_count) override;
+  const char *title() const override;
 
 private:
   void reset_command_cursor(int cursor_offset) const;
@@ -62,10 +56,6 @@ private:
   void process_clear_command() const;
 
 private:
-  WINDOW *parent_window_;
-
-  WINDOW *window_;
-
   command_prompt command_prompt_;
 };
 

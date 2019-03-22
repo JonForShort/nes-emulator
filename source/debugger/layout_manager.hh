@@ -27,7 +27,7 @@
 #include <map>
 #include <vector>
 
-#include "window.hh"
+#include "base_window.hh"
 
 namespace jones {
 
@@ -62,9 +62,10 @@ private:
 
 private:
   using window_ptrs = std::vector<windows::window_ptr>;
+
   using layout_positions = std::vector<layout_position>;
 
-  windows::window *focus_window_;
+  windows::base_window *focus_window_;
 
   layout_position focus_position_;
 
@@ -72,7 +73,7 @@ private:
 
   layout_positions positions_;
 
-  std::map<layout_position, std::vector<windows::window *>> window_layout_;
+  std::map<layout_position, std::vector<windows::base_window *>> window_layout_;
 };
 
 } // namespace jones

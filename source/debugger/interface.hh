@@ -29,7 +29,6 @@
 #include <vector>
 
 #include "layout_manager.hh"
-#include "window.hh"
 
 namespace jones {
 

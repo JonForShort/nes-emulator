@@ -42,7 +42,7 @@ void layout_manager::update_layout(int line_count, int column_count) const {
 
   const auto &bottom_windows = window_layout_.at(layout_position::POSITION_BOTTOM);
   const auto &front_bottom_window = *bottom_windows.begin();
-  front_bottom_window->draw(middle, 0, line_count - middle, column_count - 1);
+  front_bottom_window->draw(middle, 0, line_count - middle, column_count);
 
   if (focus_window_ != nullptr) {
     focus_window_->on_focus();
