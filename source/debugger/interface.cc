@@ -149,8 +149,8 @@ void interface::unregister_windows() {
 }
 
 void interface::show() {
-  update();
   while (is_running_) {
+    update();
     const auto &input = getch();
     if (input::is_tab(input)) {
       layout_manager_.rotate_position_focus();
@@ -164,9 +164,14 @@ void interface::show() {
 
 void interface::update() {
   getmaxyx(interface_window_, screen_height_, screen_width_);
-  wresize(interface_window_, screen_height_, screen_width_);
-  wrefresh(interface_window_);
-
+  if (wresize(interface_window_, screen_height_, screen_width_) == ERR) {
+    LOG_ERROR << "unable to resize interface window";
+    return;
+  }
+  if (wrefresh(interface_window_) == ERR) {
+    LOG_ERROR << "unable to refresh interface window";
+    return;
+  }
   layout_manager_.update_layout(screen_height_, screen_width_);
 }
 

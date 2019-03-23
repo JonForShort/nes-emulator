@@ -65,12 +65,8 @@ window_type command_window::type() {
 }
 
 void command_window::reset_command_cursor(int cursor_offset) const {
-  int column_count = 0;
-  int line_count = 0;
-  getmaxyx(window(), line_count, column_count);
-
   const auto cursor_x_position = SCREEN_CURSOR_X_POSITION + SCREEN_CURSOR_PADDING + cursor_offset;
-  const auto cursor_y_position = line_count - SCREEN_CURSOR_Y_POSITION;
+  const auto cursor_y_position = line_count() - SCREEN_CURSOR_Y_POSITION;
   if (wmove(window(), cursor_y_position, cursor_x_position) == ERR) {
     LOG_ERROR << "failed to move window";
     return;
@@ -101,8 +97,9 @@ void command_window::update_command_prompt(const std::string &prompt_text, const
   reset_command_cursor(prompt_cursor_position);
 }
 
-void command_window::process_command(const std::string &command) const {
+void command_window::process_command(const std::string &command) {
   LOG_DEBUG << "process_command : handling command = " << command;
+  append_window_buffer(command);
   if (command == "quit") {
     raise(SIGINT);
   }

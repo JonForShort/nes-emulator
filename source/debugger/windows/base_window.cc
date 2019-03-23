@@ -56,12 +56,18 @@ void base_window::on_unfocus() {
   }
 }
 
-void base_window::set_last_drawn(int start_y, int start_x) {
+void base_window::set_last_drawn(int start_y, int start_x, int line_count, int column_count) {
   start_y_ = start_y;
   start_x_ = start_x;
+  line_count_ = line_count;
+  column_count_ = column_count;
 }
 
 void base_window::draw(int start_y, int start_x, int line_count, int column_count) {
+  if (wclear(window_) == ERR) {
+    LOG_ERROR << "failed to clear window";
+    return;
+  }
   if (wresize(window_, line_count, column_count) == ERR) {
     LOG_ERROR << "failed to resize window";
     return;
@@ -78,13 +84,28 @@ void base_window::draw(int start_y, int start_x, int line_count, int column_coun
     LOG_ERROR << "failed to put title on window";
     return;
   }
+  for (int i = 0; i < line_count && i < static_cast<int>(window_buffer_.size()); i++) {
+    mvwaddstr(window_, i, 0, window_buffer_[i].c_str());
+  }
   if (wrefresh(window_) == ERR) {
     LOG_ERROR << "failed to refresh window";
     return;
   }
-  set_last_drawn(start_y, start_x);
+  set_last_drawn(start_y, start_x, line_count, column_count);
 }
 
 WINDOW *base_window::window() const {
   return window_;
+}
+
+int base_window::line_count() const {
+  return line_count_;
+}
+
+int base_window::column_count() const {
+  return column_count_;
+}
+
+void base_window::append_window_buffer(const std::string &buffer) {
+  window_buffer_.push_back(buffer);
 }

@@ -49,7 +49,7 @@ private:
 
   void update_command_prompt(const std::string &prompt_text, int prompt_cursor_position) const;
 
-  void process_command(const std::string &command) const;
+  void process_command(const std::string &command);
 
   void process_history_command() const;
 

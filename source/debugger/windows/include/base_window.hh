@@ -26,6 +26,8 @@
 
 #include <curses.h>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace jones::windows {
 
@@ -51,13 +53,19 @@ public:
 
   virtual void draw(int start_y, int start_x, int line_count, int column_count) final;
 
-protected:
   virtual const char *title() const = 0;
 
-  virtual WINDOW *window() const;
+protected:
+  WINDOW *window() const;
+
+  int line_count() const;
+
+  int column_count() const;
+
+  void append_window_buffer(const std::string &buffer);
 
 private:
-  void set_last_drawn(int start_y, int start_x);
+  void set_last_drawn(int start_y, int start_x, int line_count, int column_count);
 
 private:
   WINDOW *parent_window_;
@@ -67,6 +75,12 @@ private:
   int start_y_;
 
   int start_x_;
+
+  int line_count_;
+
+  int column_count_;
+
+  std::vector<std::string> window_buffer_;
 };
 
 using window_ptr = std::unique_ptr<base_window>;
