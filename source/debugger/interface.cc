@@ -135,11 +135,11 @@ void interface::unregister_signal_handlers() {
 void interface::register_windows() {
   LOG_DEBUG << "registering windows";
 
-  window_ptr command_window = std::make_unique<windows::command_window>(interface_window_);
-  layout_manager_.register_window(std::move(command_window), layout_position ::POSITION_BOTTOM);
-
   window_ptr content_window = std::make_unique<windows::content_window>(interface_window_);
   layout_manager_.register_window(std::move(content_window), layout_position ::POSITION_TOP);
+
+  window_ptr command_window = std::make_unique<windows::command_window>(interface_window_);
+  layout_manager_.register_window(std::move(command_window), layout_position ::POSITION_BOTTOM);
 
   layout_manager_.focus_window(layout_position::POSITION_BOTTOM, window_type::COMMAND);
 }
@@ -149,8 +149,8 @@ void interface::unregister_windows() {
 }
 
 void interface::show() {
+  update();
   while (is_running_) {
-    update();
     const auto &input = getch();
     if (input::is_tab(input)) {
       layout_manager_.rotate_position_focus();
@@ -163,6 +163,11 @@ void interface::show() {
 }
 
 void interface::update() {
+  refresh_main_window();
+  layout_manager_.update_layout(screen_height_, screen_width_);
+}
+
+void interface::refresh_main_window() {
   getmaxyx(interface_window_, screen_height_, screen_width_);
   if (wresize(interface_window_, screen_height_, screen_width_) == ERR) {
     LOG_ERROR << "unable to resize interface window";
@@ -172,7 +177,6 @@ void interface::update() {
     LOG_ERROR << "unable to refresh interface window";
     return;
   }
-  layout_manager_.update_layout(screen_height_, screen_width_);
 }
 
 void interface::on_window_change() {

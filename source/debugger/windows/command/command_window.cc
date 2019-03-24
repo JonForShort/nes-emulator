@@ -55,13 +55,17 @@ const char *command_window::title() const {
   return "command";
 }
 
+window_type command_window::type() {
+  return window_type::COMMAND;
+}
+
 void command_window::on_key_pressed(int key) {
   command_prompt_.process_input(key);
   update_command_prompt(command_prompt_.text(), command_prompt_.position());
 }
 
-window_type command_window::type() {
-  return window_type::COMMAND;
+void command_window::on_drawn() {
+  reset_command_cursor(0);
 }
 
 void command_window::reset_command_cursor(int cursor_offset) const {
@@ -78,10 +82,6 @@ void command_window::reset_command_cursor(int cursor_offset) const {
 }
 
 void command_window::update_command_prompt(const std::string &prompt_text, const int prompt_cursor_position) const {
-  if (wrefresh(window()) == ERR) {
-    LOG_ERROR << "failed to refresh window";
-    return;
-  }
   if (clrtoeol() == ERR) {
     LOG_ERROR << "failed to clear line";
     return;
@@ -95,6 +95,10 @@ void command_window::update_command_prompt(const std::string &prompt_text, const
     return;
   }
   reset_command_cursor(prompt_cursor_position);
+  if (wrefresh(window()) == ERR) {
+    LOG_ERROR << "failed to refresh window";
+    return;
+  }
 }
 
 void command_window::process_command(const std::string &command) {

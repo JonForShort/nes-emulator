@@ -87,11 +87,14 @@ void base_window::draw(int start_y, int start_x, int line_count, int column_coun
   for (int i = 0; i < line_count && i < static_cast<int>(window_buffer_.size()); i++) {
     mvwaddstr(window_, i, 0, window_buffer_[i].c_str());
   }
+
+  set_last_drawn(start_y, start_x, line_count, column_count);
+  on_drawn();
+
   if (wrefresh(window_) == ERR) {
     LOG_ERROR << "failed to refresh window";
     return;
   }
-  set_last_drawn(start_y, start_x, line_count, column_count);
 }
 
 WINDOW *base_window::window() const {

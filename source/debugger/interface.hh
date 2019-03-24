@@ -62,6 +62,8 @@ private:
 
   void on_window_change();
 
+  void refresh_main_window();
+
 private:
   WINDOW *interface_window_;
 

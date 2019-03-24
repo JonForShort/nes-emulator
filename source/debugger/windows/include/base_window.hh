@@ -51,6 +51,8 @@ public:
 
   virtual void on_key_pressed(int key) = 0;
 
+  virtual void on_drawn() = 0;
+
   virtual void draw(int start_y, int start_x, int line_count, int column_count) final;
 
   virtual const char *title() const = 0;

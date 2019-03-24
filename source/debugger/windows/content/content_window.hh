@@ -39,6 +39,8 @@ public:
 
   void on_key_pressed(int key) override;
 
+  void on_drawn() override;
+
   const char *title() const override;
 };
 

@@ -40,10 +40,13 @@ const char *content_window::title() const {
   return "content";
 }
 
+window_type content_window::type() {
+  return window_type::CONTENT;
+}
+
 void content_window::on_key_pressed(int key) {
   LOG_TRACE << "on_key_pressed : key [" << key << "]";
 }
 
-window_type content_window::type() {
-  return window_type::CONTENT;
+void content_window::on_drawn() {
 }
