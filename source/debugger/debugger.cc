@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2018-2019
+// Copyright 2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,58 +21,4 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <boost/filesystem.hpp>
-#include <boost/interprocess/file_mapping.hpp>
-#include <boost/interprocess/mapped_region.hpp>
-#include <boost/program_options.hpp>
-#include <fstream>
-#include <iostream>
-#include <string>
 
-#include "cpu.hh"
-#include "interface.hh"
-
-namespace fs = boost::filesystem;
-namespace po = boost::program_options;
-namespace ip = boost::interprocess;
-namespace jo = jones;
-
-int main(int argc, char *argv[]) {
-  std::string file_argument;
-  bool has_file_argument;
-  try {
-    po::options_description desc{"Options"};
-    desc.add_options()
-      ("help,h", "Help screen")
-      ("file,f", po::value<std::string>(&file_argument), "path to file");
-
-    po::variables_map vm;
-    const auto command_line_args = parse_command_line(argc, argv, desc);
-    po::store(command_line_args, vm);
-    po::notify(vm);
-
-    has_file_argument = vm.count("file") > 0;
-  } catch (const po::error &ex) {
-    std::cerr << ex.what() << '\n';
-    return -1;
-  }
-
-  const fs::path file_path(file_argument);
-  if (has_file_argument) {
-    if (!fs::exists(file_path)) {
-      std::cout << "file does not exist; please check path" << std::endl;
-      return -2;
-    }
-    if (fs::is_directory(file_path)) {
-      std::cout << "file is a directory; please check path" << std::endl;
-      return -3;
-    }
-  }
-
-  auto &interface = jo::interface::instance();
-  interface.initialize();
-  interface.show();
-  interface.release();
-
-  return 0;
-}
