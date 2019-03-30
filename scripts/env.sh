@@ -3,15 +3,15 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 OUT_DIR="${SCRIPT_DIR}/../out/jones"
 
-jones_debugger() {
+jones_tool() {
 
-    JONES_DEBUGGER=${OUT_DIR}/bin/jones-debugger
-    if [ ! -f "${JONES_DEBUGGER}" ]; then
-	echo "error: unable to find debugger; path is not valid [${JONES_DEBUGGER}]"
+    JONES_TOOL=${OUT_DIR}/bin/jones-tool
+    if [ ! -f "${JONES_TOOL}" ]; then
+	echo "error: unable to find tool; path is not valid [${JONES_TOOL}]"
 	return -1
     fi
 
-    ${JONES_DEBUGGER} "$@"
+    ${JONES_TOOL} "$@"
 }
 
 jones_build() {
