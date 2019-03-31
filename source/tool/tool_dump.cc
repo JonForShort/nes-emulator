@@ -33,6 +33,7 @@
 #include "cartridge.hh"
 #include "disassemble.hh"
 #include "tool.hh"
+#include "tool_decoder.hh"
 
 namespace fs = boost::filesystem;
 namespace ip = boost::interprocess;
@@ -95,6 +96,10 @@ void dump_image(const fs::path &root_path, const jo::cartridge &rom, const uint8
 
   const fs::path image_path = root_path / "image";
   fs::create_directories(image_path);
+
+  const auto chrrom_base_address = base_address + rom.get_chrrom_offset();
+  const auto chrrom_size = rom.get_chrrom_size();
+  jones::tool::decode_chrrom(const_cast<uint8_t *>(chrrom_base_address), chrrom_size, image_path.string().c_str());
 }
 
 void dump_raw(const fs::path &root_path, const jo::cartridge &rom, const uint8_t *const base_address, const size_t length_in_bytes) {

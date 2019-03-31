@@ -7,7 +7,7 @@ set (boost-lib       ${DIR_ROOT_OUT}/boost/lib)
 
 # building tool library
 
-add_library(jones-tool-lib STATIC tool_dump.cc)
+add_library(jones-tool-lib STATIC tool_dump.cc tool_decoder.cc)
 
 add_custom_target (jones-tool-lib-copy-headers COMMAND ${CMAKE_COMMAND}
         -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/include ${DIR_ROOT_OUT}/jones/include/jones-tool)
