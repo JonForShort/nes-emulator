@@ -97,6 +97,29 @@ void dump_image(const fs::path &root_path, const jo::cartridge &rom, const uint8
   fs::create_directories(image_path);
 }
 
+void dump_raw(const fs::path &root_path, const jo::cartridge &rom, const uint8_t *const base_address, const size_t length_in_bytes) {
+  boost::ignore_unused(length_in_bytes);
+
+  const fs::path raw_path = root_path / "raw";
+  fs::create_directories(raw_path);
+  {
+    const fs::path chrom_path = raw_path / "chrrom.bin";
+    std::ofstream chrom_file{chrom_path};
+
+    const auto chrrom_base_address = reinterpret_cast<const char *>(base_address + rom.get_chrrom_offset());
+    const auto chrrom_size = rom.get_chrrom_size();
+    chrom_file.write(const_cast<char *>(chrrom_base_address), chrrom_size);
+  }
+  {
+    const fs::path prgrom_path = raw_path / "prgrom.bin";
+    std::ofstream prgrom_file{prgrom_path};
+
+    const auto prgrom_base_address = reinterpret_cast<const char *>(base_address + rom.get_prgrom_offset());
+    const auto prgrom_size = rom.get_prgrom_size();
+    prgrom_file.write(const_cast<char *>(prgrom_base_address), prgrom_size);
+  }
+}
+
 void dump_header(const fs::path &root_path, const jo::cartridge &rom, const uint8_t *const base_address, const size_t length_in_bytes) {
   boost::ignore_unused(base_address);
   boost::ignore_unused(length_in_bytes);
@@ -123,6 +146,7 @@ int dump(const char *file_path, const char *output_path) {
   const auto &mapped_size = mapped_region.get_size();
 
   dump_header(output_path, rom, mapped_base_address, mapped_size);
+  dump_raw(output_path, rom, mapped_base_address, mapped_size);
   dump_code(output_path, rom, mapped_base_address, mapped_size);
   dump_audio(output_path, rom, mapped_base_address, mapped_size);
   dump_image(output_path, rom, mapped_base_address, mapped_size);

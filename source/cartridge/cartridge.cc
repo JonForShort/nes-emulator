@@ -64,7 +64,7 @@ uint16_t cartridge::get_prgrom_size() const {
 }
 
 uint16_t cartridge::get_chrrom_offset() const {
-  return get_prgrom_offset() + rom_file_header_.prgrom_size;
+  return get_prgrom_offset() + get_prgrom_size();
 }
 
 uint16_t cartridge::get_chrrom_size() const {
