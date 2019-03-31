@@ -97,26 +97,37 @@ void dump_image(const fs::path &root_path, const jo::cartridge &rom, const uint8
   fs::create_directories(image_path);
 }
 
+void dump_header(const fs::path &root_path, const jo::cartridge &rom, const uint8_t *const base_address, const size_t length_in_bytes) {
+  boost::ignore_unused(base_address);
+  boost::ignore_unused(length_in_bytes);
+
+  const fs::path header_path = root_path / "rom_header.txt";
+  std::ofstream header_file{header_path};
+  rom.print_header(header_file);
+}
+
 } // namespace
 
 namespace jones::tool {
+
 int dump(const char *file_path, const char *output_path) {
   jones::cartridge rom(file_path);
   if (!rom.is_valid()) {
     std::cerr << "error: must specify valid rom file" << std::endl;
     return -1;
   }
-  rom.print_header(std::cout);
 
   const ip::file_mapping mapped_file(file_path, ip::mode_t::read_only);
   const ip::mapped_region mapped_region(mapped_file, ip::mode_t::read_only);
   const auto &mapped_base_address = static_cast<uint8_t const *>(mapped_region.get_address());
   const auto &mapped_size = mapped_region.get_size();
 
+  dump_header(output_path, rom, mapped_base_address, mapped_size);
   dump_code(output_path, rom, mapped_base_address, mapped_size);
   dump_audio(output_path, rom, mapped_base_address, mapped_size);
   dump_image(output_path, rom, mapped_base_address, mapped_size);
 
   return 0;
 }
+
 } // namespace jones::tool
