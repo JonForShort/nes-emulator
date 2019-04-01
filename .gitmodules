@@ -18,6 +18,11 @@
 	path = external/boost/source
 	url = https://github.com/thejunkjon/external-boost.git
 
+[submodule "external/png/source"]
+	path = external/png/source
+	url = https://github.com/thejunkjon/external-libpng.git
+
 [submodule "external/gsl/source"]
 	path = external/gsl/source
 	url = https://github.com/Microsoft/GSL.git
+
