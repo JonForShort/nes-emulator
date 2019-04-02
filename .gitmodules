@@ -26,3 +26,6 @@
 	path = external/gsl/source
 	url = https://github.com/Microsoft/GSL.git
 
+[submodule "external/zlib/source"]
+	path = external/zlib/source
+	url = https://github.com/thejunkjon/external-zlib.git
