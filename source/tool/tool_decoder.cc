@@ -23,19 +23,11 @@
 //
 #include <boost/core/ignore_unused.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/gil.hpp>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wignored-qualifiers"
-
-#include <boost/gil/extension/io/png.hpp>
-
-#pragma GCC diagnostic pop
-
+#include "png_writer.h"
 #include "tool_decoder.hh"
 
 namespace fs = boost::filesystem;
-namespace bg = boost::gil;
 
 namespace jones::tool {
 
@@ -47,16 +39,12 @@ void decode_chrrom(uint8_t *base_address, size_t length_in_bytes, const char *ou
   const fs::path image_path{out_path};
   const fs::path file_path = image_path / "redsquare.png";
 
-  bg::rgb8_image_t img(512, 512);
-  auto view = bg::view(img);
-  view(1, 1) = bg::rgb8_pixel_t(255, 0, 0);
-  bg::write_view(file_path.string(), view, bg::image_write_info<bg::png_tag>());
+  jones::tool::png_writer writer;
+  writer.size(512, 512);
+  writer.set_pixel(COLOR::WHITE, 50, 500);
+  writer.write(file_path.string().c_str());
 
   //  for (size_t i = 0; i < length_in_bytes; i++) {
-  //    boost::gil::rgb8_image_t image(8, 8);
-  //    boost::gil::rgb8_pixel_t pixel(0, 0, 10);
-  //    boost::gil::rgb8_view_t view;
-  //    image.set
   //    uint8_t tile_row_first_layer = base_address[i++];
   //    uint8_t tile_row_second_layer = base_address[i++];
   //  }

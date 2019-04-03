@@ -26,6 +26,8 @@
 
 #include <cstdint>
 
+namespace jones::tool {
+
 enum class COLOR {
   WHITE,
   BLACK,
@@ -46,11 +48,14 @@ public:
 
   void size(int height, int width);
 
-  void set_pixel(COLOR pixel_color);
+  void set_pixel(COLOR color, int x_postion, int y_position);
 
 private:
   class png_writer_impl;
+
   std::unique_ptr<png_writer_impl> pimpl_;
 };
+
+} // namespace jones::tool
 
 #endif // JONES_TOOL_PNG_WRITER_HH
