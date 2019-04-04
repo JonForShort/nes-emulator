@@ -21,28 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_TOOL_PNG_WRITER_HH
-#define JONES_TOOL_PNG_WRITER_HH
+#ifndef JONES_TOOL_IMAGE_WRITER_HH
+#define JONES_TOOL_IMAGE_WRITER_HH
 
 #include <cstdint>
 
 namespace jones::tool {
 
-enum class COLOR {
-  WHITE,
-  BLACK,
-  GRAY,
-};
+enum class COLOR;
 
-class png_writer {
+class image_writer {
 public:
-  png_writer();
+  image_writer();
 
-  ~png_writer();
+  ~image_writer();
 
-  png_writer(png_writer &&) noexcept;
+  image_writer(image_writer &&) noexcept;
 
-  png_writer &operator=(png_writer &&) noexcept;
+  image_writer &operator=(image_writer &&) noexcept;
 
   void write(const char *file_path);
 
@@ -51,11 +47,11 @@ public:
   void set_pixel(COLOR color, int x_postion, int y_position);
 
 private:
-  class png_writer_impl;
+  class image_writer_impl;
 
-  std::unique_ptr<png_writer_impl> pimpl_;
+  std::unique_ptr<image_writer_impl> pimpl_;
 };
 
 } // namespace jones::tool
 
-#endif // JONES_TOOL_PNG_WRITER_HH
+#endif // JONES_TOOL_IMAGE_WRITER_HH

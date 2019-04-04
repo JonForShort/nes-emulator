@@ -16,7 +16,7 @@ set (zlib-lib        ${DIR_ROOT_OUT}/zlib/lib)
 
 # building tool library
 
-add_library(jones-tool-lib STATIC tool_dump.cc tool_decoder.cc png_writer.cc)
+add_library(jones-tool-lib STATIC tool_dump.cc tool_decoder.cc image_writer.cc)
 
 add_custom_target (jones-tool-lib-copy-headers COMMAND ${CMAKE_COMMAND}
         -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/include ${DIR_ROOT_OUT}/jones/include/jones-tool)

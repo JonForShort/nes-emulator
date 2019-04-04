@@ -25,13 +25,14 @@
 #include <memory>
 
 #include "boost_gil.h"
-#include "png_writer.h"
+#include "image_color.hh"
+#include "image_writer.hh"
 
 using namespace jones::tool;
 
 namespace bg = boost::gil;
 
-class png_writer::png_writer_impl {
+class image_writer::image_writer_impl {
 public:
   void write(const char *file_path) {
     boost::ignore_unused(file_path);
@@ -66,10 +67,15 @@ public:
       color_encoded[2] = 0x00;
       break;
     }
-    case COLOR::GRAY:
+    case COLOR::LIGHT_GRAY:
       color_encoded[0] = 0xC0;
       color_encoded[1] = 0xC0;
       color_encoded[2] = 0xC0;
+      break;
+    case COLOR::DARK_GRAY:
+      color_encoded[0] = 0x69;
+      color_encoded[1] = 0x69;
+      color_encoded[2] = 0x69;
       break;
     default:
       break;
@@ -83,23 +89,23 @@ private:
   std::unique_ptr<bg::rgb8_image_t> image_;
 };
 
-png_writer::png_writer() : pimpl_{std::make_unique<png_writer_impl>()} {
+image_writer::image_writer() : pimpl_{std::make_unique<image_writer_impl>()} {
 }
 
-png_writer::~png_writer() = default;
+image_writer::~image_writer() = default;
 
-png_writer::png_writer(png_writer &&) noexcept = default;
+image_writer::image_writer(image_writer &&) noexcept = default;
 
-png_writer &png_writer::operator=(png_writer &&) noexcept = default;
+image_writer &image_writer::operator=(image_writer &&) noexcept = default;
 
-void png_writer::write(const char *file_path) {
+void image_writer::write(const char *file_path) {
   pimpl_->write(file_path);
 }
 
-void png_writer::size(int height, int width) {
+void image_writer::size(int height, int width) {
   pimpl_->size(height, width);
 }
 
-void png_writer::set_pixel(COLOR color, int x_position, int y_position) {
+void image_writer::set_pixel(COLOR color, int x_position, int y_position) {
   pimpl_->set_pixel(color, x_position, y_position);
 }
