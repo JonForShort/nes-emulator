@@ -68,14 +68,14 @@ public:
       break;
     }
     case COLOR::LIGHT_GRAY:
-      color_encoded[0] = 0xC0;
-      color_encoded[1] = 0xC0;
-      color_encoded[2] = 0xC0;
+      color_encoded[0] = 0xAA;
+      color_encoded[1] = 0xAA;
+      color_encoded[2] = 0xAA;
       break;
     case COLOR::DARK_GRAY:
-      color_encoded[0] = 0x69;
-      color_encoded[1] = 0x69;
-      color_encoded[2] = 0x69;
+      color_encoded[0] = 0x55;
+      color_encoded[1] = 0x55;
+      color_encoded[2] = 0x55;
       break;
     default:
       break;

@@ -30,62 +30,41 @@
 #include "image_writer.hh"
 #include "tool_decoder.hh"
 
+using namespace jones;
+
 namespace fs = boost::filesystem;
 
-namespace jones::tool {
+namespace {
 
-void decode_chrrom(uint8_t *base_address, size_t length_in_bytes, const char *out_path) {
-  boost::ignore_unused(base_address);
-  boost::ignore_unused(length_in_bytes);
-  boost::ignore_unused(out_path);
-
-  const fs::path image_path{out_path};
-
-  //
-  // we expect that chrrom is byte aligned since this should always
-  // be the case.
-  //
-  BOOST_ASSERT(length_in_bytes % 8 == 0);
-
-  const auto tile_count = length_in_bytes / 16;
-  const auto tile_row_count = tile_count * 2;
-  auto file_count = 0;
-  for (size_t i = 0; i < tile_row_count;) {
-    std::stringstream file_name;
-    file_name << "tile_" << std::setfill('0') << std::setw(3) << file_count++ << ".png";
-    const fs::path file_path = image_path / file_name.str();
-
-    jones::tool::image_writer writer;
-    writer.size(8, 8);
-    for (size_t r = 0; r < std::numeric_limits<uint8_t>::digits; r++) {
-
-      const uint8_t tile_row_first_layer = base_address[i++];
-      const uint8_t tile_row_second_layer = base_address[i++];
-
-      for (uint8_t b = 0; b < std::numeric_limits<uint8_t>::digits; b++) {
-        uint8_t bit_first_layer = (tile_row_first_layer & (1 << b)) != 0 ? 1 : 0;
-        uint8_t bit_second_layer = (tile_row_second_layer & (1 << b)) != 0 ? 2 : 0;
-        const uint8_t value = bit_first_layer + bit_second_layer;
-        switch (value) {
-        case 0:
-          writer.set_pixel(COLOR::BLACK, b, r);
-          break;
-        case 1:
-          writer.set_pixel(COLOR::WHITE, b, r);
-          break;
-        case 2:
-          writer.set_pixel(COLOR::LIGHT_GRAY, b, r);
-          break;
-        case 3:
-          writer.set_pixel(COLOR::DARK_GRAY, b, r);
-          break;
-        default:
-          break;
-        }
-      }
-    }
-    writer.write(file_path.string().c_str());
-  }
+std::string build_file_path(const char *out_path, const int id) {
+  std::stringstream file_name;
+  file_name << "tile_" << std::setfill('0') << std::setw(3) << id << ".png";
+  return (fs::path{out_path} / file_name.str()).string();
 }
 
-} // namespace jones::tool
+constexpr uint8_t pixels_per_tile = 8;
+
+constexpr tool::COLOR tile_palette[] = {tool::COLOR::BLACK, tool::COLOR::WHITE, tool::COLOR::LIGHT_GRAY, tool::COLOR::DARK_GRAY};
+
+} // namespace
+
+void tool::decode_chrrom(const uint8_t *base_address, const size_t length_in_bytes, const char *out_path) {
+  BOOST_ASSERT(length_in_bytes % 8 == 0);
+  auto file_count = 0;
+  for (size_t i = 0; i < length_in_bytes;) {
+    const auto file_path = build_file_path(out_path, file_count++);
+    jones::tool::image_writer writer;
+    writer.size(pixels_per_tile, pixels_per_tile);
+    for (auto r = 0; r < pixels_per_tile; r++) {
+      const uint8_t first_layer = base_address[i++];
+      const uint8_t second_layer = base_address[i++];
+      for (auto b = 0; b < pixels_per_tile; b++) {
+        const uint8_t first_layer_value = (first_layer & (1 << b)) != 0 ? 1 : 0;
+        const uint8_t second_layer_value = (second_layer & (1 << b)) != 0 ? 2 : 0;
+        const uint8_t value = first_layer_value + second_layer_value;
+        writer.set_pixel(tile_palette[value], b, r);
+      }
+    }
+    writer.write(file_path.c_str());
+  }
+}

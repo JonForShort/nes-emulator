@@ -29,7 +29,7 @@
 
 namespace jones::tool {
 
-void decode_chrrom(uint8_t *base_address, size_t length_in_bytes, const char *out_path);
+void decode_chrrom(const uint8_t *base_address, const size_t length_in_bytes, const char *out_path);
 
 } // namespace jones::tool
 
