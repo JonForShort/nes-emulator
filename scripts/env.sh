@@ -22,6 +22,6 @@ jones_build() {
 
     pushd ${JONES_BUILD_DIR}
         cmake -DCMAKE_BUILD_TYPE=Debug ..
-        make && make test
+        make "$@" && make test
     popd
 }
