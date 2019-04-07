@@ -30,6 +30,27 @@
 
 namespace jones {
 
+// ----------------------------------------------------------------------------
+//
+// Memory layout for NES is documented here:
+//
+// https://wiki.nesdev.com/w/index.php/CPU_memory_map
+//
+// ----------------------------------------------------------------------------
+// Address Range  |  Size   | Device
+// ----------------------------------------------------------------------------
+// $0000-$07FF    |  $0800  | Internal RAM
+// $0800-$0FFF    |  $0800  | Mirrors of Internal RAM ($0000-$07FF)
+// $1000-$17FF    |  $0800  | Mirrors of Internal RAM ($0000-$07FF)
+// $1800-$1FFF    |  $0800  | Mirrors of Internal RAM ($0000-$07FF)
+// ----------------------------------------------------------------------------
+// $2000-$2007    |  $0008  | Mapped to PPU registers.
+// $2008-$3FFF    |  $1FF8  | Mirrors of $2000-2007 (Repeats every 8 bytes).
+// $4000-$4017	  |  $0018  | Mapped to APU and I/O registers.
+// $4018-$401F	  |  $0008  | Mapped to APU and I/O functionality (disabled).
+// $4020-$FFFF    |  $BFE0  | Mapped to Cartridge.
+// ----------------------------------------------------------------------------
+//
 class memory_mappable {
 public:
   memory_mappable() = default;
