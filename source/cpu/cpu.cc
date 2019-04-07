@@ -21,8 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <boost/core/ignore_unused.hpp>
+
 #include "cpu.hh"
 #include "instruction.hh"
+#include "memory.hh"
 #include "opcode.hh"
 #include "register.hh"
 #include "status_register_flag.hh"
@@ -31,7 +34,7 @@ using namespace jones;
 
 class cpu::cpu_impl final {
 public:
-  cpu_impl(const void *base_address) : base_address_(base_address) {}
+  explicit cpu_impl(const memory &memory) : memory_(memory) {}
 
   void step() {}
 
@@ -39,20 +42,42 @@ public:
 
   void run() {}
 
+  uint8_t read(uint16_t address) {
+    boost::ignore_unused(address);
+    return 0;
+  }
+
+  void write(uint16_t address, uint8_t data) {
+    boost::ignore_unused(address);
+    boost::ignore_unused(data);
+  }
+
+  cpu_state get_state() {
+    return cpu_state();
+  }
+
 private:
-  const void *base_address_;
+  const memory &memory_;
 };
 
-cpu::cpu(const void *base_address) : impl_(new cpu_impl(base_address)) {}
+cpu::cpu(const memory &memory) : impl_(new cpu_impl(memory)) {}
 
 cpu::~cpu() = default;
-
-cpu::cpu(cpu &&) noexcept = default;
-
-cpu &cpu::operator=(cpu &&) noexcept = default;
 
 void cpu::step() { impl_->step(); }
 
 void cpu::reset() { impl_->reset(); }
 
 void cpu::run() { impl_->run(); }
+
+uint8_t cpu::read(uint16_t address) {
+  return impl_->read(address);
+}
+
+void cpu::write(uint16_t address, uint8_t data) {
+  impl_->write(address, data);
+}
+
+cpu_state cpu::get_state() {
+  return impl_->get_state();
+}

@@ -21,29 +21,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <boost/core/ignore_unused.hpp>
+#ifndef JONES_MEMORY_MEMORY_HH
+#define JONES_MEMORY_MEMORY_HH
 
-#include "memory.hh"
+#include <cstdint>
+#include <memory>
+#include <vector>
 
-using namespace jones;
+namespace jones {
 
-uint8_t memory::read(const uint16_t address) const {
-  for (const auto &i : memory_mappings_) {
-    if (address >= i->start_address() && address <= i->end_address()) {
-      return i->read(address);
-    }
-  }
-  return 0;
-}
+class memory_mappable {
+public:
+  memory_mappable() = default;
 
-void memory::write(const uint16_t address, uint8_t data) const {
-  for (const auto &i : memory_mappings_) {
-    if (address >= i->start_address() && address <= i->end_address()) {
-      i->write(address, data);
-    }
-  }
-}
+  virtual ~memory_mappable() = default;
 
-void memory::map(memory_mappable_ptr mappable) {
-  memory_mappings_.emplace_back(std::move(mappable));
-}
+  virtual uint16_t start_address() = 0;
+
+  virtual uint16_t end_address() = 0;
+
+  virtual uint8_t read(uint16_t address) = 0;
+
+  virtual void write(uint16_t address, uint8_t data) = 0;
+};
+
+using memory_mappable_ptr = std::unique_ptr<memory_mappable>;
+
+class memory {
+public:
+  memory() = default;
+
+  ~memory() = default;
+
+  uint8_t read(uint16_t address) const;
+
+  void write(uint16_t address, uint8_t data) const;
+
+  void map(memory_mappable_ptr mappable);
+
+private:
+  std::vector<memory_mappable_ptr> memory_mappings_;
+};
+
+} // namespace jones
+
+#endif // JONES_MEMORY_MEMORY_HH

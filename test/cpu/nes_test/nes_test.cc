@@ -33,16 +33,18 @@
 
 namespace {
 
-//void trace_rom(const char *rom_path, const char *trace_path) {
-//  boost::ignore_unused(trace_path);
-//
-//  jones::nes_rom rom(rom_path);
-//  jones::nes nes;
-//  nes.load(rom);
-//}
+void trace_rom(const char *rom_path, const char *trace_path) {
+  boost::ignore_unused(rom_path);
+  boost::ignore_unused(trace_path);
+
+  jones::nes_rom rom(rom_path);
+  //  jones::nes nes;
+  //  nes.load(rom);
+}
 
 } // namespace
 
 BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
   BOOST_CHECK(true);
+  trace_rom("", "");
 }

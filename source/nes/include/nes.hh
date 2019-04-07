@@ -24,15 +24,15 @@
 #ifndef JONES_NES_NES_HH
 #define JONES_NES_NES_HH
 
+#include <memory>
+
 #include "nes_rom.hh"
 
 namespace jones {
 
 class nes {
 public:
-  nes() = default;
-
-  ~nes() = default;
+  nes() noexcept;
 
   void load(const nes_rom &rom);
 
@@ -41,6 +41,11 @@ public:
   void reset();
 
   void trace(const char *trace_file);
+
+private:
+  class nes_impl;
+
+  std::unique_ptr<nes_impl> pimpl_;
 };
 
 } // namespace jones

@@ -26,25 +26,27 @@
 
 #include <memory>
 
+#include "memory.hh"
+
 namespace jones {
 
 struct cpu_state {};
 
 class cpu final {
 public:
-  cpu(const void *base_address);
+  explicit cpu(const memory &memory);
 
   ~cpu();
-
-  cpu(cpu &&op) noexcept;
-
-  cpu &operator=(cpu &&op) noexcept;
 
   void step();
 
   void reset();
 
   void run();
+
+  uint8_t read(uint16_t address);
+
+  void write(uint16_t address, uint8_t data);
 
   cpu_state get_state();
 

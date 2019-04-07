@@ -22,21 +22,79 @@
 // SOFTWARE.
 //
 #include <boost/core/ignore_unused.hpp>
+#include <memory.hh>
 
+#include "cpu.hh"
 #include "nes.hh"
+#include "nes_rom.hh"
 
 using namespace jones;
 
+class cpu_memory_map : public memory_mappable {
+public:
+  cpu_memory_map(cpu &cpu) : cpu_(cpu) {}
+
+  uint16_t start_address() override {
+    return 0x0000;
+  }
+
+  uint16_t end_address() override {
+    return 0x1FFF;
+  }
+
+  uint8_t read(const uint16_t address) override {
+    return cpu_.read(address);
+  }
+
+  void write(const uint16_t address, const uint8_t data) override {
+    cpu_.write(address, data);
+  }
+
+private:
+  cpu &cpu_;
+};
+
+class nes::nes_impl {
+public:
+  nes_impl() : memory_(), cpu_(memory_) {
+    memory_.map(std::make_unique<cpu_memory_map>(cpu_));
+  }
+
+  void load(const nes_rom &rom) {
+    boost::ignore_unused(rom);
+  }
+
+  void run() {
+  }
+
+  void reset() {
+  }
+
+  void trace(const char *trace_file) {
+    boost::ignore_unused(trace_file);
+  }
+
+private:
+  memory memory_;
+  cpu cpu_;
+};
+
+nes::nes() noexcept
+    : pimpl_(std::make_unique<nes_impl>()) {
+}
+
 void nes::load(const nes_rom &rom) {
-  boost::ignore_unused(rom);
+  pimpl_->load(rom);
 }
 
 void nes::run() {
+  pimpl_->run();
 }
 
 void nes::reset() {
+  pimpl_->reset();
 }
 
 void nes::trace(const char *trace_file) {
-  boost::ignore_unused(trace_file);
+  pimpl_->trace(trace_file);
 }

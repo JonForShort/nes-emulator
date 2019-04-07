@@ -26,6 +26,7 @@ add_dependencies (jones-lib sndio)
 add_dependencies (jones-lib sdl)
 
 target_link_libraries (jones-lib cpu)
+target_link_libraries (jones-lib memory)
 target_link_libraries (jones-lib ${sdl-lib}/libSDL2.so)
 target_link_libraries (jones-lib ${sndio-lib}/libsndio.so)
 target_link_libraries (jones-lib ${CMAKE_DL_LIBS})
