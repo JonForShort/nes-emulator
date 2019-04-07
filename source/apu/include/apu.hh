@@ -21,41 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <boost/core/ignore_unused.hpp>
+#ifndef JONES_APU_APU_HH
+#define JONES_APU_APU_HH
+
+#include <memory>
 
 #include "memory.hh"
-#include "ppu.hh"
 
-using namespace jones;
+namespace jones {
 
-class ppu::impl final {
+class apu final {
 public:
-  explicit impl(const memory &memory) : memory_(memory) {}
+  explicit apu(const memory &memory);
 
-  uint8_t read(uint16_t address) {
-    boost::ignore_unused(address);
-    return 0;
-  }
+  ~apu();
 
-  void write(uint16_t address, uint8_t data) {
-    boost::ignore_unused(address);
-    boost::ignore_unused(data);
-  }
+  uint8_t read(uint16_t address);
+
+  void write(uint16_t address, uint8_t data);
 
 private:
-  const memory &memory_;
+  class impl;
+
+  std::unique_ptr<impl> impl_;
 };
 
-ppu::ppu(const jones::memory &memory)
-    : impl_(new impl(memory)) {
-}
+} // namespace jones
 
-ppu::~ppu() = default;
-
-uint8_t ppu::read(const uint16_t address) {
-  return impl_->read(address);
-}
-
-void ppu::write(const uint16_t address, const uint8_t data) {
-  impl_->write(address, data);
-}
+#endif // JONES_APU_APU_HH

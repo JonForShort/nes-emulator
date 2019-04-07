@@ -24,40 +24,49 @@
 #include <boost/core/ignore_unused.hpp>
 #include <memory.hh>
 
+#include "apu.hh"
 #include "cpu.hh"
 #include "nes.hh"
 #include "nes_rom.hh"
+#include "ppu.hh"
 
 using namespace jones;
 
-class cpu_memory_map : public memory_mappable {
+template <typename C>
+class memory_mappable_component : public memory_mappable {
 public:
-  cpu_memory_map(cpu &cpu) : cpu_(cpu) {}
+  memory_mappable_component(C &component, uint16_t start_address, uint16_t end_address)
+      : component_(component), start_address_(start_address), end_address_(end_address) {}
 
   uint16_t start_address() override {
-    return 0x0000;
+    return start_address_;
   }
 
   uint16_t end_address() override {
-    return 0x1FFF;
+    return end_address_;
   }
 
   uint8_t read(const uint16_t address) override {
-    return cpu_.read(address);
+    return component_.read(address);
   }
 
   void write(const uint16_t address, const uint8_t data) override {
-    cpu_.write(address, data);
+    component_.write(address, data);
   }
 
 private:
-  cpu &cpu_;
+  C &component_;
+  const uint16_t start_address_;
+  const uint32_t end_address_;
 };
 
 class nes::nes_impl {
 public:
-  nes_impl() : memory_(), cpu_(memory_) {
-    memory_.map(std::make_unique<cpu_memory_map>(cpu_));
+  nes_impl() : memory_(), apu_(memory_), cpu_(memory_), ppu_(memory_) {
+    memory_.map(std::make_unique<memory_mappable_component<cpu>>(cpu_, 0x0000, 0x1FFF));
+    memory_.map(std::make_unique<memory_mappable_component<ppu>>(ppu_, 0x2000, 0x3FFF));
+    memory_.map(std::make_unique<memory_mappable_component<apu>>(apu_, 0x4000, 0x4017));
+    memory_.map(std::make_unique<memory_mappable_component<cpu>>(cpu_, 0x4000, 0x4017));
   }
 
   void load(const nes_rom &rom) {
@@ -76,7 +85,9 @@ public:
 
 private:
   memory memory_;
+  apu apu_;
   cpu cpu_;
+  ppu ppu_;
 };
 
 nes::nes() noexcept
