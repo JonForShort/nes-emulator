@@ -33,13 +33,13 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-  jones::NesRom nesRom(argv[1]);
-  if (!nesRom.isValid()) {
+  jones::nes_rom rom(argv[1]);
+  if (!rom.is_valid()) {
     std::cout << "must specify valid nes rom file" << std::endl;
     return -2;
   }
 
-  nesRom.printHeader(std::cout);
+  rom.print_header(std::cout);
 
   jones::Screen screen;
   screen.initialize();

@@ -21,22 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_NES_NES_ROM_HH
-#define JONES_NES_NES_ROM_HH
+#ifndef JONES_NES_NES_HH
+#define JONES_NES_NES_HH
 
-#include "nes_rom.h"
+#include "nes_rom.hh"
 
 namespace jones {
-  
-  class Nes {
-  public:
-    void load(NesRom nesRom);
 
-    void run();
-    
-    void reset();
-  };
-}
+class nes {
+public:
+  nes() = default;
 
-#endif // JONES_NES_NES_ROM_HH
+  ~nes() = default;
 
+  void load(const nes_rom &rom);
+
+  void run();
+
+  void reset();
+
+  void trace(const char *trace_file);
+};
+
+} // namespace jones
+
+#endif // JONES_NES_NES_HH

@@ -21,66 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_DEBUGGER_DEBUGGER_HH
-#define JONES_DEBUGGER_DEBUGGER_HH
+#include <boost/core/ignore_unused.hpp>
 
-#include <cstdint>
+#include "nes.hh"
 
-namespace jones::debugger {
+using namespace jones;
 
-using r8_t = uint8_t;
-using r16_t = uint16_t;
+void nes::load(const nes_rom &rom) {
+  boost::ignore_unused(rom);
+}
 
-enum class register_t {
+void nes::run() {
+}
 
-  // program counter (16 bit)
-  PC,
+void nes::reset() {
+}
 
-  // accumulator (8 bit)
-  AC,
-
-  // X register (8 bit)
-  X,
-
-  // Y register (8 bit)
-  Y,
-
-  // status register (8 bit)
-  SR,
-
-  // stack pointer (8 bit)
-  SP
-};
-
-template <register_t R>
-struct register_traits {
-
-  typedef r8_t type;
-
-  static constexpr uint8_t length = sizeof(type);
-};
-
-template <>
-struct register_traits<register_t::PC> {
-
-  typedef r16_t type;
-
-  static constexpr uint8_t length = sizeof(type);
-};
-
-template <register_t R>
-using register_type = typename register_traits<R>::type;
-
-template <register_t R>
-void write_register(register_t reg, register_type<R> value);
-
-template <register_t R>
-register_type<R> read_register(register_t reg);
-
-void write_memory(uint16_t address, uint16_t value);
-
-void read_memory(uint16_t address);
-
-} // namespace jones::debugger
-
-#endif // JONES_DEBUGGER_DEBUGGER_HH
+void nes::trace(const char *trace_file) {
+  boost::ignore_unused(trace_file);
+}

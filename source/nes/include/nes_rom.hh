@@ -24,56 +24,56 @@
 #ifndef JONES_NES_NES_ROM_HH
 #define JONES_NES_NES_ROM_HH
 
-#include <string>
 #include <fstream>
 #include <stdint.h>
+#include <string>
 
 #define NES_ROM_HEADER_CONSTANT 0x1A53454E
 
 namespace jones {
 
-  class NesRom {
-    
-  public:
+class nes_rom {
 
-    NesRom(const std::string& pathToNesRom);
+public:
+  nes_rom(const std::string &rom_path);
 
-    bool isValid();
+  ~nes_rom() = default;
 
-    int getHeaderVersion() const;
+  bool is_valid() const;
 
-    void printHeader(std::ostream &out) const;
+  int header_version() const;
 
-  private:
-    
-    struct NesRomHeader {
-      uint32_t constants;
-      uint8_t sizeOfPrgRom;
-      uint8_t sizeOfChrRom;
-      uint8_t hasMirroring : 1;
-      uint8_t containsBatteryBackedPrgRam : 1;
-      uint8_t hasTrainer : 1;
-      uint8_t ignoreMirroringControl : 1;
-      uint8_t lowerMapperNibble : 4;
-      uint8_t isVsUnisystem : 1;
-      uint8_t isPlayChoice : 1;
-      uint8_t version : 2;
-      uint8_t upperMapperNibble : 4;     
-      uint8_t sizeOfPrgRam;
-      uint8_t whichTvSystemOne : 1;
-      unsigned int : 7;
-      uint8_t whichTvSystemTwo : 2;
-      unsigned int : 2;
-      uint8_t isPrgRamPresent : 1;
-      uint8_t hasBusConflicts : 1;
-      unsigned int : 2;
-      uint32_t ignored;
-    };
+  void print_header(std::ostream &out) const;
 
-    NesRomHeader m_nesRomFileHeader;
-    
-    std::ifstream m_nesRomFile;
+private:
+  struct nes_rom_header {
+    uint32_t constants;
+    uint8_t sizeOfPrgRom;
+    uint8_t sizeOfChrRom;
+    uint8_t hasMirroring : 1;
+    uint8_t containsBatteryBackedPrgRam : 1;
+    uint8_t hasTrainer : 1;
+    uint8_t ignoreMirroringControl : 1;
+    uint8_t lowerMapperNibble : 4;
+    uint8_t isVsUnisystem : 1;
+    uint8_t isPlayChoice : 1;
+    uint8_t version : 2;
+    uint8_t upperMapperNibble : 4;
+    uint8_t sizeOfPrgRam;
+    uint8_t whichTvSystemOne : 1;
+    unsigned int : 7;
+    uint8_t whichTvSystemTwo : 2;
+    unsigned int : 2;
+    uint8_t isPrgRamPresent : 1;
+    uint8_t hasBusConflicts : 1;
+    unsigned int : 2;
+    uint32_t ignored;
   };
-}
+
+  nes_rom_header rom_file_header_;
+
+  std::ifstream rom_file_;
+};
+} // namespace jones
 
 #endif // JONES_NES_NES_ROM_HH
