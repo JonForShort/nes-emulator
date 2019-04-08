@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2017-2018
+// Copyright 2017-2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,27 +29,36 @@
 #include "utils.hh"
 
 namespace jones {
-  
-  class Screen {
-  public:
-    Screen();
-    ~Screen();
-    
-    void initialize();
-    void release();
-    void show();
 
-  private:
-    void processEvent();
-    void renderScreen();
-    void fillWithColor(u8 r, u8 g, u8 b, u8 a);
+class screen {
+public:
+  screen();
 
-    SDL_Event mEvents;
-    SDL_Window *mWindow;
-    SDL_Renderer *mRenderer;
+  ~screen();
 
-    bool mIsRunning;
-  };
-}
+  void initialize();
+
+  void release();
+
+  void show();
+
+private:
+  void process_events();
+
+  void render_screen();
+
+  void fill_with_color(u8 r, u8 g, u8 b, u8 a);
+
+private:
+  SDL_Event events_;
+
+  SDL_Window *window_;
+
+  SDL_Renderer *renderer_;
+
+  bool is_running_;
+};
+
+} // namespace jones
 
 #endif // JONES_NES_SCREEN_HH

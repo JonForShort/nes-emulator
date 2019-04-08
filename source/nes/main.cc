@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 
   rom.print_header(std::cout);
 
-  jones::Screen screen;
+  jones::screen screen;
   screen.initialize();
   screen.show();
   screen.release();

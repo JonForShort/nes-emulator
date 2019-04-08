@@ -74,7 +74,7 @@ public:
   }
 
   void load(const char *rom_path) {
-    boost::ignore_unused(rom_path);
+    cartridge_.attach(rom_path);
   }
 
   void run() {

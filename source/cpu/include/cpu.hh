@@ -51,8 +51,9 @@ public:
   cpu_state get_state();
 
 private:
-  class cpu_impl;
-  std::unique_ptr<cpu_impl> impl_;
+  class impl;
+
+  std::unique_ptr<impl> impl_;
 };
 
 } // namespace jones

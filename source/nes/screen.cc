@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2017-2018
+// Copyright 2017-2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,56 +28,51 @@
 
 using namespace jones;
 
-Screen::Screen() : mIsRunning(false) {}
+screen::screen() : events_(), window_(nullptr), renderer_(nullptr), is_running_(false) {}
 
-Screen::~Screen() {
-  mWindow = nullptr;
-  mRenderer = nullptr;
-  mIsRunning = false;
+screen::~screen() {
+  window_ = nullptr;
+  renderer_ = nullptr;
+  is_running_ = false;
 }
 
-void Screen::initialize() { SDL_Init(SDL_INIT_HAPTIC); }
+void screen::initialize() { SDL_Init(SDL_INIT_HAPTIC); }
 
-void Screen::show() {
-  mWindow =
-      SDL_CreateWindow("Jones NES Emulator", SDL_WINDOWPOS_UNDEFINED,
-                       SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
-  if (mWindow == nullptr) {
-    mIsRunning = false;
+void screen::show() {
+  window_ = SDL_CreateWindow("Jones NES Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
+  if (window_ == nullptr) {
+    is_running_ = false;
     return;
   }
-
-  mRenderer = SDL_CreateRenderer(mWindow, -1, 0);
-  if (mRenderer == nullptr) {
-    mIsRunning = false;
+  renderer_ = SDL_CreateRenderer(window_, -1, 0);
+  if (renderer_ == nullptr) {
+    is_running_ = false;
     return;
   }
+  fill_with_color(0, 0, 0, 0);
 
-  fillWithColor(0, 0, 0, 0);
-
-  mIsRunning = true;
-
-  while (mIsRunning) {
-    processEvent();
-    renderScreen();
+  is_running_ = true;
+  while (is_running_) {
+    process_events();
+    render_screen();
   }
 }
 
-void Screen::fillWithColor(u8 r, u8 g, u8 b, u8 a) {
-  if (mRenderer != nullptr) {
-    SDL_SetRenderDrawColor(mRenderer, r, g, b, a);
-    SDL_RenderClear(mRenderer);
-    SDL_RenderPresent(mRenderer);
+void screen::fill_with_color(u8 r, u8 g, u8 b, u8 a) {
+  if (renderer_ != nullptr) {
+    SDL_SetRenderDrawColor(renderer_, r, g, b, a);
+    SDL_RenderClear(renderer_);
+    SDL_RenderPresent(renderer_);
   }
 }
 
-void Screen::processEvent() {
-  while (SDL_PollEvent(&mEvents)) {
-    if (mEvents.type == SDL_QUIT)
-      mIsRunning = false;
+void screen::process_events() {
+  while (SDL_PollEvent(&events_)) {
+    if (events_.type == SDL_QUIT)
+      is_running_ = false;
   }
 }
 
-void Screen::renderScreen() {}
+void screen::render_screen() {}
 
-void Screen::release() { SDL_Quit(); }
+void screen::release() { SDL_Quit(); }

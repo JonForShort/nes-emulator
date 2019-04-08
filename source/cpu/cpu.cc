@@ -32,9 +32,9 @@
 
 using namespace jones;
 
-class cpu::cpu_impl final {
+class cpu::impl final {
 public:
-  explicit cpu_impl(const memory &memory) : memory_(memory) {}
+  explicit impl(const memory &memory) : memory_(memory) {}
 
   void step() {}
 
@@ -60,7 +60,7 @@ private:
   const memory &memory_;
 };
 
-cpu::cpu(const memory &memory) : impl_(new cpu_impl(memory)) {}
+cpu::cpu(const memory &memory) : impl_(new impl(memory)) {}
 
 cpu::~cpu() = default;
 
