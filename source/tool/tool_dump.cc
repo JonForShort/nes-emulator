@@ -139,8 +139,8 @@ void dump_header(const fs::path &root_path, const jo::cartridge &rom, const uint
 namespace jones::tool {
 
 int dump(const char *file_path, const char *output_path) {
-  jones::cartridge rom(file_path);
-  if (!rom.is_valid()) {
+  jones::cartridge rom;
+  if (!rom.attach(file_path)) {
     std::cerr << "error: must specify valid rom file" << std::endl;
     return -1;
   }

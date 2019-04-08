@@ -26,15 +26,13 @@
 
 #include <memory>
 
-#include "nes_rom.hh"
-
 namespace jones {
 
 class nes {
 public:
   nes() noexcept;
 
-  void load(const nes_rom &rom);
+  void load(const char *rom_path);
 
   void run();
 

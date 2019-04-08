@@ -25,11 +25,9 @@
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/test/unit_test.hpp>
-#include <nes.hh>
-#include <nes_rom.hh>
 
+#include "cartridge.hh"
 #include "nes.hh"
-#include "nes_rom.hh"
 
 namespace {
 
@@ -37,7 +35,8 @@ void trace_rom(const char *rom_path, const char *trace_path) {
   boost::ignore_unused(rom_path);
   boost::ignore_unused(trace_path);
 
-  jones::nes_rom rom(rom_path);
+  jones::cartridge cartridge;
+  cartridge.attach(rom_path);
   //  jones::nes nes;
   //  nes.load(rom);
 }

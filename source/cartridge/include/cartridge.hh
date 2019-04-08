@@ -28,16 +28,17 @@
 #include <stdint.h>
 #include <string>
 
+#include "memory.hh"
+
 #define ROM_HEADER_CONSTANT 0x1A53454E
 
 namespace jones {
 
 class cartridge {
-
 public:
-  cartridge(const std::string &rom_path);
+  cartridge();
 
-  bool is_valid();
+  bool attach(const char *rom_path);
 
   int get_header_version() const;
 
@@ -50,6 +51,10 @@ public:
   uint16_t get_chrrom_offset() const;
 
   uint16_t get_chrrom_size() const;
+
+  uint8_t read(uint16_t address);
+
+  void write(uint16_t address, uint8_t data);
 
 private:
   struct rom_header {

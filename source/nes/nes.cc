@@ -25,9 +25,9 @@
 #include <memory.hh>
 
 #include "apu.hh"
+#include "cartridge.hh"
 #include "cpu.hh"
 #include "nes.hh"
-#include "nes_rom.hh"
 #include "ppu.hh"
 
 using namespace jones;
@@ -62,15 +62,19 @@ private:
 
 class nes::nes_impl {
 public:
-  nes_impl() : memory_(), apu_(memory_), cpu_(memory_), ppu_(memory_) {
+  nes_impl()
+      : memory_(), apu_(memory_), cpu_(memory_), ppu_(memory_), cartridge_() {
     memory_.map(std::make_unique<memory_mappable_component<cpu>>(cpu_, 0x0000, 0x1FFF));
     memory_.map(std::make_unique<memory_mappable_component<ppu>>(ppu_, 0x2000, 0x3FFF));
     memory_.map(std::make_unique<memory_mappable_component<apu>>(apu_, 0x4000, 0x4017));
     memory_.map(std::make_unique<memory_mappable_component<cpu>>(cpu_, 0x4000, 0x4017));
+    memory_.map(std::make_unique<memory_mappable_component<apu>>(apu_, 0x4018, 0x401F));
+    memory_.map(std::make_unique<memory_mappable_component<cpu>>(cpu_, 0x4018, 0x401F));
+    memory_.map(std::make_unique<memory_mappable_component<cartridge>>(cartridge_, 0x4020, 0xFFFF));
   }
 
-  void load(const nes_rom &rom) {
-    boost::ignore_unused(rom);
+  void load(const char *rom_path) {
+    boost::ignore_unused(rom_path);
   }
 
   void run() {
@@ -88,14 +92,15 @@ private:
   apu apu_;
   cpu cpu_;
   ppu ppu_;
+  cartridge cartridge_;
 };
 
 nes::nes() noexcept
     : pimpl_(std::make_unique<nes_impl>()) {
 }
 
-void nes::load(const nes_rom &rom) {
-  pimpl_->load(rom);
+void nes::load(const char *rom_path) {
+  pimpl_->load(rom_path);
 }
 
 void nes::run() {

@@ -21,10 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <boost/core/ignore_unused.hpp>
 #include <iomanip>
 #include <iostream>
 
 #include "cartridge.hh"
+#include "memory.hh"
 
 using namespace jones;
 
@@ -40,15 +42,14 @@ void print_hex_integer(std::ostream &out, const char *label, const uint8_t value
 
 } // namespace
 
-cartridge::cartridge(const std::string &rom_path) : rom_file_(rom_path.c_str(), std::ifstream::binary) {
+cartridge::cartridge() : rom_file_header_(), rom_file_() {}
+
+bool cartridge::attach(const char *rom_path) {
+  rom_file_ = std::ifstream(rom_path, std::ifstream::binary);
   if (rom_file_.good()) {
     rom_file_.read((char *)&rom_file_header_, sizeof(rom_file_header_));
   }
-}
-
-bool cartridge::is_valid() {
-  return rom_file_.good() &&
-         rom_file_header_.constants == ROM_HEADER_CONSTANT;
+  return rom_file_.good() && rom_file_header_.constants == ROM_HEADER_CONSTANT;
 }
 
 int cartridge::get_header_version() const {
@@ -93,4 +94,13 @@ void cartridge::print_header(std::ostream &out) const {
   print_hex_integer(out, "is_prgram_present: ", rom_file_header_.is_prgram_present);
   print_hex_integer(out, "has_bus_conflicts: ", rom_file_header_.has_bus_conflicts);
   out << "***********************************************" << std::endl;
+}
+
+uint8_t cartridge::read(uint16_t address) {
+  boost::ignore_unused(address);
+  return 0;
+}
+
+void cartridge::write(uint16_t address, uint8_t data) {
+  boost::ignore_unused(address, data);
 }
