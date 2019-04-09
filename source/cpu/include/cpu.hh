@@ -50,6 +50,8 @@ public:
 
   cpu_state get_state();
 
+  void initialize();
+
 private:
   class impl;
 

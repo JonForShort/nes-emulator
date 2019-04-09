@@ -32,6 +32,8 @@ class nes {
 public:
   nes() noexcept;
 
+  ~nes();
+
   void load(const char *rom_path);
 
   void run();
@@ -41,9 +43,9 @@ public:
   void trace(const char *trace_file);
 
 private:
-  class nes_impl;
+  class impl;
 
-  std::unique_ptr<nes_impl> pimpl_;
+  std::unique_ptr<impl> pimpl_;
 };
 
 } // namespace jones

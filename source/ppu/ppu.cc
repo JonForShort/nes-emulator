@@ -42,6 +42,12 @@ public:
     boost::ignore_unused(data);
   }
 
+  void initialize() {
+  }
+
+  void uninitialize() {
+  }
+
 private:
   const memory &memory_;
 };
@@ -58,4 +64,10 @@ uint8_t ppu::read(const uint16_t address) {
 
 void ppu::write(const uint16_t address, const uint8_t data) {
   impl_->write(address, data);
+}
+
+void ppu::initialize() {
+}
+
+void ppu::uninitialize() {
 }

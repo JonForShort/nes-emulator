@@ -35,10 +35,10 @@ void trace_rom(const char *rom_path, const char *trace_path) {
   boost::ignore_unused(rom_path);
   boost::ignore_unused(trace_path);
 
-  jones::cartridge cartridge;
-  cartridge.attach(rom_path);
-  //  jones::nes nes;
-  //  nes.load(rom);
+  jones::nes nes;
+  nes.load(rom_path);
+  nes.trace(trace_path);
+  nes.run();
 }
 
 } // namespace

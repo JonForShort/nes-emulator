@@ -60,9 +60,9 @@ private:
   const uint32_t end_address_;
 };
 
-class nes::nes_impl {
+class nes::impl {
 public:
-  nes_impl()
+  impl()
       : memory_(), apu_(memory_), cpu_(memory_), ppu_(memory_), cartridge_() {
     memory_.map(std::make_unique<memory_mappable_component<cpu>>(cpu_, 0x0000, 0x1FFF));
     memory_.map(std::make_unique<memory_mappable_component<ppu>>(ppu_, 0x2000, 0x3FFF));
@@ -73,18 +73,29 @@ public:
     memory_.map(std::make_unique<memory_mappable_component<cartridge>>(cartridge_, 0x4020, 0xFFFF));
   }
 
+  ~impl() {}
+
   void load(const char *rom_path) {
     cartridge_.attach(rom_path);
+    initialize_components();
   }
 
   void run() {
   }
 
   void reset() {
+    initialize_components();
   }
 
   void trace(const char *trace_file) {
     boost::ignore_unused(trace_file);
+  }
+
+private:
+  void initialize_components() {
+    ppu_.initialize();
+    cpu_.initialize();
+    apu_.initialize();
   }
 
 private:
@@ -96,8 +107,10 @@ private:
 };
 
 nes::nes() noexcept
-    : pimpl_(std::make_unique<nes_impl>()) {
+    : pimpl_(std::make_unique<impl>()) {
 }
+
+nes::~nes() {}
 
 void nes::load(const char *rom_path) {
   pimpl_->load(rom_path);

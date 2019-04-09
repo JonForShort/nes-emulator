@@ -42,6 +42,9 @@ public:
     boost::ignore_unused(data);
   }
 
+  void initialize() {
+  }
+
 private:
   const memory &memory_;
 };
@@ -58,4 +61,8 @@ uint8_t apu::read(const uint16_t address) {
 
 void apu::write(const uint16_t address, const uint8_t data) {
   impl_->write(address, data);
+}
+
+void apu::initialize() {
+  impl_->initialize();
 }

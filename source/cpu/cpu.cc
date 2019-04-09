@@ -56,6 +56,9 @@ public:
     return cpu_state();
   }
 
+  void initialize() {
+  }
+
 private:
   const memory &memory_;
 };
@@ -80,4 +83,8 @@ void cpu::write(uint16_t address, uint8_t data) {
 
 cpu_state cpu::get_state() {
   return impl_->get_state();
+}
+
+void cpu::initialize() {
+  impl_->initialize();
 }

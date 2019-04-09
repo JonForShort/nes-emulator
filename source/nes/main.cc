@@ -21,30 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <cartridge.hh>
 #include <iostream>
 
-#include "screen.hh"
+#include "nes.hh"
 
-int main(int argc, char *argv[]) {
-
-  if (argc != 2) {
-    std::cout << "must specify path to nes rom file" << std::endl;
-    return -1;
-  }
-
-  jones::cartridge rom;
-  if (!rom.attach(argv[1])) {
-    std::cout << "must specify valid nes rom file" << std::endl;
-    return -2;
-  }
-
-  rom.print_header(std::cout);
-
-  jones::screen screen;
-  screen.initialize();
-  screen.show();
-  screen.release();
-
+int main(int, char *[]) {
   return 0;
 }
