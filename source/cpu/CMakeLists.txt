@@ -12,6 +12,7 @@ set (sources
   decode.cc
   disassemble.cc
   instruction.cc
+  status_register.cc
 )
 
 add_library (cpu STATIC ${sources})

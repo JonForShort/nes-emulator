@@ -21,30 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_CPU_STATUS_REGISTER_FLAG_HH
-#define JONES_CPU_STATUS_REGISTER_FLAG_HH
+#ifndef JONES_CPU_STATUS_REGISTER_HH
+#define JONES_CPU_STATUS_REGISTER_HH
 
-//
-// CPU reference
-// http://e-tradition.net/bytes/6502/6502_instruction_set.html
-//
+#include <bitset>
+#include <cstdint>
+
 namespace jones {
 
-enum class status_register_flag_t {
+//
+// https://wiki.nesdev.com/w/index.php/Status_flags
+//
+enum class status_flag {
 
   // Negative
-  N,
+  N = 0,
 
   // Overflow
   V,
 
-  // Break
-  B,
+  // Ignored
+  B1,
 
-  // Decimal (use BCD for arithmetics)
+  // Ignored
+  B2,
+
+  // Decimal
   D,
 
-  // Interrupt (IRQ disable)
+  // Interrupt Disable
   I,
 
   // Zero
@@ -52,8 +57,28 @@ enum class status_register_flag_t {
 
   // Carry
   C,
+
+  // Number of flags
+  COUNT
+};
+
+class status_register final {
+public:
+  bool is_set(status_flag flag);
+
+  void set(status_flag flag);
+
+  void clear(status_flag flag);
+
+private:
+  static uint8_t flag_to_position(status_flag flag);
+
+private:
+  static constexpr size_t status_flag_count = static_cast<size_t>(status_flag::COUNT);
+
+  std::bitset<status_flag_count> status_flags_;
 };
 
 } // namespace jones
 
-#endif // JONES_CPU_STATUS_REGISTER_FLAG_HH
+#endif // JONES_CPU_STATUS_REGISTER_HH

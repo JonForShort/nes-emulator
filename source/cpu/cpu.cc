@@ -28,15 +28,9 @@
 #include "memory.hh"
 #include "opcode.hh"
 #include "register.hh"
-#include "status_register_flag.hh"
+#include "status_register.hh"
 
 using namespace jones;
-
-namespace {
-
-const int ram_size = 2048;
-
-}
 
 class cpu::impl final {
 public:
@@ -44,11 +38,16 @@ public:
 
   void initialize() {
     std::fill(ram_, ram_ + ram_size, 0);
+    status_register_.set(status_flag::D);
+    status_register_.set(status_flag::B1);
+    status_register_.set(status_flag::B2);
   }
 
   void step() {}
 
-  void reset() {}
+  void reset() {
+    initialize();
+  }
 
   void run() {}
 
@@ -67,8 +66,11 @@ public:
   }
 
 private:
+  static constexpr int ram_size = 2048;
+
   const memory &memory_;
   uint8_t ram_[ram_size];
+  status_register status_register_;
 };
 
 cpu::cpu(const memory &memory) : impl_(new impl(memory)) {}
