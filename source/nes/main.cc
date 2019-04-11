@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2017-2018
+// Copyright 2017-2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,10 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
 #include <iostream>
 
 #include "nes.hh"
 
-int main(int, char *[]) {
+namespace fs = boost::filesystem;
+namespace po = boost::program_options;
+
+int main(int argc, char *argv[]) {
+  std::string file_argument;
+  try {
+    po::options_description desc{"Options"};
+    desc.add_options()("help,h", "Help screen")("file,f", po::value<std::string>(&file_argument)->required(), "file path to nes rom");
+
+    po::variables_map vm;
+    po::store(parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+  } catch (const po::error &ex) {
+    std::cerr << ex.what() << '\n';
+    return -1;
+  }
+
+  const fs::path file_path(file_argument);
+  if (!fs::exists(file_path)) {
+    std::cerr << "file path does not exist; please check path" << std::endl;
+    return -2;
+  }
+
+  if (fs::is_directory(file_path)) {
+    std::cerr << "file path is a directory; please check path" << std::endl;
+    return -3;
+  }
+
+  jones::nes nes;
+  nes.load(file_path.string().c_str());
+  nes.run();
+
   return 0;
 }

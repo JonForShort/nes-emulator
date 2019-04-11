@@ -32,9 +32,19 @@
 
 using namespace jones;
 
+namespace {
+
+const int ram_size = 2048;
+
+}
+
 class cpu::impl final {
 public:
-  explicit impl(const memory &memory) : memory_(memory) {}
+  explicit impl(const memory &memory) : memory_(memory), ram_() {}
+
+  void initialize() {
+    std::fill(ram_, ram_ + ram_size, 0);
+  }
 
   void step() {}
 
@@ -56,11 +66,9 @@ public:
     return cpu_state();
   }
 
-  void initialize() {
-  }
-
 private:
   const memory &memory_;
+  uint8_t ram_[ram_size];
 };
 
 cpu::cpu(const memory &memory) : impl_(new impl(memory)) {}

@@ -22,6 +22,9 @@
 // SOFTWARE.
 //
 #include <boost/core/ignore_unused.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/interprocess/file_mapping.hpp>
+#include <boost/interprocess/mapped_region.hpp>
 #include <iomanip>
 #include <iostream>
 
@@ -29,6 +32,8 @@
 #include "memory.hh"
 
 using namespace jones;
+
+namespace ip = boost::interprocess;
 
 namespace {
 
@@ -42,14 +47,44 @@ void print_hex_integer(std::ostream &out, const char *label, const uint8_t value
 
 } // namespace
 
-cartridge::cartridge() : rom_file_header_(), rom_file_() {}
+class cartridge::mapped_cartridge_file {
+public:
+  mapped_cartridge_file(const char *file_path)
+      : mapped_region_(map_cartridge_file(file_path)) {}
 
-bool cartridge::attach(const char *rom_path) {
-  rom_file_ = std::ifstream(rom_path, std::ifstream::binary);
+  ~mapped_cartridge_file() {}
+
+  size_t size() {
+    return mapped_region_.get_size();
+  }
+
+  uint8_t *address() {
+    return static_cast<uint8_t *>(mapped_region_.get_address());
+  }
+
+private:
+  static ip::mapped_region map_cartridge_file(const char *file_path) {
+    const ip::file_mapping mapped_file(file_path, ip::mode_t::read_only);
+    return ip::mapped_region(mapped_file, ip::mode_t::read_only);
+  }
+
+  const ip::mapped_region mapped_region_;
+};
+
+cartridge::cartridge() : rom_file_header_(), cartridge_file_() {}
+
+cartridge::~cartridge() {}
+
+bool cartridge::attach(const char *file_path) {
+  std::ifstream rom_file_ = std::ifstream(file_path, std::ifstream::binary);
   if (rom_file_.good()) {
     rom_file_.read((char *)&rom_file_header_, sizeof(rom_file_header_));
+    if (rom_file_header_.constants == ROM_HEADER_CONSTANT) {
+      cartridge_file_ = std::make_unique<mapped_cartridge_file>(file_path);
+      return true;
+    }
   }
-  return rom_file_.good() && rom_file_header_.constants == ROM_HEADER_CONSTANT;
+  return false;
 }
 
 int cartridge::get_header_version() const {
@@ -97,10 +132,14 @@ void cartridge::print_header(std::ostream &out) const {
 }
 
 uint8_t cartridge::read(uint16_t address) {
-  boost::ignore_unused(address);
+  if (cartridge_file_) {
+    return *(cartridge_file_->address() + address);
+  }
   return 0;
 }
 
 void cartridge::write(uint16_t address, uint8_t data) {
-  boost::ignore_unused(address, data);
+  if (cartridge_file_) {
+    *(cartridge_file_->address() + address) = data;
+  }
 }

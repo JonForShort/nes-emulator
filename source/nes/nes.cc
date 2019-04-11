@@ -63,7 +63,7 @@ private:
 class nes::impl {
 public:
   impl()
-      : memory_(), apu_(memory_), cpu_(memory_), ppu_(memory_), cartridge_() {
+      : memory_(), apu_(memory_), cpu_(memory_), ppu_(memory_), cartridge_(), trace_file_(nullptr) {
     memory_.map(std::make_unique<memory_mappable_component<cpu>>(cpu_, 0x0000, 0x1FFF));
     memory_.map(std::make_unique<memory_mappable_component<ppu>>(ppu_, 0x2000, 0x3FFF));
     memory_.map(std::make_unique<memory_mappable_component<apu>>(apu_, 0x4000, 0x4017));
@@ -88,7 +88,7 @@ public:
   }
 
   void trace(const char *trace_file) {
-    boost::ignore_unused(trace_file);
+    trace_file_ = trace_file;
   }
 
 private:
@@ -104,6 +104,8 @@ private:
   cpu cpu_;
   ppu ppu_;
   cartridge cartridge_;
+
+  const char *trace_file_;
 };
 
 nes::nes() noexcept

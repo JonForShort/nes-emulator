@@ -38,7 +38,9 @@ class cartridge {
 public:
   cartridge();
 
-  bool attach(const char *rom_path);
+  ~cartridge();
+
+  bool attach(const char *file_path);
 
   int get_header_version() const;
 
@@ -57,6 +59,8 @@ public:
   void write(uint16_t address, uint8_t data);
 
 private:
+  class mapped_cartridge_file;
+
   struct rom_header {
     uint32_t constants;
     uint8_t prgrom_size;
@@ -83,8 +87,9 @@ private:
 
   rom_header rom_file_header_;
 
-  std::ifstream rom_file_;
+  std::unique_ptr<mapped_cartridge_file> cartridge_file_;
 };
+
 } // namespace jones
 
 #endif // JONES_CARTRIDGE_CARTRIDGE_HH

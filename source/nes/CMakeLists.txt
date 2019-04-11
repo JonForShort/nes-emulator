@@ -46,3 +46,8 @@ set (jones-source main.cc)
 add_executable (jones ${jones-source})
 
 target_link_libraries (jones jones-lib)
+
+target_link_libraries (jones ${boost-lib}/libboost_program_options.a)
+target_link_libraries (jones ${boost-lib}/libboost_filesystem.a)
+
+target_include_directories (jones PRIVATE ${boost-include})
