@@ -12,6 +12,7 @@ set (sources
   decode.cc
   disassemble.cc
   instruction.cc
+  registers.cc
   status_register.cc
 )
 

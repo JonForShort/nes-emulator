@@ -27,20 +27,32 @@
 #include "instruction.hh"
 #include "memory.hh"
 #include "opcode.hh"
-#include "register.hh"
+#include "registers.hh"
 #include "status_register.hh"
 
 using namespace jones;
 
 class cpu::impl final {
 public:
-  explicit impl(const memory &memory) : memory_(memory), ram_() {}
+  explicit impl(const memory &memory) : memory_(memory), ram_(), status_register_(), registers_() {}
 
   void initialize() {
     std::fill(ram_, ram_ + ram_size, 0);
+
     status_register_.set(status_flag::D);
     status_register_.set(status_flag::B1);
     status_register_.set(status_flag::B2);
+
+    registers_.set(register_type::AC, 0x00);
+    registers_.set(register_type::X, 0x00);
+    registers_.set(register_type::Y, 0x00);
+    registers_.set(register_type::SP, 0xFD);
+
+    // frame irq is enabled
+    memory_.write(0x4017, 0x00);
+
+    // all channels disabled
+    memory_.write(0x4015, 0x00);
   }
 
   void step() {}
@@ -49,7 +61,8 @@ public:
     initialize();
   }
 
-  void run() {}
+  void run() {
+  }
 
   uint8_t read(uint16_t address) {
     boost::ignore_unused(address);
@@ -71,6 +84,7 @@ private:
   const memory &memory_;
   uint8_t ram_[ram_size];
   status_register status_register_;
+  registers registers_;
 };
 
 cpu::cpu(const memory &memory) : impl_(new impl(memory)) {}
