@@ -107,6 +107,10 @@ uint16_t cartridge::get_chrrom_size() const {
   return static_cast<uint16_t>(rom_file_header_.chrrom_size * 8192);
 }
 
+uint8_t cartridge::get_mapper_number() const {
+  return (rom_file_header_.upper_mapper_nibble << 4) | (rom_file_header_.lower_mapper_nibble);
+}
+
 void cartridge::print_header(std::ostream &out) const {
   out << "***********************************************" << std::endl;
   out << "  Nes Rom Header" << std::endl;
@@ -131,7 +135,7 @@ void cartridge::print_header(std::ostream &out) const {
   out << "***********************************************" << std::endl;
 }
 
-uint8_t cartridge::read(uint16_t address) {
+uint8_t cartridge::read(uint16_t address) const {
   if (cartridge_file_) {
     return *(cartridge_file_->address() + address);
   }

@@ -54,7 +54,9 @@ public:
 
   uint16_t get_chrrom_size() const;
 
-  uint8_t read(uint16_t address);
+  uint8_t get_mapper_number() const;
+
+  uint8_t read(uint16_t address) const;
 
   void write(uint16_t address, uint8_t data);
 

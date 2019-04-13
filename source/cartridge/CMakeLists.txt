@@ -7,7 +7,11 @@ set (boost-lib      ${DIR_ROOT_OUT}/boost/lib)
 
 # cartridge
 
-set (sources cartridge.cc)
+set (sources
+        cartridge.cc
+        mapper/mapper.cc
+        mapper/mapper_unsupported.cc
+        mapper/mapper_zero.cc)
 
 add_library (cartridge STATIC ${sources})
 
