@@ -25,14 +25,14 @@
 
 #include "mapper.hh"
 #include "mapper_unsupported.hh"
-#include "mapper_zero.hh"
+#include "mapper_nrom.hh"
 
 using namespace jones::cartridge;
 
 std::unique_ptr<mapper> mappers::get(const uint16_t mapper_number) const {
   switch (mapper_number) {
   case 0:
-    return std::make_unique<mapper_zero>();
+    return std::make_unique<mapper_nrom>();
   default:
     return std::make_unique<mapper_unsupported>();
   }

@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_CARTRIDGE_MAPPER_MAPPER_ZERO_HH
-#define JONES_CARTRIDGE_MAPPER_MAPPER_ZERO_HH
+#ifndef JONES_CARTRIDGE_MAPPER_MAPPER_NROM_HH
+#define JONES_CARTRIDGE_MAPPER_MAPPER_NROM_HH
 
 #include <cstdint>
 
@@ -30,9 +30,9 @@
 
 namespace jones::cartridge {
 
-class mapper_zero : public mapper {
+class mapper_nrom : public mapper {
 public:
-  virtual ~mapper_zero();
+  virtual ~mapper_nrom();
 
   uint8_t read(uint16_t address) override;
 
@@ -41,4 +41,4 @@ public:
 
 } // namespace jones::cartridge
 
-#endif // JONES_CARTRIDGE_MAPPER_MAPPER_ZERO_HH
+#endif // JONES_CARTRIDGE_MAPPER_MAPPER_NROM_HH

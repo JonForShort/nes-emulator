@@ -21,4 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include "registers.hh"
+#include <boost/core/ignore_unused.hpp>
+
+#include "mapper_nrom.hh"
+
+using namespace jones::cartridge;
+
+mapper_nrom::~mapper_nrom() {}
+
+uint8_t mapper_nrom::read(const uint16_t address) {
+  boost::ignore_unused(address);
+  return 0;
+}
+
+void mapper_nrom::write(const uint16_t address, const uint8_t data) {
+  boost::ignore_unused(address, data);
+}

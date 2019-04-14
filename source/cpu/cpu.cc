@@ -25,6 +25,7 @@
 
 #include "cpu.hh"
 #include "instruction.hh"
+#include "interrupts.hh"
 #include "memory.hh"
 #include "opcode.hh"
 #include "registers.hh"
@@ -47,6 +48,9 @@ public:
     registers_.set(register_type::X, 0x00);
     registers_.set(register_type::Y, 0x00);
     registers_.set(register_type::SP, 0xFD);
+
+    interrupts_.set(interrupt_type::IRQ, false);
+    interrupts_.set(interrupt_type::NMI, false);
 
     // frame irq is enabled
     memory_.write(0x4017, 0x00);
@@ -82,9 +86,14 @@ private:
   static constexpr int ram_size = 2048;
 
   const memory &memory_;
+
   uint8_t ram_[ram_size];
+
   status_register status_register_;
+
   registers registers_;
+
+  interrupts interrupts_;
 };
 
 cpu::cpu(const memory &memory) : impl_(new impl(memory)) {}
