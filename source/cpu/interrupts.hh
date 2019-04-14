@@ -31,24 +31,32 @@ namespace jones {
 
 enum class interrupt_type {
 
+  // Reset
   RESET,
 
+  // Non-Maskable
   NMI,
 
+  // Interrupt Request
   IRQ,
 
+  // Break
+  BRK,
+
+  // Number of Interrupts
   COUNT
 };
 
 class interrupts {
 public:
-  bool get(interrupt_type type) {
+  bool get_state(interrupt_type type) {
     switch (type) {
     case interrupt_type::RESET:
       return interrupts_.at(0);
     case interrupt_type::NMI:
       return interrupts_.at(1);
     case interrupt_type::IRQ:
+    case interrupt_type::BRK:
       return interrupts_.at(2);
     default:
       BOOST_STATIC_ASSERT("unexpected interrupt type");
@@ -56,7 +64,7 @@ public:
     }
   }
 
-  void set(interrupt_type type, bool value) {
+  void set_state(interrupt_type type, bool value) {
     switch (type) {
     case interrupt_type::RESET:
       interrupts_.at(0) = value;
@@ -65,11 +73,27 @@ public:
       interrupts_.at(1) = value;
       break;
     case interrupt_type::IRQ:
+    case interrupt_type::BRK:
       interrupts_.at(2) = value;
       break;
     default:
       BOOST_STATIC_ASSERT("unexpected interrupt type");
       break;
+    }
+  }
+
+  uint16_t get_vector(interrupt_type type) {
+    switch (type) {
+    case interrupt_type::RESET:
+      return 0xFFFC;
+    case interrupt_type::NMI:
+      return 0xFFFA;
+    case interrupt_type::IRQ:
+    case interrupt_type::BRK:
+      return 0xFFFE;
+    default:
+      BOOST_STATIC_ASSERT("unexpected interrupt type");
+      return 0x0000;
     }
   }
 

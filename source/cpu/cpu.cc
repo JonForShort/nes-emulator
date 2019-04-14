@@ -49,14 +49,19 @@ public:
     registers_.set(register_type::Y, 0x00);
     registers_.set(register_type::SP, 0xFD);
 
-    interrupts_.set(interrupt_type::IRQ, false);
-    interrupts_.set(interrupt_type::NMI, false);
+    interrupts_.set_state(interrupt_type::IRQ, false);
+    interrupts_.set_state(interrupt_type::NMI, false);
 
     // frame irq is enabled
     memory_.write(0x4017, 0x00);
 
     // all channels disabled
     memory_.write(0x4015, 0x00);
+
+    // setting to initial pc address
+    const auto reset_vector = interrupts_.get_vector(interrupt_type::RESET);
+    const auto initial_pc = memory_.read(reset_vector);
+    registers_.set(register_type::PC, initial_pc);
   }
 
   void step() {}
