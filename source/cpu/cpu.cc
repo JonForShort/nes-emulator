@@ -35,7 +35,7 @@ using namespace jones;
 
 class cpu::impl final {
 public:
-  explicit impl(const memory &memory) : memory_(memory), ram_(), status_register_(), registers_() {}
+  explicit impl(const memory &memory) : memory_(memory), ram_(), status_register_(), registers_(), interrupts_() {}
 
   void initialize() {
     std::fill(ram_, ram_ + ram_size, 0);
