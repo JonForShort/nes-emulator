@@ -27,19 +27,19 @@
 
 using namespace jones;
 
-bool status_register::is_set(status_flag flag) {
+bool status_register::is_set(const status_flag flag) const {
   return status_flags_.test(flag_to_position(flag));
 }
 
-void status_register::set(status_flag flag) {
+void status_register::set(const status_flag flag) {
   status_flags_.set(flag_to_position(flag), true);
 }
 
-void status_register::clear(status_flag flag) {
+void status_register::clear(const status_flag flag) {
   status_flags_.set(flag_to_position(flag), false);
 }
 
-uint8_t status_register::flag_to_position(status_flag flag) {
+uint8_t status_register::flag_to_position(const status_flag flag) {
   switch (flag) {
   case status_flag::N:
     return 7;
@@ -61,4 +61,26 @@ uint8_t status_register::flag_to_position(status_flag flag) {
     BOOST_STATIC_ASSERT("missing status flag");
     return 0;
   }
+}
+
+void status_register::set(const uint8_t flags) {
+  (0x01U & flags) ? set(status_flag::C) : clear(status_flag::C);
+  (0x02U & flags) ? set(status_flag::Z) : clear(status_flag::Z);
+  (0x04U & flags) ? set(status_flag::I) : clear(status_flag::I);
+  (0x08U & flags) ? set(status_flag::D) : clear(status_flag::D);
+  (0x10U & flags) ? set(status_flag::B1) : clear(status_flag::B1);
+  (0x20U & flags) ? set(status_flag::B2) : clear(status_flag::B2);
+  (0x40U & flags) ? set(status_flag::V) : clear(status_flag::V);
+  (0x80U & flags) ? set(status_flag::N) : clear(status_flag::N);
+}
+
+uint8_t status_register::get() const {
+  return (is_set(status_flag::C) ? 0x01U : 0x00U) |
+         (is_set(status_flag::Z) ? 0x02U : 0x00U) |
+         (is_set(status_flag::I) ? 0x04U : 0x00U) |
+         (is_set(status_flag::D) ? 0x08U : 0x00U) |
+         (is_set(status_flag::B1) ? 0x10U : 0x00U) |
+         (is_set(status_flag::B2) ? 0x20U : 0x00U) |
+         (is_set(status_flag::V) ? 0x40U : 0x00U) |
+         (is_set(status_flag::N) ? 0x80U : 0x00U);
 }

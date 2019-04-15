@@ -79,21 +79,20 @@ using reg_t = typename register_traits<R>::type;
 
 class registers {
 public:
-  template <register_type R>
-  reg_t<R> get(register_type type) {
+  uint16_t get(register_type type) {
     switch (type) {
     case register_type::PC:
-      return static_cast<reg_t<R>>(registers_.at(0));
+      return registers_.at(0);
     case register_type::AC:
-      return static_cast<reg_t<R>>(registers_.at(1));
+      return registers_.at(1);
     case register_type::X:
-      return static_cast<reg_t<R>>(registers_.at(2));
+      return registers_.at(2);
     case register_type::Y:
-      return static_cast<reg_t<R>>(registers_.at(3));
+      return registers_.at(3);
     case register_type::SR:
-      return static_cast<reg_t<R>>(registers_.at(4));
+      return registers_.at(4);
     case register_type::SP:
-      return static_cast<reg_t<R>>(registers_.at(5));
+      return registers_.at(5);
     default:
       BOOST_STATIC_ASSERT("unexpected register type");
       return 0;

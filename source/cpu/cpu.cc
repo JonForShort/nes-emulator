@@ -24,6 +24,7 @@
 #include <boost/core/ignore_unused.hpp>
 
 #include "cpu.hh"
+#include "decode.hh"
 #include "instruction.hh"
 #include "interrupts.hh"
 #include "memory.hh"
@@ -35,12 +36,27 @@ using namespace jones;
 
 class cpu::impl final {
 public:
-  explicit impl(const memory &memory) : memory_(memory), ram_(), status_register_(), registers_(), interrupts_() {}
+  explicit impl(const memory &memory)
+      : memory_(memory),
+        ram_(),
+        status_register_(),
+        registers_(),
+        interrupts_(),
+        skipped_cycles_(0),
+        cycles_(0) {}
 
   void initialize() {
+    reset();
+  }
+
+  void step() {
+    cycles_++;
+  }
+
+  void reset() {
     std::fill(ram_, ram_ + ram_size, 0);
 
-    status_register_.set(status_flag::D);
+    status_register_.set(status_flag::I);
     status_register_.set(status_flag::B1);
     status_register_.set(status_flag::B2);
 
@@ -49,6 +65,8 @@ public:
     registers_.set(register_type::Y, 0x00);
     registers_.set(register_type::SP, 0xFD);
 
+    interrupts_.set_state(interrupt_type::RESET, true);
+    interrupts_.set_state(interrupt_type::BRK, false);
     interrupts_.set_state(interrupt_type::IRQ, false);
     interrupts_.set_state(interrupt_type::NMI, false);
 
@@ -60,31 +78,82 @@ public:
 
     // setting to initial pc address
     const auto reset_vector = interrupts_.get_vector(interrupt_type::RESET);
-    const auto initial_pc = memory_.read(reset_vector);
-    registers_.set(register_type::PC, initial_pc);
-  }
-
-  void step() {}
-
-  void reset() {
-    initialize();
+    const auto reset_routine = memory_.read(reset_vector);
+    registers_.set(register_type::PC, reset_routine);
   }
 
   void run() {
   }
 
-  uint8_t read(uint16_t address) {
+  uint8_t read(const uint16_t address) const {
     boost::ignore_unused(address);
     return 0;
   }
 
-  void write(uint16_t address, uint8_t data) {
+  void write(const uint16_t address, uint8_t data) {
     boost::ignore_unused(address);
     boost::ignore_unused(data);
   }
 
-  cpu_state get_state() {
+  cpu_state get_state() const {
     return cpu_state();
+  }
+
+private:
+  void interrupt(const interrupt_type type) {
+    if (status_register_.is_set(status_flag::I)) {
+      return;
+    }
+
+    const auto pc = registers_.get(register_type::PC);
+    push(pc);
+
+    uint8_t php[] = {0x08};
+    execute(decode::decode(php, sizeof(php)));
+
+    const auto interrupt_vector = interrupts_.get_vector(type);
+    registers_.set(register_type::PC, interrupt_vector);
+
+    status_register_.set(status_flag::I);
+
+    cycles_ += 7;
+  }
+
+  void push(const uint8_t value) {
+    const auto stack_pointer = registers_.get(register_type::SP);
+    memory_.write(0x100U | stack_pointer, value);
+    registers_.set(register_type::SP, stack_pointer - 1);
+  }
+
+  void push(const uint16_t value) {
+    const uint8_t high_byte = (value >> 8U);
+    const uint8_t low_byte = (value & 0xFFU);
+    push(high_byte);
+    push(low_byte);
+  }
+
+  uint8_t pull() {
+    const auto stack_pointer = registers_.get(register_type::SP);
+    registers_.set(register_type::SP, stack_pointer + 1);
+    return memory_.read(0x100U | stack_pointer);
+  }
+
+  void execute(const decode::instruction &instruction) {
+    switch (instruction.decoded_opcode.type) {
+    case opcode_type::PHP: {
+      const uint8_t flags = 0x10U | status_register_.get();
+      push(flags);
+      break;
+    }
+    case opcode_type::PLP: {
+      const uint8_t flags = (pull() & 0xEFU) | 0x20U;
+      status_register_.set(flags);
+      break;
+    }
+    default: {
+      break;
+    }
+    }
   }
 
 private:
@@ -99,6 +168,10 @@ private:
   registers registers_;
 
   interrupts interrupts_;
+
+  uint16_t skipped_cycles_;
+
+  uint64_t cycles_;
 };
 
 cpu::cpu(const memory &memory) : impl_(new impl(memory)) {}

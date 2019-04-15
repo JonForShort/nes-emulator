@@ -64,11 +64,15 @@ enum class status_flag {
 
 class status_register final {
 public:
-  bool is_set(status_flag flag);
+  bool is_set(status_flag flag) const;
 
   void set(status_flag flag);
 
   void clear(status_flag flag);
+
+  void set(uint8_t flags);
+
+  uint8_t get() const;
 
 private:
   static uint8_t flag_to_position(status_flag flag);
