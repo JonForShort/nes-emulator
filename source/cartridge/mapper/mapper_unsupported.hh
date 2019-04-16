@@ -28,7 +28,7 @@
 
 #include "mapper.hh"
 
-namespace jones::cartridge {
+namespace jones {
 
 class mapper_unsupported : public mapper {
 public:
@@ -39,6 +39,6 @@ public:
   void write(uint16_t address, uint8_t data) override;
 };
 
-} // namespace jones::cartridge
+} // namespace jones
 
 #endif // JONES_CARTRIDGE_MAPPER_MAPPER_UNSUPPORTED_HH

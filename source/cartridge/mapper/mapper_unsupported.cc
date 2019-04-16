@@ -25,7 +25,7 @@
 
 #include "mapper_unsupported.hh"
 
-using namespace jones::cartridge;
+using namespace jones;
 
 mapper_unsupported::~mapper_unsupported() {}
 

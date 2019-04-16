@@ -27,11 +27,11 @@
 #include <cstdint>
 #include <memory>
 
-namespace jones::cartridge {
+namespace jones {
 
 class mapper {
 public:
-  virtual ~mapper();
+  virtual ~mapper() = default;
 
   virtual uint8_t read(uint16_t address) = 0;
 
@@ -40,9 +40,9 @@ public:
 
 class mappers {
 public:
-  std::unique_ptr<mapper> get(uint16_t mapper_number) const;
+  static std::unique_ptr<mapper> get(uint16_t mapper_number);
 };
 
-} // namespace jones::cartridge
+} // namespace jones
 
 #endif // JONES_CARTRIDGE_MAPPER_MAPPER_HH

@@ -28,13 +28,9 @@
 #include <stdint.h>
 #include <string>
 
-#include "memory.hh"
-
-#define ROM_HEADER_CONSTANT 0x1A53454E
-
 namespace jones {
 
-class cartridge {
+class cartridge final {
 public:
   cartridge();
 
@@ -61,35 +57,9 @@ public:
   void write(uint16_t address, uint8_t data);
 
 private:
-  class mapped_cartridge_file;
+  class impl;
 
-  struct rom_header {
-    uint32_t constants;
-    uint8_t prgrom_size;
-    uint8_t chrrom_size;
-    uint8_t has_mirroring : 1;
-    uint8_t contains_battery_backed_prgram : 1;
-    uint8_t has_trainer : 1;
-    uint8_t ignore_mirroring_control : 1;
-    uint8_t lower_mapper_nibble : 4;
-    uint8_t is_vs_unisystem : 1;
-    uint8_t is_play_choice : 1;
-    uint8_t version : 2;
-    uint8_t upper_mapper_nibble : 4;
-    uint8_t prgram_size;
-    uint8_t which_tv_system_one : 1;
-    unsigned int : 7;
-    uint8_t which_tv_system_two : 2;
-    unsigned int : 2;
-    uint8_t is_prgram_present : 1;
-    uint8_t has_bus_conflicts : 1;
-    unsigned int : 2;
-    uint8_t ignored[5];
-  };
-
-  rom_header rom_file_header_;
-
-  std::unique_ptr<mapped_cartridge_file> cartridge_file_;
+  std::unique_ptr<impl> impl_;
 };
 
 } // namespace jones

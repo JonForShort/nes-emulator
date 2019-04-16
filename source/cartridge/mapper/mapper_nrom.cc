@@ -25,9 +25,9 @@
 
 #include "mapper_nrom.hh"
 
-using namespace jones::cartridge;
+using namespace jones;
 
-mapper_nrom::~mapper_nrom() {}
+mapper_nrom::~mapper_nrom() = default;
 
 uint8_t mapper_nrom::read(const uint16_t address) {
   boost::ignore_unused(address);

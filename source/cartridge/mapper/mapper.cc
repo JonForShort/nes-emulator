@@ -24,12 +24,12 @@
 #include <memory>
 
 #include "mapper.hh"
-#include "mapper_unsupported.hh"
 #include "mapper_nrom.hh"
+#include "mapper_unsupported.hh"
 
-using namespace jones::cartridge;
+using namespace jones;
 
-std::unique_ptr<mapper> mappers::get(const uint16_t mapper_number) const {
+std::unique_ptr<mapper> mappers::get(const uint16_t mapper_number) {
   switch (mapper_number) {
   case 0:
     return std::make_unique<mapper_nrom>();
