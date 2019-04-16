@@ -21,19 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <boost/core/ignore_unused.hpp>
-
 #include "mapper_unsupported.hh"
 
 using namespace jones;
 
-mapper_unsupported::~mapper_unsupported() {}
+mapper_unsupported::~mapper_unsupported() = default;
 
-uint8_t mapper_unsupported::read(const uint16_t address) {
-  boost::ignore_unused(address);
-  return 0;
+uint8_t mapper_unsupported::read(const cartridge &cartridge, const uint16_t address) {
+  return cartridge.read(address);
 }
 
-void mapper_unsupported::write(const uint16_t address, const uint8_t data) {
-  boost::ignore_unused(address, data);
+void mapper_unsupported::write(const cartridge &cartridge, const uint16_t address, const uint8_t data) {
+  cartridge.write(address, data);
 }

@@ -124,7 +124,7 @@ public:
     return 0;
   }
 
-  void write(uint16_t address, uint8_t data) {
+  void write(uint16_t address, uint8_t data) const {
     if (cartridge_file_) {
       *(cartridge_file_->address() + address) = data;
     }
@@ -133,7 +133,7 @@ public:
 private:
   class mapped_cartridge_file {
   public:
-    mapped_cartridge_file(const char *file_path)
+    explicit mapped_cartridge_file(const char *file_path)
         : mapped_region_(map_cartridge_file(file_path)) {}
 
     ~mapped_cartridge_file() = default;
@@ -226,6 +226,6 @@ uint8_t cartridge::read(uint16_t address) const {
   return impl_->read(address);
 }
 
-void cartridge::write(uint16_t address, uint8_t data) {
+void cartridge::write(uint16_t address, uint8_t data) const {
   impl_->write(address, data);
 }

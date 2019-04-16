@@ -27,15 +27,17 @@
 #include <cstdint>
 #include <memory>
 
+#include "cartridge.hh"
+
 namespace jones {
 
 class mapper {
 public:
   virtual ~mapper() = default;
 
-  virtual uint8_t read(uint16_t address) = 0;
+  virtual uint8_t read(const cartridge &cartridge, uint16_t address) = 0;
 
-  virtual void write(uint16_t address, uint8_t data) = 0;
+  virtual void write(const cartridge &cartridge, uint16_t address, uint8_t data) = 0;
 };
 
 class mappers {

@@ -32,11 +32,11 @@ namespace jones {
 
 class mapper_nrom : public mapper {
 public:
-  virtual ~mapper_nrom();
+  ~mapper_nrom() override;
 
-  uint8_t read(uint16_t address) override;
+  uint8_t read(const cartridge &cartridge, uint16_t address) override;
 
-  void write(uint16_t address, uint8_t data) override;
+  void write(const cartridge &cartridge, uint16_t address, uint8_t data) override;
 };
 
 } // namespace jones

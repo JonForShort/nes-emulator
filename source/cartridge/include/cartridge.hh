@@ -54,7 +54,7 @@ public:
 
   uint8_t read(uint16_t address) const;
 
-  void write(uint16_t address, uint8_t data);
+  void write(uint16_t address, uint8_t data) const;
 
 private:
   class impl;
