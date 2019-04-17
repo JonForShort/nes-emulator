@@ -51,6 +51,14 @@ private:
     NROM_VERTICAL
   };
 
+  static nrom_type resolve_type(const cartridge &cartridge) {
+    return cartridge.get_prgrom_size() == 1 ? nrom_type::NROM_128 : nrom_type::NROM_256;
+  }
+
+  static nrom_mirroring_type resolve_mirroring_type(const cartridge &cartridge) {
+    return cartridge.has_mirroring() ? nrom_mirroring_type::NROM_VERTICAL : nrom_mirroring_type::NROM_HORIZONAL;
+  }
+
   const nrom_type type_;
 
   const nrom_mirroring_type mirroring_type_;

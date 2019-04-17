@@ -27,8 +27,8 @@ using namespace jones;
 
 mapper_nrom::mapper_nrom(const jones::cartridge &cartridge)
     : mapper(cartridge),
-      type_(cartridge.get_prgrom_size() == 1 ? nrom_type::NROM_128 : nrom_type::NROM_256),
-      mirroring_type_(cartridge.has_mirroring() ? nrom_mirroring_type::NROM_VERTICAL : nrom_mirroring_type::NROM_HORIZONAL) {}
+      type_(resolve_type(cartridge)),
+      mirroring_type_(resolve_mirroring_type(cartridge)) {}
 
 uint8_t mapper_nrom::read(const uint16_t address) {
   return get_cartridge().read(address);
