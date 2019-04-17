@@ -52,7 +52,11 @@ void print_hex_integer(std::ostream &out, const char *label, const uint8_t value
 
 class cartridge::impl {
 public:
-  impl() : rom_file_header_(), cartridge_file_(), cartridge_mapper_() {}
+  explicit impl(const cartridge &cartridge)
+      : rom_file_header_(),
+        cartridge_file_(),
+        cartridge_mapper_(),
+        cartridge_(cartridge) {}
 
   ~impl() = default;
 
@@ -62,7 +66,7 @@ public:
       rom_file_.read((char *)&rom_file_header_, sizeof(rom_file_header_));
       if (rom_file_header_.constants == ROM_HEADER_CONSTANT) {
         cartridge_file_ = std::make_unique<mapped_cartridge_file>(file_path);
-        cartridge_mapper_ = mappers::get(get_mapper_number());
+        cartridge_mapper_ = mappers::get(cartridge_, get_mapper_number());
         return true;
       }
     }
@@ -91,6 +95,10 @@ public:
 
   uint8_t get_mapper_number() const {
     return (rom_file_header_.upper_mapper_nibble << 4U) | (rom_file_header_.lower_mapper_nibble);
+  }
+
+  bool has_mirroring() const {
+    return rom_file_header_.has_mirroring;
   }
 
   void print_header(std::ostream &out) const {
@@ -184,9 +192,11 @@ private:
   std::unique_ptr<mapped_cartridge_file> cartridge_file_;
 
   std::unique_ptr<mapper> cartridge_mapper_;
+
+  const cartridge &cartridge_;
 };
 
-cartridge::cartridge() : impl_(new impl()) {}
+cartridge::cartridge() : impl_(new impl(*this)) {}
 
 cartridge::~cartridge() = default;
 
@@ -220,6 +230,10 @@ uint16_t cartridge::get_chrrom_size() const {
 
 uint8_t cartridge::get_mapper_number() const {
   return impl_->get_mapper_number();
+}
+
+bool cartridge::has_mirroring() const {
+  return impl_->has_mirroring();
 }
 
 uint8_t cartridge::read(uint16_t address) const {

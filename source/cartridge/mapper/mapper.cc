@@ -29,11 +29,11 @@
 
 using namespace jones;
 
-std::unique_ptr<mapper> mappers::get(const uint16_t mapper_number) {
+std::unique_ptr<mapper> mappers::get(const cartridge &cartridge, const uint16_t mapper_number) {
   switch (mapper_number) {
   case 0:
-    return std::make_unique<mapper_nrom>();
+    return std::make_unique<mapper_nrom>(cartridge);
   default:
-    return std::make_unique<mapper_unsupported>();
+    return std::make_unique<mapper_unsupported>(cartridge);
   }
 }

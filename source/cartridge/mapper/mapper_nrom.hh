@@ -32,11 +32,28 @@ namespace jones {
 
 class mapper_nrom : public mapper {
 public:
-  ~mapper_nrom() override;
+  explicit mapper_nrom(const cartridge &cartridge);
 
-  uint8_t read(const cartridge &cartridge, uint16_t address) override;
+  ~mapper_nrom() override = default;
 
-  void write(const cartridge &cartridge, uint16_t address, uint8_t data) override;
+  uint8_t read(uint16_t address) override;
+
+  void write(uint16_t address, uint8_t data) override;
+
+private:
+  enum class nrom_type {
+    NROM_128,
+    NROM_256
+  };
+
+  enum class nrom_mirroring_type {
+    NROM_HORIZONAL,
+    NROM_VERTICAL
+  };
+
+  const nrom_type type_;
+
+  const nrom_mirroring_type mirroring_type_;
 };
 
 } // namespace jones

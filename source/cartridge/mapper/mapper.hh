@@ -33,16 +33,26 @@ namespace jones {
 
 class mapper {
 public:
+  explicit mapper(const cartridge &cartridge) : cartridge_(cartridge) {}
+
   virtual ~mapper() = default;
 
-  virtual uint8_t read(const cartridge &cartridge, uint16_t address) = 0;
+  virtual uint8_t read(uint16_t address) = 0;
 
-  virtual void write(const cartridge &cartridge, uint16_t address, uint8_t data) = 0;
+  virtual void write(uint16_t address, uint8_t data) = 0;
+
+protected:
+  const cartridge &get_cartridge() {
+    return cartridge_;
+  }
+
+private:
+  const cartridge &cartridge_;
 };
 
 class mappers {
 public:
-  static std::unique_ptr<mapper> get(uint16_t mapper_number);
+  static std::unique_ptr<mapper> get(const cartridge &cartridge, uint16_t mapper_number);
 };
 
 } // namespace jones

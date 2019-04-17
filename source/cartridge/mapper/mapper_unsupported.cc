@@ -25,12 +25,10 @@
 
 using namespace jones;
 
-mapper_unsupported::~mapper_unsupported() = default;
-
-uint8_t mapper_unsupported::read(const cartridge &cartridge, const uint16_t address) {
-  return cartridge.read(address);
+uint8_t mapper_unsupported::read(const uint16_t address) {
+  return get_cartridge().read(address);
 }
 
-void mapper_unsupported::write(const cartridge &cartridge, const uint16_t address, const uint8_t data) {
-  cartridge.write(address, data);
+void mapper_unsupported::write(const uint16_t address, const uint8_t data) {
+  get_cartridge().write(address, data);
 }
