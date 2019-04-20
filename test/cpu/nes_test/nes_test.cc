@@ -23,10 +23,15 @@
 //
 #define BOOST_TEST_MODULE test_suite_nes_test
 
+#include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "cartridge.hh"
+#include "log.hh"
 #include "nes.hh"
+
+namespace bt = boost::unit_test;
+namespace fs = boost::filesystem;
 
 namespace {
 
@@ -40,6 +45,21 @@ void trace_rom(const char *rom_path, const char *trace_path) {
 } // namespace
 
 BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
-  BOOST_CHECK(true);
-  trace_rom("", "");
+  const auto argc = bt::framework::master_test_suite().argc;
+  if (argc <= 2) {
+    BOOST_CHECK_MESSAGE(false, "missing required test arguments");
+    return;
+  }
+  const auto argv = bt::framework::master_test_suite().argv;
+  const auto file_path = argv[1];
+  const auto result_path = argv[2];
+
+  const fs::path trace_path = fs::temp_directory_path() / fs::unique_path();
+
+  LOG_DEBUG << "test arguments : "
+            << "binary [" << file_path << "] "
+            << "result [" << result_path << "] "
+            << "trace [" << trace_path << "]";
+
+  trace_rom(file_path, trace_path.string().c_str());
 }
