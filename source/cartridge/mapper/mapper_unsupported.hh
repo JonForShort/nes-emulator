@@ -32,13 +32,17 @@ namespace jones {
 
 class mapper_unsupported : public mapper {
 public:
-  explicit mapper_unsupported(const cartridge &cartridge) : mapper(cartridge) {}
+  explicit mapper_unsupported(const mapped_cartridge &cartridge) : mapper(cartridge) {}
 
   ~mapper_unsupported() override = default;
 
-  uint8_t read(uint16_t address) override;
+  uint8_t read_prg(uint16_t address) const override;
 
-  void write(uint16_t address, uint8_t data) override;
+  void write_prg(uint16_t address, uint8_t data) override;
+
+  uint8_t read_chr(uint16_t address) const override;
+
+  void write_chr(uint16_t address, uint8_t data) override;
 };
 
 } // namespace jones

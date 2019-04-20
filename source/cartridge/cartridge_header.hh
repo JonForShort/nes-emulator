@@ -21,44 +21,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_CARTRIDGE_MAPPER_MAPPER_HH
-#define JONES_CARTRIDGE_MAPPER_MAPPER_HH
+#ifndef JONES_CARTRIDGE_CARTRIDGE_HEADER_HH
+#define JONES_CARTRIDGE_CARTRIDGE_HEADER_HH
 
-#include <cstdint>
-#include <memory>
+#include "mapper/mapped_cartridge.hh"
 
-#include "mapped_cartridge.hh"
+#include <stdint.h>
+#include <string>
 
 namespace jones {
 
-class mapper {
+class cartridge_header final : public mapped_cartridge_header {
 public:
-  explicit mapper(const mapped_cartridge &cartridge) : cartridge_(cartridge) {}
+  explicit cartridge_header(std::ifstream file);
 
-  virtual ~mapper() = default;
+  ~cartridge_header() override = default;
 
-  virtual uint8_t read_prg(uint16_t address) const = 0;
+  void print(std::ostream &out) const override;
 
-  virtual void write_prg(uint16_t address, uint8_t data) = 0;
+  bool valid() const override;
 
-  virtual uint8_t read_chr(uint16_t address) const = 0;
+  size_t version() const override;
 
-  virtual void write_chr(uint16_t address, uint8_t data) = 0;
+  uint16_t prgrom_offset() const override;
 
-protected:
-  const mapped_cartridge &get_cartridge() const {
-    return cartridge_;
-  }
+  uint16_t prgrom_size() const override;
 
-private:
-  const mapped_cartridge &cartridge_;
-};
+  uint16_t chrrom_offset() const override;
 
-class mappers {
-public:
-  static std::unique_ptr<mapper> get(const mapped_cartridge &cartridge);
+  uint16_t chrrom_size() const override;
+
+  uint8_t mapper_number() const override;
+
+  bool mirroring() const override;
 };
 
 } // namespace jones
 
-#endif // JONES_CARTRIDGE_MAPPER_MAPPER_HH
+#endif // JONES_CARTRIDGE_CARTRIDGE_HEADER_HH

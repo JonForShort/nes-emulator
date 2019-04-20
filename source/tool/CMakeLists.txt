@@ -26,6 +26,7 @@ add_dependencies(jones-tool-lib jones-tool-lib-copy-headers)
 target_link_libraries (jones-tool-lib cpu)
 target_link_libraries (jones-tool-lib cartridge)
 target_link_libraries (jones-tool-lib ${boost-lib}/libboost_filesystem.a)
+target_link_libraries (jones-tool-lib ${boost-lib}/libboost_serialization.a)
 target_link_libraries (jones-tool-lib ${png-lib}/libpng.a)
 target_link_libraries (jones-tool-lib ${zlib-lib}/libz.a)
 

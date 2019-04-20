@@ -21,19 +21,63 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <boost/core/ignore_unused.hpp>
+#include <boost/static_assert.hpp>
+
 #include "mapper_nrom.hh"
 
 using namespace jones;
 
-mapper_nrom::mapper_nrom(const jones::cartridge &cartridge)
-    : mapper(cartridge),
-      type_(resolve_type(cartridge)),
-      mirroring_type_(resolve_mirroring_type(cartridge)) {}
+namespace {
 
-uint8_t mapper_nrom::read(const uint16_t address) {
-  return get_cartridge().read(address);
+const size_t chrram_size = 0x2000;
+
 }
 
-void mapper_nrom::write(const uint16_t address, const uint8_t data) {
-  get_cartridge().write(address, data);
+mapper_nrom::mapper_nrom(const jones::mapped_cartridge &cartridge)
+    : mapper(cartridge),
+      type_(resolve_type(cartridge)),
+      mirroring_type_(resolve_mirroring_type(cartridge)),
+      use_chrram(cartridge.header()->chrrom_size() <= 0) {
+  if (use_chrram) {
+    chrram_.resize(chrram_size);
+    std::fill(chrram_.begin(), chrram_.end(), 0);
+  }
+}
+
+uint8_t mapper_nrom::read_prg(uint16_t address) const {
+  const auto base_prgrom_address = get_cartridge().address() + get_cartridge().header()->prgrom_offset();
+  switch (type_) {
+  case nrom_type::NROM_128: {
+    return *(base_prgrom_address + (address & 0x3FFFU));
+  }
+  case nrom_type::NROM_256: {
+    return *(base_prgrom_address + address);
+  }
+  default:
+    break;
+  }
+  BOOST_STATIC_ASSERT("unexpected nrom type");
+  return 0;
+}
+
+void mapper_nrom::write_prg(uint16_t address, uint8_t data) {
+  boost::ignore_unused(address, data);
+  BOOST_STATIC_ASSERT("unable to write to prg rom");
+}
+
+uint8_t mapper_nrom::read_chr(uint16_t address) const {
+  if (use_chrram) {
+    return chrram_[address];
+  } else {
+    return *(get_cartridge().address() + get_cartridge().header()->chrrom_offset());
+  }
+}
+
+void mapper_nrom::write_chr(uint16_t address, uint8_t data) {
+  if (use_chrram) {
+    chrram_[address] = data;
+  } else {
+    BOOST_STATIC_ASSERT("unable to write to chr rom");
+  }
 }

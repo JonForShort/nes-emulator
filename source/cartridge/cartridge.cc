@@ -22,224 +22,172 @@
 // SOFTWARE.
 //
 #include <boost/core/ignore_unused.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/interprocess/file_mapping.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include <iomanip>
 #include <iostream>
 
 #include "cartridge.hh"
+#include "cartridge_header.hh"
 #include "mapper/mapper.hh"
 #include "memory.hh"
-
-#define ROM_HEADER_CONSTANT 0x1A53454E
 
 using namespace jones;
 
 namespace ip = boost::interprocess;
 
-namespace {
+class file_mapped_cartridge final : public mapped_cartridge {
+public:
+  explicit file_mapped_cartridge(const char *file_path)
+      : header_(create_cartridge_header(file_path)),
+        mapped_region_(map_cartridge_file(file_path)) {
+  }
 
-void print_hex_integer(std::ostream &out, const char *label, const uint32_t value) {
-  out << "  " << label << std::hex << static_cast<uint32_t>(value) << std::endl;
-}
+  ~file_mapped_cartridge() override = default;
 
-void print_hex_integer(std::ostream &out, const char *label, const uint8_t value) {
-  out << "  " << label << std::hex << static_cast<uint16_t>(value) << std::endl;
-}
+  size_t size() const override {
+    return mapped_region_.get_size();
+  }
 
-} // namespace
+  uint8_t *address() const override {
+    return static_cast<uint8_t *>(mapped_region_.get_address());
+  }
+
+  bool valid() const override {
+    return header() != nullptr && header()->valid();
+  }
+
+  mapped_cartridge_header *header() const override {
+    return header_.get();
+  }
+
+private:
+  static ip::mapped_region map_cartridge_file(const char *file_path) {
+    const ip::file_mapping mapped_file(file_path, ip::mode_t::read_only);
+    return ip::mapped_region(mapped_file, ip::mode_t::read_only);
+  }
+
+  static std::unique_ptr<cartridge_header> create_cartridge_header(const char *file_path) {
+    std::ifstream file = std::ifstream(file_path, std::ifstream::binary);
+    return std::make_unique<cartridge_header>(std::move(file));
+  }
+
+  std::unique_ptr<cartridge_header> header_;
+
+  const ip::mapped_region mapped_region_;
+};
 
 class cartridge::impl {
 public:
-  explicit impl(const cartridge &cartridge)
-      : rom_file_header_(),
-        cartridge_file_(),
-        cartridge_mapper_(),
-        cartridge_(cartridge) {}
+  explicit impl() : cartridge_(), cartridge_mapper_() {}
 
   ~impl() = default;
 
   bool attach(const char *file_path) {
-    std::ifstream rom_file_ = std::ifstream(file_path, std::ifstream::binary);
-    if (rom_file_.good()) {
-      rom_file_.read((char *)&rom_file_header_, sizeof(rom_file_header_));
-      if (rom_file_header_.constants == ROM_HEADER_CONSTANT) {
-        cartridge_file_ = std::make_unique<mapped_cartridge_file>(file_path);
-        cartridge_mapper_ = mappers::get(cartridge_, get_mapper_number());
-        return true;
-      }
+    cartridge_ = std::make_unique<file_mapped_cartridge>(file_path);
+    if (cartridge_->valid()) {
+      cartridge_mapper_ = mappers::get(*cartridge_);
+      return true;
+    } else {
+      return false;
     }
-    return false;
   }
 
-  int get_header_version() const {
-    return (rom_file_header_.version == 2) ? 2 : 1;
+  void print(std::ostream &out) const {
+    if (cartridge_) {
+      cartridge_->header()->print(out);
+    }
   }
 
-  uint16_t get_prgrom_offset() const {
-    return sizeof(rom_file_header_) + (rom_file_header_.has_trainer == 0 ? 0 : (sizeof(uint8_t) * 512));
-  }
-
-  uint16_t get_prgrom_size() const {
-    return static_cast<uint16_t>(rom_file_header_.prgrom_size * 16384);
-  }
-
-  uint16_t get_chrrom_offset() const {
-    return get_prgrom_offset() + get_prgrom_size();
-  }
-
-  uint16_t get_chrrom_size() const {
-    return static_cast<uint16_t>(rom_file_header_.chrrom_size * 8192);
-  }
-
-  uint8_t get_mapper_number() const {
-    return (rom_file_header_.upper_mapper_nibble << 4U) | (rom_file_header_.lower_mapper_nibble);
-  }
-
-  bool has_mirroring() const {
-    return rom_file_header_.has_mirroring;
-  }
-
-  void print_header(std::ostream &out) const {
-    out << "***********************************************" << std::endl;
-    out << "  Nes Rom Header" << std::endl;
-    out << "***********************************************" << std::endl;
-    print_hex_integer(out, "constants: ", rom_file_header_.constants);
-    print_hex_integer(out, "prgrom_size: ", rom_file_header_.prgrom_size);
-    print_hex_integer(out, "chrrom_size: ", rom_file_header_.chrrom_size);
-    print_hex_integer(out, "has_mirroring: ", rom_file_header_.has_mirroring);
-    print_hex_integer(out, "contains_battery_backed_prgram: ", rom_file_header_.contains_battery_backed_prgram);
-    print_hex_integer(out, "has_trainer: ", rom_file_header_.has_trainer);
-    print_hex_integer(out, "ignore_mirroring_control: ", rom_file_header_.ignore_mirroring_control);
-    print_hex_integer(out, "lower_mapper_nibble: ", rom_file_header_.lower_mapper_nibble);
-    print_hex_integer(out, "is_vs_unisystem: ", rom_file_header_.is_vs_unisystem);
-    print_hex_integer(out, "is_play_choice: ", rom_file_header_.is_play_choice);
-    print_hex_integer(out, "version: ", rom_file_header_.version);
-    print_hex_integer(out, "upper_mapper_nibble: ", rom_file_header_.upper_mapper_nibble);
-    print_hex_integer(out, "prgram_size: ", rom_file_header_.prgram_size);
-    print_hex_integer(out, "which_tv_system_one: ", rom_file_header_.which_tv_system_one);
-    print_hex_integer(out, "which_tv_system_two: ", rom_file_header_.which_tv_system_two);
-    print_hex_integer(out, "is_prgram_present: ", rom_file_header_.is_prgram_present);
-    print_hex_integer(out, "has_bus_conflicts: ", rom_file_header_.has_bus_conflicts);
-    out << "***********************************************" << std::endl;
-  }
-
-  uint8_t read(uint16_t address) const {
-    if (cartridge_file_) {
-      return *(cartridge_file_->address() + address);
+  uint8_t read_prg(const uint16_t address) const {
+    if (cartridge_mapper_) {
+      return cartridge_mapper_->read_prg(address);
     }
     return 0;
   }
 
-  void write(uint16_t address, uint8_t data) const {
-    if (cartridge_file_) {
-      *(cartridge_file_->address() + address) = data;
+  void write_prg(const uint16_t address, const uint8_t data) const {
+    if (cartridge_mapper_) {
+      cartridge_mapper_->write_prg(address, data);
+    }
+  }
+
+  void dump_prg(std::ostream &out) {
+    if (cartridge_) {
+      const auto base_address = reinterpret_cast<char *>(cartridge_->header()->prgrom_offset() + cartridge_->address());
+      const auto size = cartridge_->header()->prgrom_size();
+      out.write(base_address, size);
+    }
+  }
+
+  uint8_t read_chr(const uint16_t address) const {
+    if (cartridge_mapper_) {
+      return cartridge_mapper_->read_chr(address);
+    }
+    return 0;
+  }
+
+  void write_chr(const uint16_t address, const uint8_t data) const {
+    if (cartridge_mapper_) {
+      cartridge_mapper_->write_chr(address, data);
+    }
+  }
+
+  void dump_chr(std::ostream &out) {
+    if (cartridge_) {
+      const auto base_address = reinterpret_cast<char *>(cartridge_->header()->chrrom_offset() + cartridge_->address());
+      const auto size = cartridge_->header()->prgrom_size();
+      out.write(base_address, size);
     }
   }
 
 private:
-  class mapped_cartridge_file {
-  public:
-    explicit mapped_cartridge_file(const char *file_path)
-        : mapped_region_(map_cartridge_file(file_path)) {}
-
-    ~mapped_cartridge_file() = default;
-
-    size_t size() {
-      return mapped_region_.get_size();
-    }
-
-    uint8_t *address() {
-      return static_cast<uint8_t *>(mapped_region_.get_address());
-    }
-
-  private:
-    static ip::mapped_region map_cartridge_file(const char *file_path) {
-      const ip::file_mapping mapped_file(file_path, ip::mode_t::read_only);
-      return ip::mapped_region(mapped_file, ip::mode_t::read_only);
-    }
-
-    const ip::mapped_region mapped_region_;
-  };
-
-  struct rom_header {
-    uint32_t constants;
-    uint8_t prgrom_size;
-    uint8_t chrrom_size;
-    uint8_t has_mirroring : 1;
-    uint8_t contains_battery_backed_prgram : 1;
-    uint8_t has_trainer : 1;
-    uint8_t ignore_mirroring_control : 1;
-    uint8_t lower_mapper_nibble : 4;
-    uint8_t is_vs_unisystem : 1;
-    uint8_t is_play_choice : 1;
-    uint8_t version : 2;
-    uint8_t upper_mapper_nibble : 4;
-    uint8_t prgram_size;
-    uint8_t which_tv_system_one : 1;
-    unsigned int : 7;
-    uint8_t which_tv_system_two : 2;
-    unsigned int : 2;
-    uint8_t is_prgram_present : 1;
-    uint8_t has_bus_conflicts : 1;
-    unsigned int : 2;
-    uint8_t ignored[5];
-  };
-
-  rom_header rom_file_header_;
-
-  std::unique_ptr<mapped_cartridge_file> cartridge_file_;
+  std::unique_ptr<file_mapped_cartridge> cartridge_;
 
   std::unique_ptr<mapper> cartridge_mapper_;
-
-  const cartridge &cartridge_;
 };
 
-cartridge::cartridge() : impl_(new impl(*this)) {}
+cartridge::cartridge() : impl_(new impl()) {}
 
 cartridge::~cartridge() = default;
 
-bool cartridge::attach(const char *file_path) {
-  return impl_->attach(file_path);
+bool cartridge::attach(const char *path) {
+  return impl_->attach(path);
 }
 
-int cartridge::get_header_version() const {
-  return impl_->get_header_version();
+void cartridge::print(std::ostream &out) const {
+  impl_->print(out);
 }
 
-void cartridge::print_header(std::ostream &out) const {
-  impl_->print_header(out);
+uint8_t cartridge::read_prg(const uint16_t address) const {
+  return impl_->read_prg(address);
 }
 
-uint16_t cartridge::get_prgrom_offset() const {
-  return impl_->get_prgrom_offset();
+void cartridge::write_prg(const uint16_t address, const uint8_t data) const {
+  return impl_->write_prg(address, data);
 }
 
-uint16_t cartridge::get_prgrom_size() const {
-  return impl_->get_prgrom_size();
+void cartridge::dump_prg(std::ostream &out) const {
+  return impl_->dump_prg(out);
 }
 
-uint16_t cartridge::get_chrrom_offset() const {
-  return impl_->get_chrrom_offset();
+uint8_t cartridge::read_chr(const uint16_t address) const {
+  return impl_->read_chr(address);
 }
 
-uint16_t cartridge::get_chrrom_size() const {
-  return impl_->get_chrrom_size();
+void cartridge::write_chr(const uint16_t address, const uint8_t data) const {
+  return impl_->write_chr(address, data);
 }
 
-uint8_t cartridge::get_mapper_number() const {
-  return impl_->get_mapper_number();
-}
-
-bool cartridge::has_mirroring() const {
-  return impl_->has_mirroring();
+void cartridge::dump_chr(std::ostream &out) const {
+  return impl_->dump_chr(out);
 }
 
 uint8_t cartridge::read(uint16_t address) const {
-  return impl_->read(address);
+  boost::ignore_unused(address);
+  return 0;
 }
 
 void cartridge::write(uint16_t address, uint8_t data) const {
-  impl_->write(address, data);
+  boost::ignore_unused(address, data);
 }

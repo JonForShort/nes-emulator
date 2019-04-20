@@ -29,7 +29,8 @@
 
 using namespace jones;
 
-std::unique_ptr<mapper> mappers::get(const cartridge &cartridge, const uint16_t mapper_number) {
+std::unique_ptr<mapper> mappers::get(const mapped_cartridge &cartridge) {
+  const auto mapper_number = cartridge.header()->mapper_number();
   switch (mapper_number) {
   case 0:
     return std::make_unique<mapper_nrom>(cartridge);

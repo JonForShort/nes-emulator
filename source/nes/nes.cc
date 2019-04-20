@@ -73,7 +73,7 @@ public:
     memory_.map(std::make_unique<memory_mappable_component<cartridge>>(cartridge_, 0x4020, 0xFFFF));
   }
 
-  ~impl() {}
+  ~impl() = default;
 
   void load(const char *rom_path) {
     cartridge_.attach(rom_path);

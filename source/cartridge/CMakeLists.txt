@@ -9,6 +9,7 @@ set (boost-lib      ${DIR_ROOT_OUT}/boost/lib)
 
 set (sources
         cartridge.cc
+        cartridge_header.cc
         mapper/mapper.cc
         mapper/mapper_unsupported.cc
         mapper/mapper_nrom.cc)

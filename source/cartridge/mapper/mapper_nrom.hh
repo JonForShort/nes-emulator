@@ -25,6 +25,7 @@
 #define JONES_CARTRIDGE_MAPPER_MAPPER_NROM_HH
 
 #include <cstdint>
+#include <vector>
 
 #include "mapper.hh"
 
@@ -32,13 +33,17 @@ namespace jones {
 
 class mapper_nrom : public mapper {
 public:
-  explicit mapper_nrom(const cartridge &cartridge);
+  explicit mapper_nrom(const mapped_cartridge &cartridge);
 
   ~mapper_nrom() override = default;
 
-  uint8_t read(uint16_t address) override;
+  uint8_t read_prg(uint16_t address) const override;
 
-  void write(uint16_t address, uint8_t data) override;
+  void write_prg(uint16_t address, uint8_t data) override;
+
+  uint8_t read_chr(uint16_t address) const override;
+
+  void write_chr(uint16_t address, uint8_t data) override;
 
 private:
   enum class nrom_type {
@@ -51,17 +56,21 @@ private:
     NROM_VERTICAL
   };
 
-  static nrom_type resolve_type(const cartridge &cartridge) {
-    return cartridge.get_prgrom_size() == 1 ? nrom_type::NROM_128 : nrom_type::NROM_256;
+  static nrom_type resolve_type(const mapped_cartridge &cartridge) {
+    return cartridge.header()->prgrom_size() == 1 ? nrom_type::NROM_128 : nrom_type::NROM_256;
   }
 
-  static nrom_mirroring_type resolve_mirroring_type(const cartridge &cartridge) {
-    return cartridge.has_mirroring() ? nrom_mirroring_type::NROM_VERTICAL : nrom_mirroring_type::NROM_HORIZONAL;
+  static nrom_mirroring_type resolve_mirroring_type(const mapped_cartridge &cartridge) {
+    return cartridge.header()->mirroring() ? nrom_mirroring_type::NROM_VERTICAL : nrom_mirroring_type::NROM_HORIZONAL;
   }
 
   const nrom_type type_;
 
   const nrom_mirroring_type mirroring_type_;
+
+  const bool use_chrram;
+
+  std::vector<uint8_t> chrram_;
 };
 
 } // namespace jones

@@ -21,10 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <boost/archive/text_iarchive.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/interprocess/file_mapping.hpp>
-#include <boost/interprocess/mapped_region.hpp>
+#include <boost/serialization/vector.hpp>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -36,7 +36,7 @@
 #include "tool_decoder.hh"
 
 namespace fs = boost::filesystem;
-namespace ip = boost::interprocess;
+namespace ba = boost::archive;
 
 namespace jd = jones::disassemble;
 namespace jo = jones;
@@ -60,19 +60,24 @@ std::string to_hex_string(uint8_t *data, size_t size, size_t width, bool left_to
   return oss.str();
 }
 
-void dump_code(const fs::path &root_path, const jo::cartridge &rom, const uint8_t *const base_address, const size_t length_in_bytes) {
+void dump_code(const fs::path &root_path, const jo::cartridge &rom) {
   boost::ignore_unused(rom);
-  boost::ignore_unused(length_in_bytes);
 
   const fs::path code_path = root_path / "code";
   fs::create_directories(code_path);
   fs::ofstream code_file{code_path / "prgrom.a65"};
 
-  const uint8_t *const prgrom_base_address = base_address + rom.get_prgrom_offset();
-  const auto &disassembled_code = jd::disassemble(const_cast<uint8_t *>(prgrom_base_address), rom.get_prgrom_size());
+  const fs::path prgrom_path = root_path / "raw" / "prgrom.bin";
+  std::ifstream prgrom_file{prgrom_path};
+
+  std::vector<uint8_t> prgrom;
+  ba::text_iarchive archiver(prgrom_file);
+  archiver &prgrom;
+
+  const auto &disassembled_code = jd::disassemble(&prgrom[0], prgrom.size());
   const auto &disassembled_instructions = disassembled_code.instructions;
   for (auto instruction : disassembled_instructions) {
-    auto instruction_address = instruction.address + rom.get_prgrom_offset();
+    auto instruction_address = instruction.address;
     code_file << "   " << to_hex_string(reinterpret_cast<uint8_t *>(&instruction_address), sizeof(instruction.address), 5, false);
     code_file << "   " << to_hex_string(&instruction.length_in_bytes, sizeof(instruction.length_in_bytes), 5);
     code_file << "   " << to_hex_string(instruction.binary.data(), instruction.length_in_bytes, 10);
@@ -80,58 +85,47 @@ void dump_code(const fs::path &root_path, const jo::cartridge &rom, const uint8_
   }
 }
 
-void dump_audio(const fs::path &root_path, const jo::cartridge &rom, const uint8_t *const base_address, const size_t length_in_bytes) {
+void dump_audio(const fs::path &root_path, const jo::cartridge &rom) {
   boost::ignore_unused(rom);
-  boost::ignore_unused(base_address);
-  boost::ignore_unused(length_in_bytes);
-
   const fs::path audio_path = root_path / "audio";
   fs::create_directories(audio_path);
 }
 
-void dump_image(const fs::path &root_path, const jo::cartridge &rom, const uint8_t *const base_address, const size_t length_in_bytes) {
+void dump_image(const fs::path &root_path, const jo::cartridge &rom) {
   boost::ignore_unused(rom);
-  boost::ignore_unused(base_address);
-  boost::ignore_unused(length_in_bytes);
 
   const fs::path image_path = root_path / "image";
   fs::create_directories(image_path);
 
-  const auto chrrom_base_address = base_address + rom.get_chrrom_offset();
-  const auto chrrom_size = rom.get_chrrom_size();
-  jones::tool::decode_chrrom(const_cast<uint8_t *>(chrrom_base_address), chrrom_size, image_path.string().c_str());
+  const fs::path chrrom_path = root_path / "raw" / "chrrom.bin";
+  std::ifstream chrrom_file{chrrom_path};
+
+  std::vector<uint8_t> chrrom;
+  ba::text_iarchive archiver(chrrom_file);
+  archiver &chrrom;
+
+  jones::tool::decode_chrrom(&chrrom[0], chrrom.size(), image_path.string().c_str());
 }
 
-void dump_raw(const fs::path &root_path, const jo::cartridge &rom, const uint8_t *const base_address, const size_t length_in_bytes) {
-  boost::ignore_unused(length_in_bytes);
-
+void dump_raw(const fs::path &root_path, const jo::cartridge &rom) {
   const fs::path raw_path = root_path / "raw";
   fs::create_directories(raw_path);
   {
     const fs::path chrom_path = raw_path / "chrrom.bin";
     std::ofstream chrom_file{chrom_path};
-
-    const auto chrrom_base_address = reinterpret_cast<const char *>(base_address + rom.get_chrrom_offset());
-    const auto chrrom_size = rom.get_chrrom_size();
-    chrom_file.write(const_cast<char *>(chrrom_base_address), chrrom_size);
+    rom.dump_chr(chrom_file);
   }
   {
     const fs::path prgrom_path = raw_path / "prgrom.bin";
     std::ofstream prgrom_file{prgrom_path};
-
-    const auto prgrom_base_address = reinterpret_cast<const char *>(base_address + rom.get_prgrom_offset());
-    const auto prgrom_size = rom.get_prgrom_size();
-    prgrom_file.write(const_cast<char *>(prgrom_base_address), prgrom_size);
+    rom.dump_prg(prgrom_file);
   }
 }
 
-void dump_header(const fs::path &root_path, const jo::cartridge &rom, const uint8_t *const base_address, const size_t length_in_bytes) {
-  boost::ignore_unused(base_address);
-  boost::ignore_unused(length_in_bytes);
-
+void dump_header(const fs::path &root_path, const jo::cartridge &rom) {
   const fs::path header_path = root_path / "rom_header.txt";
   std::ofstream header_file{header_path};
-  rom.print_header(header_file);
+  rom.print(header_file);
 }
 
 } // namespace
@@ -145,16 +139,11 @@ int dump(const char *file_path, const char *output_path) {
     return -1;
   }
 
-  const ip::file_mapping mapped_file(file_path, ip::mode_t::read_only);
-  const ip::mapped_region mapped_region(mapped_file, ip::mode_t::read_only);
-  const auto &mapped_base_address = static_cast<uint8_t const *>(mapped_region.get_address());
-  const auto &mapped_size = mapped_region.get_size();
-
-  dump_header(output_path, rom, mapped_base_address, mapped_size);
-  dump_raw(output_path, rom, mapped_base_address, mapped_size);
-  dump_code(output_path, rom, mapped_base_address, mapped_size);
-  dump_audio(output_path, rom, mapped_base_address, mapped_size);
-  dump_image(output_path, rom, mapped_base_address, mapped_size);
+  dump_header(output_path, rom);
+  dump_raw(output_path, rom);
+  dump_code(output_path, rom);
+  dump_audio(output_path, rom);
+  dump_image(output_path, rom);
 
   return 0;
 }

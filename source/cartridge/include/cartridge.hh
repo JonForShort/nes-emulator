@@ -36,23 +36,21 @@ public:
 
   ~cartridge();
 
-  bool attach(const char *file_path);
+  bool attach(const char *path);
 
-  int get_header_version() const;
+  void print(std::ostream &out) const;
 
-  void print_header(std::ostream &out) const;
+  uint8_t read_prg(uint16_t address) const;
 
-  uint16_t get_prgrom_offset() const;
+  void write_prg(uint16_t address, uint8_t data) const;
 
-  uint16_t get_prgrom_size() const;
+  void dump_prg(std::ostream &out) const;
 
-  uint16_t get_chrrom_offset() const;
+  uint8_t read_chr(uint16_t address) const;
 
-  uint16_t get_chrrom_size() const;
+  void write_chr(uint16_t address, uint8_t data) const;
 
-  uint8_t get_mapper_number() const;
-
-  bool has_mirroring() const;
+  void dump_chr(std::ostream &out) const;
 
   uint8_t read(uint16_t address) const;
 
