@@ -115,9 +115,13 @@ public:
 
   ~impl() = default;
 
-  void load(const char *rom_path) {
-    cartridge_.attach(rom_path);
-    initialize_components();
+  bool load(const char *rom_path) {
+    const auto loaded_cartridge = cartridge_.attach(rom_path);
+    if (loaded_cartridge) {
+      initialize_components();
+      return true;
+    }
+    return false;
   }
 
   void run() {
@@ -156,8 +160,8 @@ nes::nes() noexcept
 
 nes::~nes() = default;
 
-void nes::load(const char *rom_path) {
-  pimpl_->load(rom_path);
+bool nes::load(const char *rom_path) {
+  return pimpl_->load(rom_path);
 }
 
 void nes::run() {

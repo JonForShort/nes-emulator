@@ -40,8 +40,7 @@ class file_mapped_cartridge final : public mapped_cartridge {
 public:
   explicit file_mapped_cartridge(const char *file_path)
       : header_(create_cartridge_header(file_path)),
-        mapped_region_(map_cartridge_file(file_path)) {
-  }
+        mapped_region_(map_cartridge_file(file_path)) {}
 
   ~file_mapped_cartridge() override = default;
 
@@ -72,7 +71,7 @@ private:
     return std::make_unique<cartridge_header>(std::move(file));
   }
 
-  std::unique_ptr<cartridge_header> header_;
+  const std::unique_ptr<cartridge_header> header_;
 
   const ip::mapped_region mapped_region_;
 };
@@ -88,9 +87,8 @@ public:
     if (cartridge_->valid()) {
       cartridge_mapper_ = mappers::get(*cartridge_);
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   void print(std::ostream &out) const {

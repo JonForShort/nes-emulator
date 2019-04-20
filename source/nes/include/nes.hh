@@ -34,7 +34,7 @@ public:
 
   ~nes();
 
-  void load(const char *rom_path);
+  bool load(const char *rom_path);
 
   void run();
 
