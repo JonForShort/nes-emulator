@@ -45,7 +45,7 @@ mapper_nrom::mapper_nrom(const jones::mapped_cartridge &cartridge)
   }
 }
 
-uint8_t mapper_nrom::read_prg(uint16_t address) const {
+uint8_t mapper_nrom::read_prg(const uint16_t address) const {
   const auto base_prgrom_address = get_cartridge().address() + get_cartridge().header()->prgrom_offset();
   switch (type_) {
   case nrom_type::NROM_128: {
@@ -57,24 +57,24 @@ uint8_t mapper_nrom::read_prg(uint16_t address) const {
   default:
     break;
   }
-  BOOST_STATIC_ASSERT("unexpected nrom type");
+  BOOST_STATIC_ASSERT("unable to read prg rom");
   return 0;
 }
 
-void mapper_nrom::write_prg(uint16_t address, uint8_t data) {
+void mapper_nrom::write_prg(const uint16_t address, const uint8_t data) {
   boost::ignore_unused(address, data);
   BOOST_STATIC_ASSERT("unable to write to prg rom");
 }
 
-uint8_t mapper_nrom::read_chr(uint16_t address) const {
+uint8_t mapper_nrom::read_chr(const uint16_t address) const {
   if (use_chrram) {
     return chrram_[address];
   } else {
-    return *(get_cartridge().address() + get_cartridge().header()->chrrom_offset());
+    return *(get_cartridge().address() + get_cartridge().header()->chrrom_offset() + address);
   }
 }
 
-void mapper_nrom::write_chr(uint16_t address, uint8_t data) {
+void mapper_nrom::write_chr(const uint16_t address, const uint8_t data) {
   if (use_chrram) {
     chrram_[address] = data;
   } else {
