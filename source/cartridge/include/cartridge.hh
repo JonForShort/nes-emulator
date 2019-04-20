@@ -40,15 +40,7 @@ public:
 
   void print(std::ostream &out) const;
 
-  uint8_t read_prg(uint16_t address) const;
-
-  void write_prg(uint16_t address, uint8_t data) const;
-
   void dump_prg(std::ostream &out) const;
-
-  uint8_t read_chr(uint16_t address) const;
-
-  void write_chr(uint16_t address, uint8_t data) const;
 
   void dump_chr(std::ostream &out) const;
 

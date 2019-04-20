@@ -24,16 +24,13 @@
 #ifndef JONES_CARTRIDGE_MAPPER_MAPPED_CARTRIDGE_HH
 #define JONES_CARTRIDGE_MAPPER_MAPPED_CARTRIDGE_HH
 
-#include <boost/interprocess/file_mapping.hpp>
-#include <boost/interprocess/mapped_region.hpp>
-
 namespace jones {
 
 class mapped_cartridge_header {
 public:
-  mapped_cartridge_header() {}
+  mapped_cartridge_header() = default;
 
-  virtual ~mapped_cartridge_header() {}
+  virtual ~mapped_cartridge_header() = default;
 
   virtual void print(std::ostream &ostream) const = 0;
 

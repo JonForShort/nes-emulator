@@ -38,7 +38,6 @@ class cpu::impl final {
 public:
   explicit impl(const memory &memory)
       : memory_(memory),
-        ram_(),
         status_register_(),
         registers_(),
         interrupts_(),
@@ -54,8 +53,6 @@ public:
   }
 
   void reset() {
-    std::fill(ram_, ram_ + ram_size, 0);
-
     status_register_.set(status_flag::I);
     status_register_.set(status_flag::B1);
     status_register_.set(status_flag::B2);
@@ -160,8 +157,6 @@ private:
   static constexpr int ram_size = 2048;
 
   const memory &memory_;
-
-  uint8_t ram_[ram_size];
 
   status_register status_register_;
 

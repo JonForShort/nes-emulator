@@ -99,6 +99,36 @@ public:
     }
   }
 
+  void dump_prg(std::ostream &out) {
+    if (cartridge_) {
+      const auto base_address = reinterpret_cast<char *>(cartridge_->header()->prgrom_offset() + cartridge_->address());
+      const auto size = cartridge_->header()->prgrom_size();
+      out.write(base_address, size);
+    }
+  }
+
+  void dump_chr(std::ostream &out) {
+    if (cartridge_) {
+      const auto base_address = reinterpret_cast<char *>(cartridge_->header()->chrrom_offset() + cartridge_->address());
+      const auto size = cartridge_->header()->prgrom_size();
+      out.write(base_address, size);
+    }
+  }
+
+  uint8_t read(const uint16_t address) const {
+    if (address >= 0x8000U) {
+      return read_prg(address);
+    }
+    return 0;
+  }
+
+  void write(const uint16_t address, const uint8_t data) const {
+    if (address >= 0x8000U) {
+      return write_prg(address, data);
+    }
+  }
+
+private:
   uint8_t read_prg(const uint16_t address) const {
     if (cartridge_mapper_) {
       return cartridge_mapper_->read_prg(address);
@@ -112,14 +142,6 @@ public:
     }
   }
 
-  void dump_prg(std::ostream &out) {
-    if (cartridge_) {
-      const auto base_address = reinterpret_cast<char *>(cartridge_->header()->prgrom_offset() + cartridge_->address());
-      const auto size = cartridge_->header()->prgrom_size();
-      out.write(base_address, size);
-    }
-  }
-
   uint8_t read_chr(const uint16_t address) const {
     if (cartridge_mapper_) {
       return cartridge_mapper_->read_chr(address);
@@ -130,14 +152,6 @@ public:
   void write_chr(const uint16_t address, const uint8_t data) const {
     if (cartridge_mapper_) {
       cartridge_mapper_->write_chr(address, data);
-    }
-  }
-
-  void dump_chr(std::ostream &out) {
-    if (cartridge_) {
-      const auto base_address = reinterpret_cast<char *>(cartridge_->header()->chrrom_offset() + cartridge_->address());
-      const auto size = cartridge_->header()->prgrom_size();
-      out.write(base_address, size);
     }
   }
 
@@ -159,35 +173,18 @@ void cartridge::print(std::ostream &out) const {
   impl_->print(out);
 }
 
-uint8_t cartridge::read_prg(const uint16_t address) const {
-  return impl_->read_prg(address);
-}
-
-void cartridge::write_prg(const uint16_t address, const uint8_t data) const {
-  return impl_->write_prg(address, data);
-}
-
 void cartridge::dump_prg(std::ostream &out) const {
   return impl_->dump_prg(out);
-}
-
-uint8_t cartridge::read_chr(const uint16_t address) const {
-  return impl_->read_chr(address);
-}
-
-void cartridge::write_chr(const uint16_t address, const uint8_t data) const {
-  return impl_->write_chr(address, data);
 }
 
 void cartridge::dump_chr(std::ostream &out) const {
   return impl_->dump_chr(out);
 }
 
-uint8_t cartridge::read(uint16_t address) const {
-  boost::ignore_unused(address);
-  return 0;
+uint8_t cartridge::read(const uint16_t address) const {
+  return impl_->read(address);
 }
 
-void cartridge::write(uint16_t address, uint8_t data) const {
-  boost::ignore_unused(address, data);
+void cartridge::write(const uint16_t address, const uint8_t data) const {
+  return impl_->write(address, data);
 }
