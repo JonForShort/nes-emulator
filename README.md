@@ -11,7 +11,8 @@ Jones is an NES emulator (and NES debugger) written entirely in c++.
 
 ## Planned Features
 
-* Interactive debugger - Jones will provide a helpful debugger for NES developers to test their own home-brewed roms.
+* Interactive Debugger - Jones will provide a helpful debugger for NES developers to test their own home-brewed roms.  Please see the "jones-debugger" project (https://github.com/thejunkjon/jones-debugger) for details.
+* Rewind Support - Jones will provide the ability for users to rewind their games so that they can replay certain areas.
 
 ## Screen Shots
 
