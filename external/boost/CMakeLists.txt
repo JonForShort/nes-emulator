@@ -1,11 +1,6 @@
 cmake_minimum_required (VERSION 3.7)
 
-file (MAKE_DIRECTORY ${DIR_PROJECT_OUT})
-
-file (COPY ${CMAKE_CURRENT_SOURCE_DIR}/prebuilt/lib     DESTINATION ${DIR_PROJECT_OUT})
-file (COPY ${CMAKE_CURRENT_SOURCE_DIR}/prebuilt/include DESTINATION ${DIR_PROJECT_OUT})
-
-#
-# place-holder for when real target exists.
-#
-add_custom_target (boost)
+add_custom_target (boost
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/source
+  COMMAND ./bootstrap.sh --prefix=${DIR_PROJECT_OUT}
+  COMMAND ./b2 variant=release link=static cxxflags='-fPIC' linkflags='-pie -nostartfiles' --with-log --with-program_options --with-filesystem --with-test --with-serialization install)
