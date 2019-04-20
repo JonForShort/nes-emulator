@@ -21,10 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <boost/archive/text_iarchive.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/interprocess/file_mapping.hpp>
+#include <boost/interprocess/mapped_region.hpp>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -36,7 +36,7 @@
 #include "tool_decoder.hh"
 
 namespace fs = boost::filesystem;
-namespace ba = boost::archive;
+namespace ip = boost::interprocess;
 
 namespace jd = jones::disassemble;
 namespace jo = jones;
@@ -68,13 +68,10 @@ void dump_code(const fs::path &root_path, const jo::cartridge &rom) {
   fs::ofstream code_file{code_path / "prgrom.a65"};
 
   const fs::path prgrom_path = root_path / "raw" / "prgrom.bin";
-  std::ifstream prgrom_file{prgrom_path};
+  const ip::file_mapping mapped_file(prgrom_path.string().c_str(), ip::mode_t::read_only);
+  const ip::mapped_region mapped_region(mapped_file, ip::mode_t::read_only);
 
-  std::vector<uint8_t> prgrom;
-  ba::text_iarchive archiver(prgrom_file);
-  archiver &prgrom;
-
-  const auto &disassembled_code = jd::disassemble(&prgrom[0], prgrom.size());
+  const auto &disassembled_code = jd::disassemble(static_cast<uint8_t *>(mapped_region.get_address()), mapped_region.get_size());
   const auto &disassembled_instructions = disassembled_code.instructions;
   for (auto instruction : disassembled_instructions) {
     auto instruction_address = instruction.address;
@@ -98,13 +95,10 @@ void dump_image(const fs::path &root_path, const jo::cartridge &rom) {
   fs::create_directories(image_path);
 
   const fs::path chrrom_path = root_path / "raw" / "chrrom.bin";
-  std::ifstream chrrom_file{chrrom_path};
+  const ip::file_mapping mapped_file(chrrom_path.string().c_str(), ip::mode_t::read_only);
+  const ip::mapped_region mapped_region(mapped_file, ip::mode_t::read_only);
 
-  std::vector<uint8_t> chrrom;
-  ba::text_iarchive archiver(chrrom_file);
-  archiver &chrrom;
-
-  jones::tool::decode_chrrom(&chrrom[0], chrrom.size(), image_path.string().c_str());
+  jones::tool::decode_chrrom(static_cast<uint8_t *>(mapped_region.get_address()), mapped_region.get_size(), image_path.string().c_str());
 }
 
 void dump_raw(const fs::path &root_path, const jo::cartridge &rom) {
