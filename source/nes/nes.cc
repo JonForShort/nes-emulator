@@ -22,6 +22,7 @@
 // SOFTWARE.
 //
 #include <boost/core/ignore_unused.hpp>
+#include <boost/filesystem.hpp>
 #include <memory.hh>
 
 #include "apu.hh"
@@ -116,10 +117,12 @@ public:
   ~impl() = default;
 
   bool load(const char *rom_path) {
-    const auto loaded_cartridge = cartridge_.attach(rom_path);
-    if (loaded_cartridge) {
-      initialize_components();
-      return true;
+    if (boost::filesystem::exists(rom_path)) {
+      const auto loaded_cartridge = cartridge_.attach(rom_path);
+      if (loaded_cartridge) {
+        initialize_components();
+        return true;
+      }
     }
     return false;
   }
