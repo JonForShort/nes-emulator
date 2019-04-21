@@ -50,6 +50,8 @@ public:
 
   void step() {
     cycles_++;
+    const auto decoded = decode();
+    execute(decoded);
   }
 
   void reset() {
@@ -75,7 +77,7 @@ public:
 
     // setting to initial pc address
     const auto reset_vector = interrupts_.get_vector(interrupt_type::RESET);
-    const auto reset_routine = memory_.read(reset_vector);
+    const auto reset_routine = (memory_.read(reset_vector) | (memory_.read(reset_vector + 1) << 8)) - 4;
     registers_.set(register_type::PC, reset_routine);
   }
 
@@ -135,6 +137,22 @@ private:
     return memory_.read(0x100U | stack_pointer);
   }
 
+  decode::instruction decode() {
+    const uint16_t pc = registers_.get(register_type::PC);
+    uint16_t pc_offset = 0;
+    std::vector<uint8_t> bytes;
+    while (true) {
+      const auto byte = memory_.read(pc + pc_offset);
+      bytes.push_back(byte);
+
+      const auto decoded = decode::decode(&bytes[0], bytes.size());
+      if (decoded.decoded_result == decode::result::SUCCESS) {
+        return decoded;
+      }
+      pc_offset++;
+    }
+  }
+
   void execute(const decode::instruction &instruction) {
     switch (instruction.decoded_opcode.type) {
     case opcode_type::PHP: {
@@ -147,6 +165,11 @@ private:
       status_register_.set(flags);
       break;
     }
+    case opcode_type::JMP: {
+      const uint16_t address = std::get<uint16_t>(instruction.decoded_operand.value);
+      registers_.set(register_type::PC, address);
+      break;
+    }
     default: {
       break;
     }
@@ -154,8 +177,6 @@ private:
   }
 
 private:
-  static constexpr int ram_size = 2048;
-
   const memory &memory_;
 
   status_register status_register_;

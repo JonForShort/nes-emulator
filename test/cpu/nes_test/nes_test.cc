@@ -33,17 +33,6 @@
 namespace bt = boost::unit_test;
 namespace fs = boost::filesystem;
 
-namespace {
-
-void trace_rom(const char *rom_path, const char *trace_path) {
-  jones::nes nes;
-  nes.load(rom_path);
-  nes.trace(trace_path);
-  nes.run();
-}
-
-} // namespace
-
 BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
   const auto argc = bt::framework::master_test_suite().argc;
   if (argc <= 2) {
@@ -61,5 +50,8 @@ BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
             << "result [" << result_path << "] "
             << "trace [" << trace_path << "]";
 
-  trace_rom(file_path, trace_path.string().c_str());
+  jones::nes nes;
+  nes.load(file_path);
+  nes.trace(trace_path.string().c_str());
+  nes.run();
 }

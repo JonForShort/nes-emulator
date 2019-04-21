@@ -47,12 +47,15 @@ mapper_nrom::mapper_nrom(const jones::mapped_cartridge &cartridge)
 
 uint8_t mapper_nrom::read_prg(const uint16_t address) const {
   const auto base_prgrom_address = get_cartridge().address() + get_cartridge().header()->prgrom_offset();
+  const auto base_address = address - 0x8000;
   switch (type_) {
   case nrom_type::NROM_128: {
-    return *(base_prgrom_address + (address & 0x3FFFU));
+    const auto prgrom_size = get_cartridge().header()->prgrom_size();
+    const auto address_offset = base_address > prgrom_size ? base_address - prgrom_size : base_address;
+    return *(base_prgrom_address + address_offset);
   }
   case nrom_type::NROM_256: {
-    return *(base_prgrom_address + address);
+    return *(base_prgrom_address + base_address);
   }
   default:
     break;

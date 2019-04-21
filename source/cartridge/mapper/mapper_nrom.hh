@@ -57,11 +57,13 @@ private:
   };
 
   static nrom_type resolve_type(const mapped_cartridge &cartridge) {
-    return cartridge.header()->prgrom_size() == 1 ? nrom_type::NROM_128 : nrom_type::NROM_256;
+    const auto prgrom_count = cartridge.header()->prgrom_count();
+    return prgrom_count == 1 ? nrom_type::NROM_128 : nrom_type::NROM_256;
   }
 
   static nrom_mirroring_type resolve_mirroring_type(const mapped_cartridge &cartridge) {
-    return cartridge.header()->mirroring() ? nrom_mirroring_type::NROM_VERTICAL : nrom_mirroring_type::NROM_HORIZONAL;
+    const auto mirroring = cartridge.header()->mirroring();
+    return mirroring ? nrom_mirroring_type::NROM_VERTICAL : nrom_mirroring_type::NROM_HORIZONAL;
   }
 
   const nrom_type type_;

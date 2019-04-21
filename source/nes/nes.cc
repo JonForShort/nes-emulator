@@ -127,7 +127,9 @@ public:
     return false;
   }
 
-  void run() {
+  void run(const size_t cycle_count) {
+    (void)cycle_count;
+    cpu_.step();
   }
 
   void reset() {
@@ -167,8 +169,8 @@ bool nes::load(const char *rom_path) {
   return pimpl_->load(rom_path);
 }
 
-void nes::run() {
-  pimpl_->run();
+void nes::run(const size_t cycle_count) {
+  pimpl_->run(cycle_count);
 }
 
 void nes::reset() {

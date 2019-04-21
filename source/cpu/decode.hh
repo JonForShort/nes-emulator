@@ -38,6 +38,18 @@ namespace jones::decode {
 
 constexpr unsigned int max_length_in_bytes = 3;
 
+enum class result {
+  SUCCESS,
+
+  ERROR_INVALID,
+
+  ERROR_REQUIRES_ONE_BYTE,
+
+  ERROR_REQUIRES_TWO_BYTES,
+
+  ERROR_REQUIRES_THREE_BYTES,
+};
+
 struct opcode {
   opcode_type type;
   uint8_t value;
@@ -51,6 +63,8 @@ struct operand {
 struct instruction {
   std::array<uint8_t, max_length_in_bytes> encoded;
   uint8_t encoded_length_in_bytes;
+
+  result decoded_result;
 
   opcode decoded_opcode;
   operand decoded_operand;

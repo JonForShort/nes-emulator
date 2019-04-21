@@ -31,10 +31,11 @@ using namespace jones;
 
 namespace {
 
-decode::instruction create_empty_instruction() {
+decode::instruction create_empty_instruction(const decode::result result) {
   return decode::instruction{
       .encoded = {},
       .encoded_length_in_bytes = 0,
+      .decoded_result = result,
       .decoded_opcode = {opcode_type::INVALID, 0},
       .decoded_operand = {operand_type::INVALID, static_cast<uint8_t>(0)},
       .decoded_addressing_mode = addressing_mode_type::INVALID};
@@ -47,7 +48,7 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
     //
     // buffer is not sufficient size to hold an instruction
     //
-    return create_empty_instruction();
+    return create_empty_instruction(result::ERROR_INVALID);
   }
   const auto opcode = buffer[0];
   const auto instruction = instruction_set[opcode];
@@ -55,10 +56,13 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
     //
     // buffer is smaller than expected size
     //
-    return create_empty_instruction();
+    return create_empty_instruction(
+        instruction.length == 1 ? result::ERROR_REQUIRES_ONE_BYTE    :
+        instruction.length == 2 ? result::ERROR_REQUIRES_TWO_BYTES   :
+        instruction.length == 3 ? result::ERROR_REQUIRES_THREE_BYTES : result::ERROR_INVALID);
   }
   const auto instruction_length = instruction.length;
-  decode::instruction decoded_instruction = create_empty_instruction();
+  decode::instruction decoded_instruction = create_empty_instruction(result::SUCCESS);
   std::memcpy(decoded_instruction.encoded.data(), buffer, instruction_length);
   decoded_instruction.encoded_length_in_bytes = instruction_length;
   decoded_instruction.decoded_addressing_mode = instruction.addressing_mode;
@@ -96,6 +100,7 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
     break;
   case addressing_mode_type::INVALID:
     LOG_ERROR << "invalid addressing mode type found";
+    decoded_instruction.decoded_result = result::ERROR_INVALID;
     break;
   }
 

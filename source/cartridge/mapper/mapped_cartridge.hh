@@ -42,9 +42,13 @@ public:
 
   virtual uint16_t prgrom_size() const = 0;
 
+  virtual uint8_t prgrom_count() const = 0;
+
   virtual uint16_t chrrom_offset() const = 0;
 
   virtual uint16_t chrrom_size() const = 0;
+
+  virtual uint8_t chrrom_count() const = 0;
 
   virtual uint8_t mapper_number() const = 0;
 
