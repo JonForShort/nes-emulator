@@ -47,9 +47,13 @@ public:
 
   uint16_t prgrom_size() const override;
 
+  uint8_t prgrom_count() const override;
+
   uint16_t chrrom_offset() const override;
 
   uint16_t chrrom_size() const override;
+
+  uint8_t chrrom_count() const override;
 
   uint8_t mapper_number() const override;
 

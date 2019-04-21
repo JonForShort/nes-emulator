@@ -107,7 +107,11 @@ uint16_t cartridge_header::prgrom_offset() const {
 }
 
 uint16_t cartridge_header::prgrom_size() const {
-  return static_cast<uint16_t>(header.prgrom_size * 16384);
+  return static_cast<uint16_t>(prgrom_count() * 16384);
+}
+
+uint8_t cartridge_header::prgrom_count() const {
+  return header.prgrom_size;
 }
 
 uint16_t cartridge_header::chrrom_offset() const {
@@ -115,7 +119,11 @@ uint16_t cartridge_header::chrrom_offset() const {
 }
 
 uint16_t cartridge_header::chrrom_size() const {
-  return static_cast<uint16_t>(header.chrrom_size * 8192);
+  return static_cast<uint16_t>(chrrom_count() * 8192);
+}
+
+uint8_t cartridge_header::chrrom_count() const {
+  return header.chrrom_size;
 }
 
 uint8_t cartridge_header::mapper_number() const {
