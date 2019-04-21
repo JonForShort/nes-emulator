@@ -25,6 +25,7 @@
 
 #include "cpu.hh"
 #include "decode.hh"
+#include "disassemble.hh"
 #include "instruction.hh"
 #include "interrupts.hh"
 #include "memory.hh"
@@ -49,7 +50,6 @@ public:
   }
 
   void step() {
-    cycles_++;
     const auto decoded = decode();
     execute(decoded);
   }
@@ -63,6 +63,7 @@ public:
     registers_.set(register_type::X, 0x00);
     registers_.set(register_type::Y, 0x00);
     registers_.set(register_type::SP, 0xFD);
+    registers_.set(register_type::SR, status_register_.get());
 
     interrupts_.set_state(interrupt_type::RESET, true);
     interrupts_.set_state(interrupt_type::BRK, false);
@@ -79,6 +80,9 @@ public:
     const auto reset_vector = interrupts_.get_vector(interrupt_type::RESET);
     const auto reset_routine = (memory_.read(reset_vector) | (memory_.read(reset_vector + 1) << 8)) - 4;
     registers_.set(register_type::PC, reset_routine);
+
+    // cycles for the cost of reset interrupt
+    cycles_ += 7;
   }
 
   void run() {
@@ -95,7 +99,22 @@ public:
   }
 
   cpu_state get_state() const {
-    return cpu_state();
+    auto decoded = decode();
+    auto encoded_bytes = std::vector<uint8_t>(&decoded.encoded[0], &decoded.encoded[0] + decoded.encoded_length_in_bytes);
+    auto disassembled = disassemble::disassemble(&encoded_bytes[0], encoded_bytes.size());
+
+    cpu_state current_cpu_state;
+    current_cpu_state.instruction = disassembled.instructions[0].opcode + " " + disassembled.instructions[0].operand;
+    current_cpu_state.instruction_bytes = encoded_bytes;
+    current_cpu_state.cycles = cycles_;
+    current_cpu_state.registers.PC = registers_.get(register_type::PC);
+    current_cpu_state.registers.SP = registers_.get(register_type::SP);
+    current_cpu_state.registers.A = registers_.get(register_type::AC);
+    current_cpu_state.registers.X = registers_.get(register_type::X);
+    current_cpu_state.registers.Y = registers_.get(register_type::Y);
+    current_cpu_state.registers.SR = registers_.get(register_type::SR);
+
+    return current_cpu_state;
   }
 
 private:
@@ -137,20 +156,19 @@ private:
     return memory_.read(0x100U | stack_pointer);
   }
 
-  decode::instruction decode() {
+  decode::instruction decode() const {
     const uint16_t pc = registers_.get(register_type::PC);
-    uint16_t pc_offset = 0;
     std::vector<uint8_t> bytes;
-    while (true) {
+    for (size_t pc_offset = 0; pc_offset < decode::max_length_in_bytes; pc_offset++) {
       const auto byte = memory_.read(pc + pc_offset);
       bytes.push_back(byte);
-
       const auto decoded = decode::decode(&bytes[0], bytes.size());
       if (decoded.decoded_result == decode::result::SUCCESS) {
         return decoded;
       }
-      pc_offset++;
     }
+    BOOST_STATIC_ASSERT("unexpected decode operation; instruction length too big");
+    return decode::instruction();
   }
 
   void execute(const decode::instruction &instruction) {

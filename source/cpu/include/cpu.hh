@@ -30,7 +30,30 @@
 
 namespace jones {
 
-struct cpu_state {};
+struct cpu_state {
+
+  std::string instruction;
+
+  std::vector<uint8_t> instruction_bytes;
+
+  size_t cycles;
+
+  struct registers {
+
+    uint16_t PC;
+
+    uint8_t A;
+
+    uint8_t X;
+
+    uint8_t Y;
+
+    uint8_t SR;
+
+    uint8_t SP;
+
+  } registers;
+};
 
 class cpu final {
 public:

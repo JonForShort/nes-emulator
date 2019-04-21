@@ -36,7 +36,7 @@ public:
 
   bool load(const char *rom_path);
 
-  void run(const size_t cycle_count = 0);
+  void run(size_t step_limit = 0);
 
   void reset();
 

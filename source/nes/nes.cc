@@ -127,9 +127,10 @@ public:
     return false;
   }
 
-  void run(const size_t cycle_count) {
-    (void)cycle_count;
-    cpu_.step();
+  void run(const size_t step_limit) {
+    for (size_t step_count = 0; step_count < step_limit || step_limit == 0; step_count++) {
+      cpu_.step();
+    }
   }
 
   void reset() {

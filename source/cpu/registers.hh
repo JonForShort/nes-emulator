@@ -79,7 +79,7 @@ using reg_t = typename register_traits<R>::type;
 
 class registers {
 public:
-  uint16_t get(register_type type) {
+  uint16_t get(register_type type) const {
     switch (type) {
     case register_type::PC:
       return registers_.at(0);

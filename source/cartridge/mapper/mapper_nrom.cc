@@ -51,7 +51,7 @@ uint8_t mapper_nrom::read_prg(const uint16_t address) const {
   switch (type_) {
   case nrom_type::NROM_128: {
     const auto prgrom_size = get_cartridge().header()->prgrom_size();
-    const auto address_offset = base_address > prgrom_size ? base_address - prgrom_size : base_address;
+    const auto address_offset = base_address >= prgrom_size ? base_address - prgrom_size : base_address;
     return *(base_prgrom_address + address_offset);
   }
   case nrom_type::NROM_256: {
