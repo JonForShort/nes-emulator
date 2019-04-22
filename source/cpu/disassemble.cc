@@ -22,6 +22,7 @@
 // SOFTWARE.
 //
 #include <cstring>
+#include <iomanip>
 #include <sstream>
 #include <vector>
 
@@ -41,7 +42,7 @@ std::string disassemble_opcode(const jde::instruction &decoded_instruction) {
 std::string disassemble_operand_immediate(const jde::operand &decoded_operand) {
   std::stringstream operand_string;
   const int immediate_value = std::get<uint8_t>(decoded_operand.value);
-  operand_string << " #$" << std::hex << std::uppercase << immediate_value;
+  operand_string << " #$" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << immediate_value;
   return operand_string.str();
 }
 

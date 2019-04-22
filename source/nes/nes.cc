@@ -23,11 +23,13 @@
 //
 #include <boost/core/ignore_unused.hpp>
 #include <boost/filesystem.hpp>
-#include <memory.hh>
+#include <fstream>
+#include <iomanip>
 
 #include "apu.hh"
 #include "cartridge.hh"
 #include "cpu.hh"
+#include "memory.hh"
 #include "nes.hh"
 #include "ppu.hh"
 
@@ -128,9 +130,12 @@ public:
   }
 
   void run(const size_t step_limit) {
+    trace_step();
     for (size_t step_count = 0; step_count < step_limit || step_limit == 0; step_count++) {
       cpu_.step();
+      trace_step();
     }
+    trace_done();
   }
 
   void reset() {
@@ -138,7 +143,7 @@ public:
   }
 
   void trace(const char *trace_file) {
-    trace_file_ = trace_file;
+    trace_file_ = std::ofstream{trace_file};
   }
 
 private:
@@ -146,6 +151,32 @@ private:
     ppu_.initialize();
     cpu_.initialize();
     apu_.initialize();
+  }
+
+  void trace_step() {
+    if (trace_file_.is_open()) {
+      const auto cpu_state = cpu_.get_state();
+
+      trace_file_ << std::hex << std::uppercase << cpu_state.registers.PC << "  ";
+
+      for (const auto &i : cpu_state.instruction_bytes) {
+        trace_file_ << std::left << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(i) << " ";
+      }
+
+      const size_t padding = 10 - (cpu_state.instruction_bytes.size() * 3);
+      for (size_t i = 0; i < padding; i++) {
+        trace_file_ << " ";
+      }
+      trace_file_ << cpu_state.instruction;
+
+      trace_file_ << std::endl;
+    }
+  }
+
+  void trace_done() {
+    if (trace_file_.is_open()) {
+      trace_file_.close();
+    }
   }
 
 private:
@@ -157,7 +188,7 @@ private:
   memory_sram sram_;
   memory_ram ram_;
 
-  const char *trace_file_;
+  std::ofstream trace_file_;
 };
 
 nes::nes() noexcept
