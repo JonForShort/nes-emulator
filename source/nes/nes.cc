@@ -163,11 +163,27 @@ private:
         trace_file_ << std::left << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(i) << " ";
       }
 
-      const size_t padding = 10 - (cpu_state.instruction_bytes.size() * 3);
-      for (size_t i = 0; i < padding; i++) {
+      const size_t instruction_bytes_padding = 10 - (cpu_state.instruction_bytes.size() * 3);
+      for (size_t i = 0; i < instruction_bytes_padding; i++) {
         trace_file_ << " ";
       }
+
       trace_file_ << cpu_state.instruction;
+
+      const size_t instruction_padding = 32 - cpu_state.instruction.length();
+      for (size_t i = 0; i < instruction_padding; i++) {
+        trace_file_ << " ";
+      }
+
+      trace_file_ << "A:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(cpu_state.registers.A) << " ";
+      trace_file_ << "X:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(cpu_state.registers.X) << " ";
+      trace_file_ << "Y:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(cpu_state.registers.Y) << " ";
+      trace_file_ << "P:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(cpu_state.registers.SR) << " ";
+      trace_file_ << "SP:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(cpu_state.registers.SP) << " ";
+
+      const auto ppu_state = ppu_.get_state();
+
+      trace_file_ << "PPU:" << std::right << std::setw(4) << std::setfill(' ') << ppu_state.cycles;
 
       trace_file_ << std::endl;
     }

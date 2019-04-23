@@ -30,19 +30,26 @@
 
 namespace jones {
 
+struct ppu_state {
+
+  size_t cycles;
+};
+
 class ppu final {
 public:
   explicit ppu(const memory &memory);
 
   ~ppu();
 
-  uint8_t read(uint16_t address);
+  uint8_t read(uint16_t address) const;
 
   void write(uint16_t address, uint8_t data);
 
   void initialize();
 
   void uninitialize();
+
+  ppu_state get_state() const;
 
 private:
   class impl;

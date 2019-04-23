@@ -58,7 +58,7 @@ ppu::ppu(const jones::memory &memory)
 
 ppu::~ppu() = default;
 
-uint8_t ppu::read(const uint16_t address) {
+uint8_t ppu::read(const uint16_t address) const {
   return impl_->read(address);
 }
 
@@ -70,4 +70,8 @@ void ppu::initialize() {
 }
 
 void ppu::uninitialize() {
+}
+
+ppu_state ppu::get_state() const {
+  return ppu_state{.cycles = 0};
 }
