@@ -79,53 +79,46 @@ using reg_t = typename register_traits<R>::type;
 
 class registers {
 public:
-  uint16_t get(register_type type) const {
-    switch (type) {
-    case register_type::PC:
-      return registers_.at(0);
-    case register_type::AC:
-      return registers_.at(1);
-    case register_type::X:
-      return registers_.at(2);
-    case register_type::Y:
-      return registers_.at(3);
-    case register_type::SR:
-      return registers_.at(4);
-    case register_type::SP:
-      return registers_.at(5);
-    default:
-      BOOST_STATIC_ASSERT("unexpected register type");
-      return 0;
-    }
+  uint16_t get(const register_type type) const {
+    return registers_.at(get_index(type));
   }
 
-  void set(register_type type, r16_t value) {
-    switch (type) {
-    case register_type::PC:
-      registers_.at(0) = value;
-      break;
-    case register_type::AC:
-      registers_.at(1) = value;
-      break;
-    case register_type::X:
-      registers_.at(2) = value;
-      break;
-    case register_type::Y:
-      registers_.at(3) = value;
-      break;
-    case register_type::SR:
-      registers_.at(4) = value;
-      break;
-    case register_type::SP:
-      registers_.at(5) = value;
-      break;
-    default:
-      BOOST_STATIC_ASSERT("unexpected register type");
-      break;
-    }
+  void set(const register_type type, const r16_t value) {
+    registers_.at(get_index(type)) = value;
+  }
+
+  void increment(const register_type type) {
+    increment_by(type, 1);
+  }
+
+  void increment_by(const register_type type, const uint16_t value) {
+    const uint8_t index = get_index(type);
+    const auto old_value = registers_.at(index);
+    registers_.at(index) = old_value + value;
   }
 
 private:
+  uint8_t get_index(const register_type type) const {
+    switch (type) {
+    case register_type::PC:
+      return 0;
+    case register_type::AC:
+      return 1;
+    case register_type::X:
+      return 2;
+    case register_type::Y:
+      return 3;
+    case register_type::SR:
+      return 4;
+    case register_type::SP:
+      return 5;
+    case register_type::COUNT:
+      return 6;
+    default:
+      BOOST_STATIC_ASSERT("unexpected register type");
+      return -1;
+    }
+  }
   static constexpr size_t register_count = static_cast<size_t>(register_type::COUNT);
 
   std::array<r16_t, register_count> registers_;

@@ -56,7 +56,6 @@ public:
 
   void reset() {
     status_register_.set(status_flag::I);
-    status_register_.set(status_flag::B1);
     status_register_.set(status_flag::B2);
 
     registers_.set(register_type::AC, 0x00);
@@ -104,7 +103,7 @@ public:
     auto disassembled = disassemble::disassemble(&encoded_bytes[0], encoded_bytes.size());
 
     cpu_state current_cpu_state;
-    current_cpu_state.instruction = disassembled.instructions[0].opcode + " " + disassembled.instructions[0].operand;
+    current_cpu_state.instruction = disassembled.instructions[0].opcode + disassembled.instructions[0].operand;
     current_cpu_state.instruction_bytes = encoded_bytes;
     current_cpu_state.cycles = cycles_;
     current_cpu_state.registers.PC = registers_.get(register_type::PC);
@@ -188,10 +187,79 @@ private:
       registers_.set(register_type::PC, address);
       break;
     }
+    case opcode_type::LDX: {
+      const auto operand = std::get<uint8_t>(instruction.decoded_operand.value);
+      const auto operand_type = instruction.decoded_operand.type;
+      const auto addressing_mode_type = instruction.decoded_addressing_mode;
+      execute_ldx(operand, operand_type, addressing_mode_type);
+      break;
+    }
     default: {
       break;
     }
     }
+  }
+
+  void execute_ldx(const uint8_t operand, const operand_type type, const addressing_mode_type address_mode) {
+    update_status_flags(operand);
+    switch (type) {
+    case operand_type::IMMEDIATE: {
+      registers_.set(register_type::X, operand);
+      cycles_ += 2;
+      break;
+    }
+    case operand_type::MEMORY:
+      switch (address_mode) {
+      case addressing_mode_type::ZERO_PAGE: {
+        const auto memory = memory_.read(operand);
+        registers_.set(register_type::X, memory);
+        cycles_ += 3;
+        break;
+      }
+      case addressing_mode_type::ZERO_PAGE_X: {
+        const auto x_register = registers_.get(register_type::X);
+        const auto memory = memory_.read(static_cast<uint16_t>(operand + x_register) & (0xFFU));
+        registers_.set(register_type::X, memory);
+        cycles_ += 4;
+        break;
+      }
+      case addressing_mode_type::ABSOLUTE: {
+        const auto memory = memory_.read(operand);
+        registers_.set(register_type::X, memory);
+        cycles_ += 4;
+        break;
+      }
+      case addressing_mode_type::ABSOLUTE_X: {
+        const uint8_t x_register = registers_.get(register_type::X);
+        const uint16_t memory = memory_.read(operand + x_register);
+        registers_.set(register_type::X, memory);
+        cycles_ += 4;
+        //
+        // Check for additional cycle caused by carry.
+        //
+        if (((memory & 0xFFU) + x_register) < x_register) {
+          cycles_++;
+        }
+        break;
+      }
+      default: {
+        BOOST_STATIC_ASSERT("unexpected addressing mode for LDX");
+        break;
+      }
+      }
+      break;
+    default:
+      BOOST_STATIC_ASSERT("unexpected operand type for LDX");
+      break;
+    }
+    registers_.increment_by(register_type::PC, sizeof(uint16_t));
+  }
+
+  void update_status_flags(const uint8_t binary) {
+    const auto bits = std::bitset<8>(binary);
+    bits.test(7) ? status_register_.set(status_flag::N) : status_register_.clear(status_flag::N);
+    bits == 0 ? status_register_.set(status_flag::Z) : status_register_.clear(status_flag::Z);
+    registers_.set(register_type::SR, status_register_.get());
   }
 
 private:
