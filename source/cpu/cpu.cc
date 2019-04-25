@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <boost/assert.hpp>
 #include <boost/core/ignore_unused.hpp>
 
 #include "cpu.hh"
@@ -50,7 +51,8 @@ public:
   }
 
   void step() {
-    const auto decoded = decode();
+    const auto fetched = fetch();
+    const auto decoded = decode(fetched);
     execute(decoded);
   }
 
@@ -98,7 +100,8 @@ public:
   }
 
   cpu_state get_state() const {
-    auto decoded = decode();
+    const auto fetched = fetch();
+    auto decoded = decode(fetched);
     auto encoded_bytes = std::vector<uint8_t>(&decoded.encoded[0], &decoded.encoded[0] + decoded.encoded_length_in_bytes);
     auto disassembled = disassemble::disassemble(&encoded_bytes[0], encoded_bytes.size());
 
@@ -155,19 +158,41 @@ private:
     return memory_.read(0x100U | stack_pointer);
   }
 
-  decode::instruction decode() const {
+  decode::instruction decode(const std::vector<uint8_t> &bytes) const {
+    BOOST_ASSERT_MSG(!bytes.empty(), "unexpected decode operation; bytes is empty");
+    return decode::decode(const_cast<uint8_t *>(&bytes[0]), bytes.size());
+  }
+
+  std::vector<uint8_t> fetch() const {
     const uint16_t pc = registers_.get(register_type::PC);
-    std::vector<uint8_t> bytes;
-    for (size_t pc_offset = 0; pc_offset < decode::max_length_in_bytes; pc_offset++) {
-      const auto byte = memory_.read(pc + pc_offset);
-      bytes.push_back(byte);
-      const auto decoded = decode::decode(&bytes[0], bytes.size());
-      if (decoded.decoded_result == decode::result::SUCCESS) {
-        return decoded;
-      }
+    uint8_t byte = memory_.read(pc);
+    const auto decoded = decode::decode(&byte, sizeof(byte));
+    std::vector<uint8_t> result;
+    switch (decoded.decoded_result) {
+    case decode::result::SUCCESS: {
+      result.push_back(byte);
+      return result;
     }
-    BOOST_STATIC_ASSERT("unexpected decode operation; instruction length too big");
-    return decode::instruction();
+    case decode::result::ERROR_REQUIRES_ONE_BYTE: {
+      result.push_back(byte);
+      return result;
+    }
+    case decode::result::ERROR_REQUIRES_TWO_BYTES: {
+      result.push_back(byte);
+      result.push_back(memory_.read(pc + 1));
+      break;
+    }
+    case decode::result::ERROR_REQUIRES_THREE_BYTES: {
+      result.push_back(byte);
+      result.push_back(memory_.read(pc + 1));
+      result.push_back(memory_.read(pc + 2));
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+    return result;
   }
 
   void execute(const decode::instruction &instruction) {
