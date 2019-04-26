@@ -43,7 +43,6 @@ public:
         status_register_(),
         registers_(),
         interrupts_(),
-        skipped_cycles_(0),
         cycles_(0) {}
 
   void initialize() {
@@ -53,7 +52,13 @@ public:
   void step() {
     const auto fetched = fetch();
     const auto decoded = decode(fetched);
-    execute(decoded);
+    if (decoded.decoded_result == decode::result::SUCCESS) {
+      registers_.increment_by(register_type::PC, decoded.encoded_length_in_bytes);
+      execute(decoded);
+    } else {
+      BOOST_STATIC_ASSERT("unable to step cpu; decoded invalid instruction");
+      interrupt(interrupt_type::BRK);
+    }
   }
 
   void reset() {
@@ -215,9 +220,102 @@ private:
       execute_ldx(instruction);
       break;
     }
+    case opcode_type::STX: {
+      execute_stx(instruction);
+      break;
+    }
+    case opcode_type::STY: {
+      execute_sty(instruction);
+      break;
+    }
+    case opcode_type::NOP: {
+      execute_nop(instruction);
+      break;
+    }
+    case opcode_type::JSR: {
+      execute_jsr(instruction);
+      break;
+    }
     default: {
       break;
     }
+    }
+  }
+
+  void execute_jsr(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ABSOLUTE: {
+      const uint16_t address = std::get<uint16_t>(instruction.decoded_operand.value);
+      const uint16_t next_address = registers_.get(register_type::PC);
+      push(next_address);
+      registers_.set(register_type::PC, address);
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for JSR");
+      break;
+    }
+  }
+
+  void execute_nop(const decode::instruction &instruction) {
+    boost::ignore_unused(instruction);
+    // nothing to do for instruction.
+    cycles_ += 2;
+  }
+
+  void execute_sty(const decode::instruction &instruction) {
+    const uint8_t register_y = registers_.get(register_type::Y);
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ZERO_PAGE: {
+      const uint8_t operand = std::get<uint8_t>(instruction.decoded_operand.value);
+      memory_.write(operand, register_y);
+      cycles_ += 3;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const uint8_t operand = std::get<uint8_t>(instruction.decoded_operand.value);
+      const uint8_t register_x = registers_.get(register_type::X);
+      memory_.write(operand + register_x, register_y);
+      cycles_ += 4;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const uint16_t operand = std::get<uint16_t>(instruction.decoded_operand.value);
+      memory_.write(operand, register_y);
+      cycles_ += 4;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for STX");
+      break;
+    }
+  }
+
+  void execute_stx(const decode::instruction &instruction) {
+    const uint8_t register_x = registers_.get(register_type::X);
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ZERO_PAGE: {
+      const uint8_t operand = std::get<uint8_t>(instruction.decoded_operand.value);
+      memory_.write(operand, register_x);
+      cycles_ += 3;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_Y: {
+      const uint8_t operand = std::get<uint8_t>(instruction.decoded_operand.value);
+      const uint8_t register_y = registers_.get(register_type::Y);
+      memory_.write(operand + register_y, register_x);
+      cycles_ += 4;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const uint16_t operand = std::get<uint16_t>(instruction.decoded_operand.value);
+      memory_.write(operand, register_x);
+      cycles_ += 4;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for STX");
+      break;
     }
   }
 
@@ -299,7 +397,6 @@ private:
       BOOST_STATIC_ASSERT("unexpected operand type for LDX");
       break;
     }
-    registers_.increment_by(register_type::PC, sizeof(uint16_t));
   }
 
   void update_status_flags(const uint8_t binary) {
@@ -317,8 +414,6 @@ private:
   registers registers_;
 
   interrupts interrupts_;
-
-  uint16_t skipped_cycles_;
 
   uint64_t cycles_;
 };
