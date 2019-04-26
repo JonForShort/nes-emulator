@@ -208,15 +208,11 @@ private:
       break;
     }
     case opcode_type::JMP: {
-      const uint16_t address = std::get<uint16_t>(instruction.decoded_operand.value);
-      registers_.set(register_type::PC, address);
+      execute_jmp(instruction);
       break;
     }
     case opcode_type::LDX: {
-      const auto operand = std::get<uint8_t>(instruction.decoded_operand.value);
-      const auto operand_type = instruction.decoded_operand.type;
-      const auto addressing_mode_type = instruction.decoded_addressing_mode;
-      execute_ldx(operand, operand_type, addressing_mode_type);
+      execute_ldx(instruction);
       break;
     }
     default: {
@@ -225,16 +221,42 @@ private:
     }
   }
 
-  void execute_ldx(const uint8_t operand, const operand_type type, const addressing_mode_type address_mode) {
+  void execute_jmp(const decode::instruction &instruction) {
+    const uint16_t address = std::get<uint16_t>(instruction.decoded_operand.value);
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ABSOLUTE: {
+      registers_.set(register_type::PC, address);
+      cycles_ += 3;
+      break;
+    }
+    case addressing_mode_type::INDIRECT: {
+      const uint16_t address_page = address & (0xFF00U);
+      const auto indirect_address =
+          (memory_.read(address)) |
+          (memory_.read(address_page | ((address + 1) & 0xFFU)) << 8);
+      registers_.set(register_type::PC, indirect_address);
+      cycles_ += 5;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for JMP");
+      break;
+    }
+  }
+
+  void execute_ldx(const decode::instruction &instruction) {
+    const auto operand = std::get<uint8_t>(instruction.decoded_operand.value);
+    const auto operand_type = instruction.decoded_operand.type;
+    const auto addressing_mode_type = instruction.decoded_addressing_mode;
     update_status_flags(operand);
-    switch (type) {
+    switch (operand_type) {
     case operand_type::IMMEDIATE: {
       registers_.set(register_type::X, operand);
       cycles_ += 2;
       break;
     }
     case operand_type::MEMORY:
-      switch (address_mode) {
+      switch (addressing_mode_type) {
       case addressing_mode_type::ZERO_PAGE: {
         const auto memory = memory_.read(operand);
         registers_.set(register_type::X, memory);
