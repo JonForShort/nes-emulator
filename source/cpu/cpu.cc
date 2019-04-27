@@ -216,8 +216,16 @@ private:
       execute_jmp(instruction);
       break;
     }
+    case opcode_type::LDA: {
+      execute_lda(instruction);
+      break;
+    }
     case opcode_type::LDX: {
       execute_ldx(instruction);
+      break;
+    }
+    case opcode_type::LDY: {
+      execute_ldy(instruction);
       break;
     }
     case opcode_type::STX: {
@@ -236,10 +244,175 @@ private:
       execute_jsr(instruction);
       break;
     }
+    case opcode_type::CLC: {
+      execute_clc(instruction);
+      break;
+    }
+    case opcode_type::SEC: {
+      execute_sec(instruction);
+      break;
+    }
+    case opcode_type::CLI: {
+      execute_cli(instruction);
+      break;
+    }
+    case opcode_type::SEI: {
+      execute_sei(instruction);
+      break;
+    }
+    case opcode_type::CLD: {
+      execute_cld(instruction);
+      break;
+    }
+    case opcode_type::SED: {
+      execute_sed(instruction);
+      break;
+    }
+    case opcode_type::CLV: {
+      execute_clv(instruction);
+      break;
+    }
+    case opcode_type::BCS: {
+      execute_bcs(instruction);
+      break;
+    }
+    case opcode_type::BCC: {
+      execute_bcc(instruction);
+      break;
+    }
+    case opcode_type::BVS: {
+      execute_bvs(instruction);
+      break;
+    }
+    case opcode_type::BVC: {
+      execute_bvc(instruction);
+      break;
+    }
+    case opcode_type::BEQ: {
+      execute_beq(instruction);
+      break;
+    }
+    case opcode_type::BNE: {
+      execute_bne(instruction);
+      break;
+    }
+    case opcode_type::BMI: {
+      execute_bmi(instruction);
+      break;
+    }
+    case opcode_type::BPL: {
+      execute_bpl(instruction);
+      break;
+    }
     default: {
       break;
     }
     }
+  }
+
+  void execute_bmi(const decode::instruction &instruction) {
+    execute_branch(instruction, status_flag::N, true);
+  }
+
+  void execute_bpl(const decode::instruction &instruction) {
+    execute_branch(instruction, status_flag::N, false);
+  }
+
+  void execute_bne(const decode::instruction &instruction) {
+    execute_branch(instruction, status_flag::Z, false);
+  }
+
+  void execute_beq(const decode::instruction &instruction) {
+    execute_branch(instruction, status_flag::Z, true);
+  }
+
+  void execute_bvc(const decode::instruction &instruction) {
+    execute_branch(instruction, status_flag::V, false);
+  }
+
+  void execute_bvs(const decode::instruction &instruction) {
+    execute_branch(instruction, status_flag::V, true);
+  }
+
+  void execute_bcc(const decode::instruction &instruction) {
+    execute_branch(instruction, status_flag::C, false);
+  }
+
+  void execute_bcs(const decode::instruction &instruction) {
+    execute_branch(instruction, status_flag::C, true);
+  }
+
+  void execute_branch(const decode::instruction &instruction, const status_flag flag, const bool is_flag_set) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::RELATIVE: {
+      cycles_ += 2;
+      if (status_register_.is_set(flag) == is_flag_set) {
+        cycles_ += 1;
+        const uint8_t address_offset = std::get<uint8_t>(instruction.decoded_operand.value);
+        const uint16_t previous_pc = registers_.get(register_type::PC) - instruction.encoded_length_in_bytes;
+        const uint16_t previous_page = previous_pc & 0xFF00U;
+        const uint16_t next_pc = registers_.get(register_type::PC) + address_offset;
+        const uint16_t next_page = next_pc & 0xFF00U;
+        if (previous_page != next_page) {
+          cycles_++;
+        }
+        registers_.set(register_type::PC, next_pc);
+      }
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for BRANCH");
+      break;
+    }
+  }
+
+  void execute_clv(const decode::instruction &instruction) {
+    BOOST_ASSERT_MSG(instruction.decoded_operand.type == operand_type::NONE, "unexpected operand found for CLV");
+    status_register_.clear(status_flag::V);
+    registers_.set(register_type::SR, status_register_.get());
+    cycles_ += 2;
+  }
+
+  void execute_cld(const decode::instruction &instruction) {
+    BOOST_ASSERT_MSG(instruction.decoded_operand.type == operand_type::NONE, "unexpected operand found for CLD");
+    status_register_.clear(status_flag::D);
+    registers_.set(register_type::SR, status_register_.get());
+    cycles_ += 2;
+  }
+
+  void execute_sed(const decode::instruction &instruction) {
+    BOOST_ASSERT_MSG(instruction.decoded_operand.type == operand_type::NONE, "unexpected operand found for SED");
+    status_register_.set(status_flag::D);
+    registers_.set(register_type::SR, status_register_.get());
+    cycles_ += 2;
+  }
+
+  void execute_cli(const decode::instruction &instruction) {
+    BOOST_ASSERT_MSG(instruction.decoded_operand.type == operand_type::NONE, "unexpected operand found for CLI");
+    status_register_.clear(status_flag::I);
+    registers_.set(register_type::SR, status_register_.get());
+    cycles_ += 2;
+  }
+
+  void execute_sei(const decode::instruction &instruction) {
+    BOOST_ASSERT_MSG(instruction.decoded_operand.type == operand_type::NONE, "unexpected operand found for SEI");
+    status_register_.set(status_flag::I);
+    registers_.set(register_type::SR, status_register_.get());
+    cycles_ += 2;
+  }
+
+  void execute_clc(const decode::instruction &instruction) {
+    BOOST_ASSERT_MSG(instruction.decoded_operand.type == operand_type::NONE, "unexpected operand found for CLC");
+    status_register_.clear(status_flag::C);
+    registers_.set(register_type::SR, status_register_.get());
+    cycles_ += 2;
+  }
+
+  void execute_sec(const decode::instruction &instruction) {
+    BOOST_ASSERT_MSG(instruction.decoded_operand.type == operand_type::NONE, "unexpected operand found for SEC");
+    status_register_.set(status_flag::C);
+    registers_.set(register_type::SR, status_register_.get());
+    cycles_ += 2;
   }
 
   void execute_jsr(const decode::instruction &instruction) {
@@ -343,48 +516,208 @@ private:
     }
   }
 
-  void execute_ldx(const decode::instruction &instruction) {
-    const auto operand = std::get<uint8_t>(instruction.decoded_operand.value);
-    const auto operand_type = instruction.decoded_operand.type;
-    const auto addressing_mode_type = instruction.decoded_addressing_mode;
-    update_status_flags(operand);
-    switch (operand_type) {
+  void execute_lda(const decode::instruction &instruction) {
+    switch (instruction.decoded_operand.type) {
     case operand_type::IMMEDIATE: {
-      registers_.set(register_type::X, operand);
+      const auto value = std::get<uint8_t>(instruction.decoded_operand.value);
+      registers_.set(register_type::AC, value);
       cycles_ += 2;
       break;
     }
     case operand_type::MEMORY:
-      switch (addressing_mode_type) {
+      switch (instruction.decoded_addressing_mode) {
       case addressing_mode_type::ZERO_PAGE: {
-        const auto memory = memory_.read(operand);
-        registers_.set(register_type::X, memory);
+        const auto address = std::get<uint8_t>(instruction.decoded_operand.value);
+        const auto value = memory_.read(address);
+        registers_.set(register_type::AC, value);
         cycles_ += 3;
         break;
       }
       case addressing_mode_type::ZERO_PAGE_X: {
+        const auto address = std::get<uint8_t>(instruction.decoded_operand.value);
         const auto x_register = registers_.get(register_type::X);
-        const auto memory = memory_.read(static_cast<uint16_t>(operand + x_register) & (0xFFU));
-        registers_.set(register_type::X, memory);
+        const auto value = memory_.read(static_cast<uint16_t>(address + x_register) & (0xFFU));
+        registers_.set(register_type::AC, value);
         cycles_ += 4;
         break;
       }
       case addressing_mode_type::ABSOLUTE: {
-        const auto memory = memory_.read(operand);
-        registers_.set(register_type::X, memory);
+        const auto address = std::get<uint16_t>(instruction.decoded_operand.value);
+        const auto value = memory_.read(address);
+        registers_.set(register_type::AC, value);
         cycles_ += 4;
         break;
       }
       case addressing_mode_type::ABSOLUTE_X: {
+        const auto address = std::get<uint16_t>(instruction.decoded_operand.value);
         const uint8_t x_register = registers_.get(register_type::X);
-        const uint16_t memory = memory_.read(operand + x_register);
-        registers_.set(register_type::X, memory);
+        const uint16_t value = memory_.read(address + x_register);
+        registers_.set(register_type::AC, value);
         cycles_ += 4;
         //
         // Check for additional cycle caused by carry.
         //
-        if (((memory & 0xFFU) + x_register) < x_register) {
-          cycles_++;
+        if (((value & 0xFFU) + x_register) < x_register) {
+          cycles_ += 1;
+        }
+        break;
+      }
+      case addressing_mode_type::ABSOLUTE_Y: {
+        const auto address = std::get<uint16_t>(instruction.decoded_operand.value);
+        const uint8_t y_register = registers_.get(register_type::Y);
+        const uint16_t value = memory_.read(address + y_register);
+        registers_.set(register_type::AC, value);
+        cycles_ += 4;
+        //
+        // Check for additional cycle caused by carry.
+        //
+        if (((value & 0xFFU) + y_register) < y_register) {
+          cycles_ += 1;
+        }
+        break;
+      }
+      case addressing_mode_type::INDEXED_INDIRECT: {
+        const auto operand = std::get<uint8_t>(instruction.decoded_operand.value);
+        const uint8_t x_register = registers_.get(register_type::X);
+        const uint16_t memory = memory_.read(static_cast<uint16_t>(operand + x_register) & 0xFFU);
+        registers_.set(register_type::AC, memory);
+        cycles_ += 6;
+        break;
+      }
+      case addressing_mode_type::INDIRECT_INDEXED: {
+        const auto operand = std::get<uint8_t>(instruction.decoded_operand.value);
+        const uint16_t address = memory_.read(operand & 0xFFU);
+        const uint8_t y_register = registers_.get(register_type::Y);
+        const uint16_t value = memory_.read(address + y_register);
+        registers_.set(register_type::AC, value);
+        cycles_ += 5;
+        //
+        // Check for additional cycle caused by carry.
+        //
+        if (((value & 0xFFU) + y_register) < y_register) {
+          cycles_ += 1;
+        }
+        break;
+      }
+      default: {
+        BOOST_STATIC_ASSERT("unexpected addressing mode for LDA");
+        break;
+      }
+      }
+      break;
+    default:
+      BOOST_STATIC_ASSERT("unexpected operand type for LDA");
+      break;
+    }
+    update_status_flags(registers_.get(register_type::AC));
+  }
+
+  void execute_ldy(const decode::instruction &instruction) {
+    switch (instruction.decoded_operand.type) {
+    case operand_type::IMMEDIATE: {
+      const auto value = std::get<uint8_t>(instruction.decoded_operand.value);
+      registers_.set(register_type::Y, value);
+      cycles_ += 2;
+      break;
+    }
+    case operand_type::MEMORY:
+      switch (instruction.decoded_addressing_mode) {
+      case addressing_mode_type::ZERO_PAGE: {
+        const auto address = std::get<uint8_t>(instruction.decoded_operand.value);
+        const auto value = memory_.read(address);
+        registers_.set(register_type::Y, value);
+        cycles_ += 3;
+        break;
+      }
+      case addressing_mode_type::ZERO_PAGE_X: {
+        const auto address = std::get<uint8_t>(instruction.decoded_operand.value);
+        const auto x_register = registers_.get(register_type::X);
+        const auto value = memory_.read(static_cast<uint16_t>(address + x_register) & (0xFFU));
+        registers_.set(register_type::Y, value);
+        cycles_ += 4;
+        break;
+      }
+      case addressing_mode_type::ABSOLUTE: {
+        const auto address = std::get<uint16_t>(instruction.decoded_operand.value);
+        const auto value = memory_.read(address);
+        registers_.set(register_type::Y, value);
+        cycles_ += 4;
+        break;
+      }
+      case addressing_mode_type::ABSOLUTE_X: {
+        const auto address = std::get<uint16_t>(instruction.decoded_operand.value);
+        const uint8_t x_register = registers_.get(register_type::X);
+        const uint16_t value = memory_.read(address + x_register);
+        registers_.set(register_type::Y, value);
+        cycles_ += 4;
+        //
+        // Check for additional cycle caused by carry.
+        //
+        const auto current_page = registers_.get(register_type::PC) & 0xFFU;
+        const auto read_page = static_cast<uint16_t>(address + x_register) & 0xFFU;
+        if (current_page != read_page) {
+          cycles_ += 1;
+        }
+        break;
+      }
+      default: {
+        BOOST_STATIC_ASSERT("unexpected addressing mode for LDY");
+        break;
+      }
+      }
+      break;
+    default:
+      BOOST_STATIC_ASSERT("unexpected operand type for LDY");
+      break;
+    }
+    update_status_flags(registers_.get(register_type::Y));
+  }
+
+  void execute_ldx(const decode::instruction &instruction) {
+    switch (instruction.decoded_operand.type) {
+    case operand_type::IMMEDIATE: {
+      const auto value = std::get<uint8_t>(instruction.decoded_operand.value);
+      registers_.set(register_type::X, value);
+      cycles_ += 2;
+      break;
+    }
+    case operand_type::MEMORY:
+      switch (instruction.decoded_addressing_mode) {
+      case addressing_mode_type::ZERO_PAGE: {
+        const auto address = std::get<uint8_t>(instruction.decoded_operand.value);
+        const auto value = memory_.read(address);
+        registers_.set(register_type::X, value);
+        cycles_ += 3;
+        break;
+      }
+      case addressing_mode_type::ZERO_PAGE_Y: {
+        const auto address = std::get<uint8_t>(instruction.decoded_operand.value);
+        const auto y_register = registers_.get(register_type::Y);
+        const auto value = memory_.read(static_cast<uint16_t>(address + y_register) & (0xFFU));
+        registers_.set(register_type::X, value);
+        cycles_ += 4;
+        break;
+      }
+      case addressing_mode_type::ABSOLUTE: {
+        const auto address = std::get<uint16_t>(instruction.decoded_operand.value);
+        const auto value = memory_.read(address);
+        registers_.set(register_type::X, value);
+        cycles_ += 4;
+        break;
+      }
+      case addressing_mode_type::ABSOLUTE_Y: {
+        const auto address = std::get<uint16_t>(instruction.decoded_operand.value);
+        const uint8_t y_register = registers_.get(register_type::Y);
+        const uint16_t value = memory_.read(address + y_register);
+        registers_.set(register_type::X, value);
+        cycles_ += 4;
+        //
+        // Check for additional cycle caused by carry.
+        //
+        const auto current_page = registers_.get(register_type::PC) & 0xFFU;
+        const auto read_page = static_cast<uint16_t>(address + y_register) & 0xFFU;
+        if (current_page != read_page) {
+          cycles_ += 1;
         }
         break;
       }
@@ -398,6 +731,7 @@ private:
       BOOST_STATIC_ASSERT("unexpected operand type for LDX");
       break;
     }
+    update_status_flags(registers_.get(register_type::X));
   }
 
   void update_status_flags(const uint8_t binary) {
