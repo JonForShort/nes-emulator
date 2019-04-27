@@ -249,6 +249,7 @@ private:
       const uint16_t next_address = registers_.get(register_type::PC);
       push(next_address);
       registers_.set(register_type::PC, address);
+      cycles_ += 6;
       break;
     }
     default:
