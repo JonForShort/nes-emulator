@@ -53,5 +53,5 @@ BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
   jones::nes nes;
   nes.load(file_path);
   nes.trace(trace_path.string().c_str());
-  nes.run(30);
+  nes.run(50);
 }

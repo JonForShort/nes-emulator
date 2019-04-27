@@ -35,6 +35,10 @@ void status_register::set(const status_flag flag) {
   status_flags_.set(flag_to_position(flag), true);
 }
 
+void status_register::set(const status_flag flag, const bool condition) {
+  condition ? set(flag) : clear(flag);
+}
+
 void status_register::clear(const status_flag flag) {
   status_flags_.set(flag_to_position(flag), false);
 }

@@ -68,6 +68,8 @@ public:
 
   void set(status_flag flag);
 
+  void set(status_flag flag, bool condition);
+
   void clear(status_flag flag);
 
   void set(uint8_t flags);
