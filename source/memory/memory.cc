@@ -36,6 +36,11 @@ uint8_t memory::read(const uint16_t address) const {
   return 0;
 }
 
+uint16_t memory::read_word(const uint16_t address) const {
+  return static_cast<uint16_t>(read(address)) |
+         static_cast<uint16_t>(read(address + 1) << 8U);
+}
+
 void memory::write(const uint16_t address, uint8_t data) const {
   for (const auto &i : memory_mappings_) {
     if (address >= i->start_address() && address <= i->end_address()) {

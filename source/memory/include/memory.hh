@@ -76,6 +76,8 @@ public:
 
   uint8_t read(uint16_t address) const;
 
+  uint16_t read_word(uint16_t address) const;
+
   void write(uint16_t address, uint8_t data) const;
 
   void map(memory_mappable_ptr mappable);
