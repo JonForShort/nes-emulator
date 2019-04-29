@@ -199,6 +199,10 @@ private:
 
   void execute(const decode::instruction &instruction) {
     switch (instruction.decoded_opcode.type) {
+    case opcode_type::BRK: {
+      interrupt(interrupt_type::BRK);
+      break;
+    }
     case opcode_type::PHP: {
       const uint8_t flags = 0x10U | status_register_.get();
       push(flags);
