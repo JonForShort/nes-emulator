@@ -325,9 +325,161 @@ private:
       execute_asl(instruction);
       break;
     }
+    case opcode_type::CMP: {
+      execute_cmp(instruction);
+      break;
+    }
+    case opcode_type::CPX: {
+      execute_cpx(instruction);
+      break;
+    }
+    case opcode_type::CPY: {
+      execute_cpy(instruction);
+      break;
+    }
     default: {
       break;
     }
+    }
+  }
+
+  void execute_cpy(const decode::instruction &instruction) {
+    const auto register_y = registers_.get(register_type::Y);
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMMEDIATE: {
+      const auto value = get_immediate(instruction);
+      update_status_flag_zn(register_y - value);
+      update_status_flag_c(register_y >= value);
+      cycles_ += 2;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      const auto value = memory_.read(address);
+      update_status_flag_zn(register_y - value);
+      update_status_flag_c(register_y >= value);
+      cycles_ += 3;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      const auto value = memory_.read(address);
+      update_status_flag_zn(register_y - value);
+      update_status_flag_c(register_y >= value);
+      cycles_ += 4;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for CPY");
+      break;
+    }
+  }
+
+  void execute_cpx(const decode::instruction &instruction) {
+    const auto register_x = registers_.get(register_type::X);
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMMEDIATE: {
+      const auto value = get_immediate(instruction);
+      update_status_flag_zn(register_x - value);
+      update_status_flag_c(register_x >= value);
+      cycles_ += 2;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      const auto value = memory_.read(address);
+      update_status_flag_zn(register_x - value);
+      update_status_flag_c(register_x >= value);
+      cycles_ += 3;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      const auto value = memory_.read(address);
+      update_status_flag_zn(register_x - value);
+      update_status_flag_c(register_x >= value);
+      cycles_ += 4;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for CPX");
+      break;
+    }
+  }
+
+  void execute_cmp(const decode::instruction &instruction) {
+    const auto register_ac = registers_.get(register_type::AC);
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMMEDIATE: {
+      const auto value = get_immediate(instruction);
+      update_status_flag_zn(register_ac - value);
+      update_status_flag_c(register_ac >= value);
+      cycles_ += 2;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      const auto value = memory_.read(address);
+      update_status_flag_zn(register_ac - value);
+      update_status_flag_c(register_ac >= value);
+      cycles_ += 3;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const auto address = get_zero_page_x_address(instruction);
+      const auto value = memory_.read(address);
+      update_status_flag_zn(register_ac - value);
+      update_status_flag_c(register_ac >= value);
+      cycles_ += 4;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      const auto value = memory_.read(address);
+      update_status_flag_zn(register_ac - value);
+      update_status_flag_c(register_ac >= value);
+      cycles_ += 4;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_X: {
+      bool is_page_crossed = false;
+      const auto address = get_absolute_x_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address);
+      update_status_flag_zn(register_ac - value);
+      update_status_flag_c(register_ac >= value);
+      cycles_ += 4 + (is_page_crossed ? 1 : 0);
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_Y: {
+      bool is_page_crossed = false;
+      const auto address = get_absolute_y_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address);
+      update_status_flag_zn(register_ac - value);
+      update_status_flag_c(register_ac >= value);
+      cycles_ += 4 + (is_page_crossed ? 1 : 0);
+      break;
+    }
+    case addressing_mode_type::INDEXED_INDIRECT: {
+      bool is_page_crossed = false;
+      const auto address = get_indexed_indirect_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address);
+      update_status_flag_zn(register_ac - value);
+      update_status_flag_c(register_ac >= value);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::INDIRECT_INDEXED: {
+      bool is_page_crossed = false;
+      const auto address = get_indirect_indexed_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address);
+      update_status_flag_zn(register_ac - value);
+      update_status_flag_c(register_ac >= value);
+      cycles_ += 5 + (is_page_crossed ? 1 : 0);
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for CMP");
+      break;
     }
   }
 
@@ -339,7 +491,7 @@ private:
       status_register_.set(status_flag::C, static_cast<uint16_t>(value >> 7U) & 0x1U);
       const auto shifted_value = value << 1U;
       memory_.write(address, shifted_value);
-      update_status_flags(shifted_value);
+      update_status_flag_zn(shifted_value);
       cycles_ += 5;
       break;
     }
@@ -349,7 +501,7 @@ private:
       status_register_.set(status_flag::C, static_cast<uint16_t>(value >> 7U) & 0x1U);
       const auto shifted_value = value << 1U;
       memory_.write(address, shifted_value);
-      update_status_flags(shifted_value);
+      update_status_flag_zn(shifted_value);
       cycles_ += 6;
       break;
     }
@@ -359,7 +511,7 @@ private:
       status_register_.set(status_flag::C, static_cast<uint16_t>(value >> 7U) & 0x1U);
       const auto shifted_value = value << 1U;
       memory_.write(address, shifted_value);
-      update_status_flags(shifted_value);
+      update_status_flag_zn(shifted_value);
       cycles_ += 6;
       break;
     }
@@ -370,7 +522,7 @@ private:
       status_register_.set(status_flag::C, static_cast<uint16_t>(value >> 7U) & 0x1U);
       const auto shifted_value = value << 1U;
       memory_.write(address, shifted_value);
-      update_status_flags(shifted_value);
+      update_status_flag_zn(shifted_value);
       cycles_ += 7;
       break;
     }
@@ -378,7 +530,7 @@ private:
       const auto ac_register = registers_.get(register_type::AC);
       status_register_.set(status_flag::C, static_cast<uint16_t>(ac_register >> 7U) & 0x1U);
       registers_.set(register_type::AC, ac_register << 1U);
-      update_status_flags(registers_.get(register_type::AC));
+      update_status_flag_zn(registers_.get(register_type::AC));
       cycles_ += 2;
       break;
     }
@@ -457,7 +609,7 @@ private:
                                  (static_cast<uint16_t>(ac_register ^ registers_.get(register_type::AC)) & 0x80U) != 0;
     status_register_.set(status_flag::V, caused_overflow);
 
-    update_status_flags(registers_.get(register_type::AC));
+    update_status_flag_zn(registers_.get(register_type::AC));
   }
 
   void execute_and(const decode::instruction &instruction) {
@@ -526,7 +678,7 @@ private:
       BOOST_STATIC_ASSERT("unexpected addressing mode for AND");
       break;
     }
-    update_status_flags(registers_.get(register_type::AC));
+    update_status_flag_zn(registers_.get(register_type::AC));
   }
 
   void execute_bit(const decode::instruction &instruction) {
@@ -888,7 +1040,7 @@ private:
       BOOST_STATIC_ASSERT("unexpected operand type for LDA");
       break;
     }
-    update_status_flags(registers_.get(register_type::AC));
+    update_status_flag_zn(registers_.get(register_type::AC));
   }
 
   void execute_ldy(const decode::instruction &instruction) {
@@ -940,7 +1092,7 @@ private:
       BOOST_STATIC_ASSERT("unexpected operand type for LDY");
       break;
     }
-    update_status_flags(registers_.get(register_type::Y));
+    update_status_flag_zn(registers_.get(register_type::Y));
   }
 
   void execute_ldx(const decode::instruction &instruction) {
@@ -992,13 +1144,28 @@ private:
       BOOST_STATIC_ASSERT("unexpected operand type for LDX");
       break;
     }
-    update_status_flags(registers_.get(register_type::X));
+    update_status_flag_zn(registers_.get(register_type::X));
   }
 
-  void update_status_flags(const uint8_t binary) {
+  void update_status_flag_zn(const uint8_t binary) {
+    update_status_flag_n(binary);
+    update_status_flag_z(binary);
+  }
+
+  void update_status_flag_n(const uint8_t binary) {
     const auto bits = std::bitset<8>(binary);
-    bits.test(7) ? status_register_.set(status_flag::N) : status_register_.clear(status_flag::N);
-    bits.any() ? status_register_.clear(status_flag::Z) : status_register_.set(status_flag::Z);
+    status_register_.set(status_flag::N, bits.test(7));
+    registers_.set(register_type::SR, status_register_.get());
+  }
+
+  void update_status_flag_z(const uint8_t binary) {
+    const auto bits = std::bitset<8>(binary);
+    status_register_.set(status_flag::Z, !bits.any());
+    registers_.set(register_type::SR, status_register_.get());
+  }
+
+  void update_status_flag_c(const bool has_carry) {
+    status_register_.set(status_flag::C, has_carry);
     registers_.set(register_type::SR, status_register_.get());
   }
 
