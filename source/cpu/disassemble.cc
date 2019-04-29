@@ -28,6 +28,7 @@
 
 #include "decode.hh"
 #include "disassemble.hh"
+#include "disassemble_internal.hh"
 #include "instruction.hh"
 
 namespace jdi = jones::disassemble;
@@ -137,10 +138,15 @@ std::string disassemble_operand(const jde::instruction &decoded_instruction) {
 
 } // namespace
 
-disassemble::instructions disassemble::disassemble(uint8_t *buffer, const size_t length_in_bytes) {
+disassemble::instructions disassemble::disassemble(uint8_t *buffer, size_t length_in_bytes, disassemble::disassemble_listener_ptr listener) {
   std::vector<jdi::instruction> disassembled_instructions;
   int buffer_offset = 0;
   auto decoded_instruction = jde::decode(buffer, length_in_bytes);
+
+  if (listener != nullptr) {
+    listener->on_decoded(decoded_instruction);
+  }
+
   while (jde::is_valid(decoded_instruction)) {
     const auto opcode_string = disassemble_opcode(decoded_instruction);
     const auto operand_string = disassemble_operand(decoded_instruction);
@@ -151,10 +157,19 @@ disassemble::instructions disassemble::disassemble(uint8_t *buffer, const size_t
     disassembled_instruction.binary = decoded_instruction.encoded;
     disassembled_instruction.opcode = opcode_string;
     disassembled_instruction.operand = operand_string;
+
+    if (listener != nullptr) {
+      listener->on_disassembled(disassembled_instruction);
+    }
+
     disassembled_instructions.push_back(disassembled_instruction);
 
     buffer_offset += decoded_instruction.encoded_length_in_bytes;
     decoded_instruction = jde::decode(buffer + buffer_offset, length_in_bytes - buffer_offset);
   }
   return jdi::instructions{disassembled_instructions, 0};
+}
+
+disassemble::instructions disassemble::disassemble(uint8_t *buffer, const size_t length_in_bytes) {
+  return disassemble(buffer, length_in_bytes, nullptr);
 }

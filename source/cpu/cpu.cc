@@ -26,7 +26,7 @@
 
 #include "cpu.hh"
 #include "decode.hh"
-#include "disassemble.hh"
+#include "disassemble_internal.hh"
 #include "instruction.hh"
 #include "interrupts.hh"
 #include "memory.hh"
@@ -102,14 +102,38 @@ public:
   }
 
   cpu_state get_state() const {
-    const auto fetched = fetch();
-    auto decoded = decode(fetched);
-    auto encoded_bytes = std::vector<uint8_t>(&decoded.encoded[0], &decoded.encoded[0] + decoded.encoded_length_in_bytes);
-    auto disassembled = disassemble::disassemble(&encoded_bytes[0], encoded_bytes.size());
+
+    class listener : public disassemble::disassemble_listener {
+    public:
+      explicit listener(const memory &memory, const registers &registers)
+          : memory_(memory), registers_(registers) {}
+
+      ~listener() = default;
+
+      void on_decoded(decode::instruction &instruction) override {
+        if (instruction.decoded_addressing_mode == addressing_mode_type::RELATIVE) {
+          const auto address_relative = std::get<uint8_t>(instruction.decoded_operand.value);
+          const auto address_absolute = registers_.get(register_type::PC) + address_relative + instruction.encoded_length_in_bytes;
+          instruction.decoded_operand.value = static_cast<uint16_t>(address_absolute);
+          instruction.decoded_addressing_mode = addressing_mode_type::ABSOLUTE;
+        }
+      }
+
+      void on_disassembled(disassemble::instruction &instruction) override {
+        boost::ignore_unused(instruction);
+      }
+
+    private:
+      const memory &memory_;
+      const registers &registers_;
+    };
+
+    auto fetched = fetch();
+    auto disassembled = disassemble::disassemble(&fetched[0], fetched.size(), std::make_unique<listener>(memory_, registers_));
 
     cpu_state current_cpu_state;
     current_cpu_state.instruction = disassembled.instructions[0].opcode + disassembled.instructions[0].operand;
-    current_cpu_state.instruction_bytes = encoded_bytes;
+    current_cpu_state.instruction_bytes = fetched;
     current_cpu_state.cycles = cycles_;
     current_cpu_state.registers.PC = registers_.get(register_type::PC);
     current_cpu_state.registers.SP = registers_.get(register_type::SP);
