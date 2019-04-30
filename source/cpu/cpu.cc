@@ -166,22 +166,13 @@ private:
   }
 
   void push(const uint8_t value) {
-    const auto stack_pointer = registers_.get(register_type::SP);
-    memory_.write(0x100U | stack_pointer, value);
-    registers_.set(register_type::SP, stack_pointer - 1);
-  }
-
-  void push(const uint16_t value) {
-    const uint8_t high_byte = (value >> 8U);
-    const uint8_t low_byte = (value & 0xFFU);
-    push(high_byte);
-    push(low_byte);
+    memory_.write(registers_.get(register_type::SP), value);
+    registers_.decrement(register_type::SP);
   }
 
   uint8_t pull() {
-    const auto stack_pointer = registers_.get(register_type::SP);
-    registers_.set(register_type::SP, stack_pointer + 1);
-    return memory_.read(0x100U | stack_pointer);
+    registers_.increment(register_type::SP);
+    return memory_.read(registers_.get(register_type::SP));
   }
 
   decode::instruction decode(const std::vector<uint8_t> &bytes) const {
@@ -228,13 +219,11 @@ private:
       break;
     }
     case opcode_type::PHP: {
-      const uint8_t flags = 0x10U | status_register_.get();
-      push(flags);
+      execute_php(instruction);
       break;
     }
     case opcode_type::PLP: {
-      const uint8_t flags = (pull() & 0xEFU) | 0x20U;
-      status_register_.set(flags);
+      execute_plp(instruction);
       break;
     }
     case opcode_type::JMP: {
@@ -361,9 +350,41 @@ private:
       execute_cpy(instruction);
       break;
     }
+    case opcode_type::RTS: {
+      execute_rts(instruction);
+      break;
+    }
     default: {
       break;
     }
+    }
+  }
+
+  void execute_php(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMPLICIT: {
+      const uint8_t flags = 0x10U | status_register_.get();
+      push(flags);
+      cycles_ += 3;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for PHP");
+      break;
+    }
+  }
+
+  void execute_plp(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMPLICIT: {
+      const uint8_t flags = (pull() & 0xEFU) | 0x20U;
+      status_register_.set(flags);
+      cycles_ += 4;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for PLP");
+      break;
     }
   }
 
@@ -845,6 +866,7 @@ private:
     case addressing_mode_type::ABSOLUTE: {
       const uint16_t address = get_absolute_address(instruction);
       const uint16_t next_address = registers_.get(register_type::PC);
+      push(next_address >> 8U);
       push(next_address);
       registers_.set(register_type::PC, address);
       cycles_ += 6;
@@ -852,6 +874,21 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for JSR");
+      break;
+    }
+  }
+
+  void execute_rts(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMPLICIT: {
+      const uint16_t low_byte = pull();
+      const uint16_t high_byte = pull() << 8U;
+      registers_.set(register_type::PC, low_byte | high_byte);
+      cycles_ += 6;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for RTS");
       break;
     }
   }

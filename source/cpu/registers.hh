@@ -97,6 +97,12 @@ public:
     registers_.at(index) = old_value + value;
   }
 
+  void decrement(const register_type type) {
+    const uint8_t index = get_index(type);
+    const auto old_value = registers_.at(index);
+    registers_.at(index) = old_value - 1;
+  }
+
 private:
   uint8_t get_index(const register_type type) const {
     switch (type) {
