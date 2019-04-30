@@ -160,7 +160,7 @@ private:
       trace_file_ << std::hex << std::uppercase << cpu_state.registers.PC << "  ";
 
       for (const auto &i : cpu_state.instruction_bytes) {
-        trace_file_ << std::left << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(i) << " ";
+        trace_file_ << std::right << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(i) << " ";
       }
 
       const size_t instruction_bytes_padding = 10 - (cpu_state.instruction_bytes.size() * 3);

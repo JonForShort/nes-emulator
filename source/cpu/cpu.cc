@@ -108,7 +108,7 @@ public:
       explicit listener(const memory &memory, const registers &registers)
           : memory_(memory), registers_(registers) {}
 
-      ~listener() = default;
+      ~listener() override = default;
 
       void on_decoded(decode::instruction &instruction) override {
         if (instruction.decoded_addressing_mode == addressing_mode_type::RELATIVE) {

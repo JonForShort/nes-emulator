@@ -91,12 +91,12 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
     decoded_instruction.decoded_operand = {operand_type::MEMORY, static_cast<uint8_t>(buffer[1])};
     break;
   case addressing_mode_type::RELATIVE:
-    decoded_instruction.decoded_operand = {operand_type::MEMORY, buffer[1]};
+    decoded_instruction.decoded_operand = {operand_type::MEMORY, static_cast<uint8_t>(buffer[1])};
     break;
   case addressing_mode_type::ZERO_PAGE:
   case addressing_mode_type::ZERO_PAGE_X:
   case addressing_mode_type::ZERO_PAGE_Y:
-    decoded_instruction.decoded_operand = {operand_type::MEMORY, buffer[1]};
+    decoded_instruction.decoded_operand = {operand_type::MEMORY, static_cast<uint8_t>(buffer[1])};
     break;
   case addressing_mode_type::INVALID:
     LOG_ERROR << "invalid addressing mode type found";
