@@ -226,6 +226,14 @@ private:
       execute_plp(instruction);
       break;
     }
+    case opcode_type::PHA: {
+      execute_pha(instruction);
+      break;
+    }
+    case opcode_type::PLA: {
+      execute_pla(instruction);
+      break;
+    }
     case opcode_type::JMP: {
       execute_jmp(instruction);
       break;
@@ -357,6 +365,35 @@ private:
     default: {
       break;
     }
+    }
+  }
+
+  void execute_pha(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMPLICIT: {
+      const auto value = registers_.get(register_type::AC);
+      push(value);
+      cycles_ += 3;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for PHA");
+      break;
+    }
+  }
+
+  void execute_pla(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMPLICIT: {
+      const auto value = pull();
+      registers_.set(register_type::AC, value);
+      update_status_flag_zn(value);
+      cycles_ += 4;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for PLA");
+      break;
     }
   }
 
