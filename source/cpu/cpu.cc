@@ -416,6 +416,7 @@ private:
     case addressing_mode_type::IMPLICIT: {
       const uint8_t flags = (pull() & 0xEFU) | 0x20U;
       status_register_.set(flags);
+      registers_.set(register_type::SR, status_register_.get());
       cycles_ += 4;
       break;
     }
