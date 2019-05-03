@@ -338,6 +338,10 @@ private:
       execute_adc(instruction);
       break;
     }
+    case opcode_type::SBC: {
+      execute_sbc(instruction);
+      break;
+    }
     case opcode_type::AND: {
       execute_and(instruction);
       break;
@@ -370,10 +374,72 @@ private:
       execute_eor(instruction);
       break;
     }
+    case opcode_type::INY: {
+      execute_iny(instruction);
+      break;
+    }
+    case opcode_type::INX: {
+      execute_inx(instruction);
+      break;
+    }
+    case opcode_type::DEY: {
+      execute_dey(instruction);
+      break;
+    }
+    case opcode_type::DEX: {
+      execute_dex(instruction);
+      break;
+    }
     default: {
       break;
     }
     }
+  }
+
+  void execute_decrement(const decode::instruction &instruction, const register_type type) {
+    const auto value = registers_.get(type);
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMPLICIT: {
+      registers_.set(type, value - 1);
+      cycles_ += 2;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for execute decrement");
+      break;
+    }
+    update_status_flag_zn(registers_.get(type));
+  }
+
+  void execute_dey(const decode::instruction &instruction) {
+    execute_decrement(instruction, register_type::Y);
+  }
+
+  void execute_dex(const decode::instruction &instruction) {
+    execute_decrement(instruction, register_type::X);
+  }
+
+  void execute_increment(const decode::instruction &instruction, const register_type type) {
+    const auto value = registers_.get(type);
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMPLICIT: {
+      registers_.set(type, value + 1);
+      cycles_ += 2;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for execute increment");
+      break;
+    }
+    update_status_flag_zn(registers_.get(type));
+  }
+
+  void execute_iny(const decode::instruction &instruction) {
+    execute_increment(instruction, register_type::Y);
+  }
+
+  void execute_inx(const decode::instruction &instruction) {
+    execute_increment(instruction, register_type::X);
   }
 
   void execute_eor(const decode::instruction &instruction) {
@@ -769,6 +835,78 @@ private:
     }
   }
 
+  void execute_sbc(const decode::instruction &instruction) {
+    const auto ac_register = registers_.get(register_type::AC);
+    const auto is_carry_set = status_register_.is_set(status_flag::C);
+    uint16_t value = 0;
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMMEDIATE: {
+      value = get_immediate(instruction);
+      cycles_ += 2;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      value = memory_.read(address);
+      cycles_ += 3;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const auto address = get_zero_page_x_address(instruction);
+      value = memory_.read(address);
+      cycles_ += 4;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      value = memory_.read(address);
+      cycles_ += 4;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_X: {
+      bool is_page_crossed = false;
+      const auto address = get_absolute_x_address(instruction, is_page_crossed);
+      value = memory_.read(address);
+      cycles_ += 4 + (is_page_crossed ? 1 : 0);
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_Y: {
+      bool is_page_crossed = false;
+      const auto address = get_absolute_y_address(instruction, is_page_crossed);
+      value = memory_.read(address);
+      cycles_ += 4 + (is_page_crossed ? 1 : 0);
+      break;
+    }
+    case addressing_mode_type::INDEXED_INDIRECT: {
+      bool is_page_crossed = false;
+      const auto address = get_indexed_indirect_address(instruction, is_page_crossed);
+      value = memory_.read(address);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::INDIRECT_INDEXED: {
+      bool is_page_crossed = false;
+      const auto address = get_indirect_indexed_address(instruction, is_page_crossed);
+      value = memory_.read(address);
+      cycles_ += 5 + (is_page_crossed ? 1 : 0);
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for ADC");
+      break;
+    }
+    const auto subtraction = static_cast<int>(ac_register - value - (1 - (is_carry_set ? 1 : 0)));
+    registers_.set(register_type::AC, static_cast<uint16_t>(subtraction));
+
+    const auto caused_overflow = (static_cast<uint16_t>(ac_register ^ value) & 0x80U) != 0 &&
+                                 (static_cast<uint16_t>(ac_register ^ registers_.get(register_type::AC)) & 0x80U) != 0;
+
+    status_register_.set(status_flag::C, subtraction >= 0);
+    status_register_.set(status_flag::V, caused_overflow);
+
+    update_status_flag_zn(registers_.get(register_type::AC));
+  }
+
   void execute_adc(const decode::instruction &instruction) {
     const auto ac_register = registers_.get(register_type::AC);
     const auto is_carry_set = status_register_.is_set(status_flag::C);
@@ -832,12 +970,11 @@ private:
     const auto addition = static_cast<uint16_t>(ac_register + value + (is_carry_set ? 1 : 0));
     registers_.set(register_type::AC, addition);
 
-    status_register_.set(status_flag::C, addition > 0xFFU);
-
     const auto caused_overflow = (static_cast<uint16_t>(ac_register ^ value) & 0x80U) == 0 &&
                                  (static_cast<uint16_t>(ac_register ^ registers_.get(register_type::AC)) & 0x80U) != 0;
-    status_register_.set(status_flag::V, caused_overflow);
 
+    status_register_.set(status_flag::C, addition > 0xFFU);
+    status_register_.set(status_flag::V, caused_overflow);
     update_status_flag_zn(registers_.get(register_type::AC));
   }
 
