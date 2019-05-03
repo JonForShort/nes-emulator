@@ -362,10 +362,156 @@ private:
       execute_rts(instruction);
       break;
     }
+    case opcode_type::ORA: {
+      execute_ora(instruction);
+      break;
+    }
+    case opcode_type::EOR: {
+      execute_eor(instruction);
+      break;
+    }
     default: {
       break;
     }
     }
+  }
+
+  void execute_eor(const decode::instruction &instruction) {
+    const auto ac_register = registers_.get(register_type::AC);
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMMEDIATE: {
+      const auto value = get_immediate(instruction);
+      registers_.set(register_type::AC, ac_register ^ value);
+      cycles_ += 2;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      const auto value = memory_.read(address);
+      registers_.set(register_type::AC, ac_register ^ value);
+      cycles_ += 3;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const auto address = get_zero_page_x_address(instruction);
+      const auto value = memory_.read(address);
+      registers_.set(register_type::AC, ac_register ^ value);
+      cycles_ += 4;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      const auto value = memory_.read(address);
+      registers_.set(register_type::AC, ac_register ^ value);
+      cycles_ += 4;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_X: {
+      bool is_page_crossed = false;
+      const auto address = get_absolute_x_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address);
+      registers_.set(register_type::AC, ac_register ^ value);
+      cycles_ += 4 + (is_page_crossed ? 1 : 0);
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_Y: {
+      bool is_page_crossed = false;
+      const auto address = get_absolute_y_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address);
+      registers_.set(register_type::AC, ac_register ^ value);
+      cycles_ += 4 + (is_page_crossed ? 1 : 0);
+      break;
+    }
+    case addressing_mode_type::INDEXED_INDIRECT: {
+      bool is_page_crossed = false;
+      const auto address = get_indexed_indirect_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address);
+      registers_.set(register_type::AC, ac_register ^ value);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::INDIRECT_INDEXED: {
+      bool is_page_crossed = false;
+      const auto address = get_indirect_indexed_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address);
+      registers_.set(register_type::AC, ac_register ^ value);
+      cycles_ += 5 + (is_page_crossed ? 1 : 0);
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for EOR");
+      break;
+    }
+    update_status_flag_zn(registers_.get(register_type::AC));
+  }
+
+  void execute_ora(const decode::instruction &instruction) {
+    const auto ac_register = registers_.get(register_type::AC);
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMMEDIATE: {
+      const auto value = get_immediate(instruction);
+      registers_.set(register_type::AC, ac_register | value);
+      cycles_ += 2;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      const auto value = memory_.read(address);
+      registers_.set(register_type::AC, ac_register | value);
+      cycles_ += 3;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const auto address = get_zero_page_x_address(instruction);
+      const auto value = memory_.read(address);
+      registers_.set(register_type::AC, ac_register | value);
+      cycles_ += 4;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      const auto value = memory_.read(address);
+      registers_.set(register_type::AC, ac_register | value);
+      cycles_ += 4;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_X: {
+      bool is_page_crossed = false;
+      const auto address = get_absolute_x_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address);
+      registers_.set(register_type::AC, ac_register | value);
+      cycles_ += 4 + (is_page_crossed ? 1 : 0);
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_Y: {
+      bool is_page_crossed = false;
+      const auto address = get_absolute_y_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address);
+      registers_.set(register_type::AC, ac_register | value);
+      cycles_ += 4 + (is_page_crossed ? 1 : 0);
+      break;
+    }
+    case addressing_mode_type::INDEXED_INDIRECT: {
+      bool is_page_crossed = false;
+      const auto address = get_indexed_indirect_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address);
+      registers_.set(register_type::AC, ac_register | value);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::INDIRECT_INDEXED: {
+      bool is_page_crossed = false;
+      const auto address = get_indirect_indexed_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address);
+      registers_.set(register_type::AC, ac_register | value);
+      cycles_ += 5 + (is_page_crossed ? 1 : 0);
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for ORA");
+      break;
+    }
+    update_status_flag_zn(registers_.get(register_type::AC));
   }
 
   void execute_pha(const decode::instruction &instruction) {
