@@ -32,17 +32,17 @@ class apu::impl final {
 public:
   explicit impl(const memory &memory) : memory_(memory) {}
 
-  uint8_t read(uint16_t address) {
+  uint8_t read(const uint16_t address) {
     boost::ignore_unused(address);
     return 0;
   }
 
-  void write(uint16_t address, uint8_t data) {
-    boost::ignore_unused(address);
-    boost::ignore_unused(data);
+  void write(const uint16_t address, const uint8_t data) {
+    boost::ignore_unused(address, data);
   }
 
   void initialize() {
+    boost::ignore_unused(memory_);
   }
 
 private:

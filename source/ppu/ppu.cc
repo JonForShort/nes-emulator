@@ -43,6 +43,7 @@ public:
   }
 
   void initialize() {
+    boost::ignore_unused(memory_);
   }
 
   void uninitialize() {

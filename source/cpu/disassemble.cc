@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <boost/core/ignore_unused.hpp>
 #include <cstring>
 #include <iomanip>
 #include <sstream>
@@ -65,17 +66,9 @@ std::string disassemble_operand_memory(const jde::operand &decoded_operand, cons
     operand_string << " $" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << memory_value << ",Y";
     break;
   }
-  case addressing_mode_type::ACCUMULATOR: {
-    operand_string << " A";
-    break;
-  }
   case addressing_mode_type::IMMEDIATE: {
     const int immediate_value = std::get<uint16_t>(decoded_operand.value);
     operand_string << " #" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << immediate_value;
-    break;
-  }
-  case addressing_mode_type::IMPLICIT: {
-    operand_string << "";
     break;
   }
   case addressing_mode_type::INDEXED_INDIRECT: {
@@ -91,10 +84,6 @@ std::string disassemble_operand_memory(const jde::operand &decoded_operand, cons
   case addressing_mode_type::INDIRECT: {
     const int memory_value = std::get<uint16_t>(decoded_operand.value);
     operand_string << " ($" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << memory_value << ")";
-    break;
-  }
-  case addressing_mode_type::INVALID: {
-    operand_string << "";
     break;
   }
   case addressing_mode_type::RELATIVE: {
@@ -117,6 +106,26 @@ std::string disassemble_operand_memory(const jde::operand &decoded_operand, cons
     operand_string << " $" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << memory_value << ",Y";
     break;
   }
+  default: {
+    operand_string << "";
+    break;
+  }
+  }
+  return operand_string.str();
+}
+
+std::string disassemble_operand_register(const jde::operand &decoded_operand, const addressing_mode_type addressing_mode) {
+  boost::ignore_unused(decoded_operand);
+  std::stringstream operand_string;
+  switch (addressing_mode) {
+  case addressing_mode_type::ACCUMULATOR: {
+    operand_string << " A";
+    break;
+  }
+  default: {
+    operand_string << "";
+    break;
+  }
   }
   return operand_string.str();
 }
@@ -129,6 +138,8 @@ std::string disassemble_operand(const jde::instruction &decoded_instruction) {
     return disassemble_operand_immediate(decoded_operand);
   case operand_type::MEMORY:
     return disassemble_operand_memory(decoded_operand, decoded_addressing_mode);
+  case operand_type::REGISTER:
+    return disassemble_operand_register(decoded_operand, decoded_addressing_mode);
   case operand_type::NONE:
     return std::string("");
   default:

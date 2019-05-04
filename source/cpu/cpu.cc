@@ -105,8 +105,7 @@ public:
 
     class listener : public disassemble::disassemble_listener {
     public:
-      explicit listener(const memory &memory, const registers &registers)
-          : memory_(memory), registers_(registers) {}
+      explicit listener(const registers &registers) : registers_(registers) {}
 
       ~listener() override = default;
 
@@ -124,12 +123,11 @@ public:
       }
 
     private:
-      const memory &memory_;
       const registers &registers_;
     };
 
     auto fetched = fetch();
-    auto disassembled = disassemble::disassemble(&fetched[0], fetched.size(), std::make_unique<listener>(memory_, registers_));
+    auto disassembled = disassemble::disassemble(&fetched[0], fetched.size(), std::make_unique<listener>(registers_));
 
     cpu_state current_cpu_state;
     current_cpu_state.instruction = disassembled.instructions[0].opcode + disassembled.instructions[0].operand;
@@ -151,11 +149,8 @@ private:
       return;
     }
 
-    const auto pc = registers_.get(register_type::PC);
-    push(pc);
-
-    uint8_t php[] = {0x08};
-    execute(decode::decode(php, sizeof(php)));
+    push_pc();
+    push_flags();
 
     const auto interrupt_vector = interrupts_.get_vector(type);
     registers_.set(register_type::PC, interrupt_vector);
@@ -173,6 +168,29 @@ private:
   uint8_t pull() {
     registers_.increment(register_type::SP);
     return memory_.read(get_stack_pointer());
+  }
+
+  void push_flags() {
+    const uint8_t flags = 0x10U | status_register_.get();
+    push(flags);
+  }
+
+  void pull_flags() {
+    const uint8_t flags = (pull() & 0xEFU) | 0x20U;
+    status_register_.set(flags);
+    registers_.set(register_type::SR, status_register_.get());
+  }
+
+  void push_pc() {
+    const uint16_t pc = registers_.get(register_type::PC);
+    push(pc >> 8U);
+    push(pc);
+  }
+
+  void pull_pc() {
+    const uint16_t low_byte = pull();
+    const uint16_t high_byte = pull() << 8U;
+    registers_.set(register_type::PC, (low_byte | high_byte));
   }
 
   uint16_t get_stack_pointer() const {
@@ -354,6 +372,10 @@ private:
       execute_asl(instruction);
       break;
     }
+    case opcode_type::LSR: {
+      execute_lsr(instruction);
+      break;
+    }
     case opcode_type::CMP: {
       execute_cmp(instruction);
       break;
@@ -418,9 +440,27 @@ private:
       execute_txs(instruction);
       break;
     }
+    case opcode_type::RTI: {
+      execute_rti(instruction);
+      break;
+    }
     default: {
       break;
     }
+    }
+  }
+
+  void execute_rti(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMPLICIT: {
+      pull_flags();
+      pull_pc();
+      cycles_ += 6;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for RTI");
+      break;
     }
   }
 
@@ -680,8 +720,7 @@ private:
   void execute_php(const decode::instruction &instruction) {
     switch (instruction.decoded_addressing_mode) {
     case addressing_mode_type::IMPLICIT: {
-      const uint8_t flags = 0x10U | status_register_.get();
-      push(flags);
+      push_flags();
       cycles_ += 3;
       break;
     }
@@ -694,9 +733,7 @@ private:
   void execute_plp(const decode::instruction &instruction) {
     switch (instruction.decoded_addressing_mode) {
     case addressing_mode_type::IMPLICIT: {
-      const uint8_t flags = (pull() & 0xEFU) | 0x20U;
-      status_register_.set(flags);
-      registers_.set(register_type::SR, status_register_.get());
+      pull_flags();
       cycles_ += 4;
       break;
     }
@@ -846,14 +883,23 @@ private:
     }
   }
 
-  void execute_asl(const decode::instruction &instruction) {
+  void execute_lsr(const decode::instruction &instruction) {
     switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ACCUMULATOR: {
+      const auto register_ac = static_cast<uint8_t>(registers_.get(register_type::AC));
+      const auto value = register_ac >> 0x1U;
+      registers_.set(register_type::AC, value);
+      update_status_flag_c(register_ac & 0x1U);
+      update_status_flag_zn(value);
+      cycles_ += 2;
+      break;
+    }
     case addressing_mode_type::ZERO_PAGE: {
       const auto address = get_zero_page_address(instruction);
       const auto value = memory_.read(address);
-      status_register_.set(status_flag::C, static_cast<uint16_t>(value >> 7U) & 0x1U);
-      const auto shifted_value = value << 1U;
+      const auto shifted_value = value >> 0x1U;
       memory_.write(address, shifted_value);
+      update_status_flag_c(value & 0x1U);
       update_status_flag_zn(shifted_value);
       cycles_ += 5;
       break;
@@ -861,9 +907,9 @@ private:
     case addressing_mode_type::ZERO_PAGE_X: {
       const auto address = get_zero_page_x_address(instruction);
       const auto value = memory_.read(address);
-      status_register_.set(status_flag::C, static_cast<uint16_t>(value >> 7U) & 0x1U);
-      const auto shifted_value = value << 1U;
+      const auto shifted_value = value >> 0x1U;
       memory_.write(address, shifted_value);
+      update_status_flag_c(value & 0x1U);
       update_status_flag_zn(shifted_value);
       cycles_ += 6;
       break;
@@ -871,9 +917,68 @@ private:
     case addressing_mode_type::ABSOLUTE: {
       const auto address = get_absolute_address(instruction);
       const auto value = memory_.read(address);
-      status_register_.set(status_flag::C, static_cast<uint16_t>(value >> 7U) & 0x1U);
+      const auto shifted_value = value >> 0x1U;
+      memory_.write(address, shifted_value);
+      update_status_flag_c(value & 0x1U);
+      update_status_flag_zn(shifted_value);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_X: {
+      auto is_page_crossed = false;
+      const auto address = get_absolute_x_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address);
+      const auto shifted_value = value >> 0x1U;
+      memory_.write(address, shifted_value);
+      update_status_flag_c(value & 0x1U);
+      update_status_flag_zn(shifted_value);
+      cycles_ += 7;
+      break;
+    }
+    default: {
+      BOOST_STATIC_ASSERT("unexpected addressing mode for LSR");
+      break;
+    }
+    }
+  }
+
+  void execute_asl(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ACCUMULATOR: {
+      const auto value = static_cast<uint8_t>(registers_.get(register_type::AC));
+      const auto shifted_value = value << 1U;
+      registers_.set(register_type::AC, shifted_value);
+      update_status_flag_c(std::bitset<8>(value).test(7));
+      update_status_flag_zn(shifted_value);
+      cycles_ += 2;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      const auto value = memory_.read(address);
       const auto shifted_value = value << 1U;
       memory_.write(address, shifted_value);
+      update_status_flag_c(std::bitset<8>(value).test(7));
+      update_status_flag_zn(shifted_value);
+      cycles_ += 5;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const auto address = get_zero_page_x_address(instruction);
+      const auto value = memory_.read(address);
+      const auto shifted_value = value << 1U;
+      memory_.write(address, shifted_value);
+      update_status_flag_c(std::bitset<8>(value).test(7));
+      update_status_flag_zn(shifted_value);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      const auto value = memory_.read(address);
+      const auto shifted_value = value << 1U;
+      memory_.write(address, shifted_value);
+      update_status_flag_c(std::bitset<8>(value).test(7));
       update_status_flag_zn(shifted_value);
       cycles_ += 6;
       break;
@@ -882,19 +987,11 @@ private:
       bool is_page_crossed = false;
       const auto address = get_absolute_x_address(instruction, is_page_crossed);
       const auto value = memory_.read(address);
-      status_register_.set(status_flag::C, static_cast<uint16_t>(value >> 7U) & 0x1U);
       const auto shifted_value = value << 1U;
       memory_.write(address, shifted_value);
+      update_status_flag_c(std::bitset<8>(value).test(7));
       update_status_flag_zn(shifted_value);
       cycles_ += 7;
-      break;
-    }
-    case addressing_mode_type::ACCUMULATOR: {
-      const auto ac_register = registers_.get(register_type::AC);
-      status_register_.set(status_flag::C, static_cast<uint16_t>(ac_register >> 7U) & 0x1U);
-      registers_.set(register_type::AC, ac_register << 1U);
-      update_status_flag_zn(registers_.get(register_type::AC));
-      cycles_ += 2;
       break;
     }
     default:
@@ -1253,10 +1350,9 @@ private:
   void execute_jsr(const decode::instruction &instruction) {
     switch (instruction.decoded_addressing_mode) {
     case addressing_mode_type::ABSOLUTE: {
+      registers_.decrement(register_type::PC);
+      push_pc();
       const uint16_t address = get_absolute_address(instruction);
-      const uint16_t next_address = registers_.get(register_type::PC);
-      push(next_address >> 8U);
-      push(next_address);
       registers_.set(register_type::PC, address);
       cycles_ += 6;
       break;
@@ -1270,9 +1366,8 @@ private:
   void execute_rts(const decode::instruction &instruction) {
     switch (instruction.decoded_addressing_mode) {
     case addressing_mode_type::IMPLICIT: {
-      const uint16_t low_byte = pull();
-      const uint16_t high_byte = pull() << 8U;
-      registers_.set(register_type::PC, low_byte | high_byte);
+      pull_pc();
+      registers_.increment(register_type::PC);
       cycles_ += 6;
       break;
     }
