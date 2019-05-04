@@ -390,10 +390,74 @@ private:
       execute_dex(instruction);
       break;
     }
+    case opcode_type::TAY: {
+      execute_tay(instruction);
+      break;
+    }
+    case opcode_type::TYA: {
+      execute_tya(instruction);
+      break;
+    }
+    case opcode_type::TAX: {
+      execute_tax(instruction);
+      break;
+    }
+    case opcode_type::TXA: {
+      execute_txa(instruction);
+      break;
+    }
+    case opcode_type::TSX: {
+      execute_tsx(instruction);
+      break;
+    }
+    case opcode_type::TXS: {
+      execute_txs(instruction);
+      break;
+    }
     default: {
       break;
     }
     }
+  }
+
+  void execute_transfer(const decode::instruction &instruction, const register_type source, const register_type destination, const bool should_update_status = true) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMPLICIT: {
+      registers_.set(destination, registers_.get(source));
+      cycles_ += 2;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for execute transfer");
+      break;
+    }
+    if (should_update_status) {
+      update_status_flag_zn(registers_.get(destination));
+    }
+  }
+
+  void execute_tay(const decode::instruction &instruction) {
+    execute_transfer(instruction, register_type::AC, register_type::Y);
+  }
+
+  void execute_tya(const decode::instruction &instruction) {
+    execute_transfer(instruction, register_type::Y, register_type::AC);
+  }
+
+  void execute_tax(const decode::instruction &instruction) {
+    execute_transfer(instruction, register_type::AC, register_type::X);
+  }
+
+  void execute_txa(const decode::instruction &instruction) {
+    execute_transfer(instruction, register_type::X, register_type::AC);
+  }
+
+  void execute_tsx(const decode::instruction &instruction) {
+    execute_transfer(instruction, register_type::SP, register_type::X);
+  }
+
+  void execute_txs(const decode::instruction &instruction) {
+    execute_transfer(instruction, register_type::X, register_type::SP, false);
   }
 
   void execute_decrement(const decode::instruction &instruction, const register_type type) {

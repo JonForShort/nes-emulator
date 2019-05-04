@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
   jones::nes nes;
   nes.load(file_path);
   nes.trace(trace_path.string().c_str());
-  nes.run(677);
+  nes.run(1000);
 
   check_trace_files(trace_path.string(), result_path);
 }
