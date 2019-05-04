@@ -166,13 +166,17 @@ private:
   }
 
   void push(const uint8_t value) {
-    memory_.write(registers_.get(register_type::SP), value);
+    memory_.write(get_stack_pointer(), value);
     registers_.decrement(register_type::SP);
   }
 
   uint8_t pull() {
     registers_.increment(register_type::SP);
-    return memory_.read(registers_.get(register_type::SP));
+    return memory_.read(get_stack_pointer());
+  }
+
+  uint16_t get_stack_pointer() const {
+    return stack_pointer_base | registers_.get(register_type::SP);
   }
 
   decode::instruction decode(const std::vector<uint8_t> &bytes) const {
@@ -1676,6 +1680,8 @@ private:
   }
 
 private:
+  static constexpr uint16_t stack_pointer_base = 0x100U;
+
   const memory &memory_;
 
   status_register status_register_;
