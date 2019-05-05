@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(disassemble_0x09_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(disassemble_0x0A_instruction_valid) {
   uint8_t binary_instruction[] = {0x0A};
-  check_disassemble(binary_instruction, sizeof(binary_instruction), "ASL");
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "ASL A");
 }
 
 //
@@ -401,7 +401,7 @@ BOOST_AUTO_TEST_CASE(disassemble_0x29_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(disassemble_0x2A_instruction_valid) {
   uint8_t binary_instruction[] = {0x2A};
-  check_disassemble(binary_instruction, sizeof(binary_instruction), "ROL");
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "ROL A");
 }
 
 //
@@ -737,7 +737,7 @@ BOOST_AUTO_TEST_CASE(decode_0x0A_asl_instruction_valid) {
   const auto instruction = jde::decode(asl_instruction, sizeof(asl_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ASL);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x0A);
-  check_instruction_no_operand(instruction);
+  BOOST_CHECK(instruction.decoded_operand.type == operand_type::REGISTER);
 }
 
 //
