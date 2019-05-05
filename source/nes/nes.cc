@@ -90,15 +90,17 @@ public:
   ~memory_ram() = default;
 
   uint8_t read(const uint16_t address) {
-    return ram_[address];
+    const auto read_address = address % 0x0800U;
+    return ram_[read_address];
   }
 
   void write(const uint16_t address, const uint8_t data) {
-    ram_[address] = data;
+    const auto write_address = address % 0x0800U;
+    ram_[write_address] = data;
   }
 
 private:
-  static constexpr size_t ram_size = 0x2000U;
+  static constexpr size_t ram_size = 0x0800U;
 
   std::vector<uint8_t> ram_;
 };
