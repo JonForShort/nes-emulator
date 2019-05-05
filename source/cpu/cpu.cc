@@ -416,6 +416,14 @@ private:
       execute_inx(instruction);
       break;
     }
+    case opcode_type::INC: {
+      execute_inc(instruction);
+      break;
+    }
+    case opcode_type::DEC: {
+      execute_dec(instruction);
+      break;
+    }
     case opcode_type::DEY: {
       execute_dey(instruction);
       break;
@@ -556,6 +564,90 @@ private:
 
   void execute_inx(const decode::instruction &instruction) {
     execute_increment(instruction, register_type::X);
+  }
+
+  void execute_inc(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      const auto value = memory_.read(address) + 1;
+      memory_.write(address, value);
+      update_status_flag_zn(value);
+      cycles_ += 5;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const auto address = get_zero_page_x_address(instruction);
+      const auto value = memory_.read(address) + 1;
+      memory_.write(address, value);
+      update_status_flag_zn(value);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      const auto value = memory_.read(address) + 1;
+      memory_.write(address, value);
+      update_status_flag_zn(value);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_X: {
+      auto is_page_crossed = false;
+      const auto address = get_absolute_x_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address) + 1;
+      memory_.write(address, value);
+      update_status_flag_zn(value);
+      cycles_ += 7;
+      break;
+    }
+    default: {
+      BOOST_STATIC_ASSERT("unexpected addressing mode for INC");
+      break;
+    }
+    }
+  }
+
+  void execute_dec(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      const auto value = memory_.read(address) - 1;
+      memory_.write(address, value);
+      update_status_flag_zn(value);
+      cycles_ += 5;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const auto address = get_zero_page_x_address(instruction);
+      const auto value = memory_.read(address) - 1;
+      memory_.write(address, value);
+      update_status_flag_zn(value);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      const auto value = memory_.read(address) - 1;
+      memory_.write(address, value);
+      update_status_flag_zn(value);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_X: {
+      auto is_page_crossed = false;
+      const auto address = get_absolute_x_address(instruction, is_page_crossed);
+      const auto value = memory_.read(address) - 1;
+      memory_.write(address, value);
+      update_status_flag_zn(value);
+      cycles_ += 7;
+      break;
+    }
+    default: {
+      BOOST_STATIC_ASSERT("unexpected addressing mode for DEC");
+      break;
+    }
+    }
   }
 
   void execute_eor(const decode::instruction &instruction) {
