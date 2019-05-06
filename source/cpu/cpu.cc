@@ -1676,7 +1676,7 @@ private:
       bool is_page_crossed = false;
       const auto address = get_indirect_indexed_address(instruction, is_page_crossed);
       memory_.write(address, register_ac);
-      cycles_ += 5 + (is_page_crossed ? 1 : 0);
+      cycles_ += 6;
       break;
     }
     default:
@@ -1978,7 +1978,7 @@ private:
 
   uint16_t get_indirect_indexed_address(const decode::instruction &instruction, bool &is_page_crossed) const {
     const auto operand = std::get<uint8_t>(instruction.decoded_operand.value);
-    const auto address = memory_.read(operand & 0xFFU);
+    const auto address = get_indirect_address(operand);
     const auto y_register = registers_.get(register_type::Y);
     is_page_crossed = (static_cast<uint16_t>(address + y_register) & 0xFFU) < y_register;
     return address + y_register;
@@ -1989,7 +1989,7 @@ private:
   }
 
   uint16_t get_indirect_address(const uint16_t address) const {
-    const auto address_page = address & (0xFF00U);
+    const auto address_page = address & 0xFF00U;
     const auto address_high = (address + 1U) & 0xFFU;
     const auto indirect_address_low = memory_.read(address);
     const auto indirect_address_high = memory_.read(address_page | address_high);
