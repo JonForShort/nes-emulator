@@ -43,7 +43,7 @@ namespace {
 std::string strip_instruction(std::string instruction) {
   std::vector<std::string> instruction_pieces;
   boost::split(instruction_pieces, instruction, boost::is_any_of("=@"));
-  return instruction_pieces[0];
+  return boost::replace_all_copy(instruction_pieces[0], "*", "");
 }
 
 void check_trace_files(const std::string &trace_path, const std::string &result_path) {
@@ -60,7 +60,7 @@ void check_trace_files(const std::string &trace_path, const std::string &result_
                         format("line [%d] : check [address] : expected [%s] found [%s]") % line_count % result_address % trace_address);
 
     const auto trace_binary = boost::trim_copy(trace_line.substr(6, 10));
-    const auto result_binary = boost::trim_copy(result_line.substr(6, 10));
+    const auto result_binary = boost::trim_copy(boost::replace_all_copy(result_line.substr(6, 10), "*", ""));
     BOOST_CHECK_MESSAGE(trace_binary == result_binary,
                         format("line [%d] : check [binary] : expected [%s] found [%s]") % line_count % result_binary % trace_binary);
 
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
   jones::nes nes;
   nes.load(file_path);
   nes.trace(trace_path.string().c_str());
-  nes.run(4350);
+  nes.run(5069);
 
   check_trace_files(trace_path.string(), result_path);
 }

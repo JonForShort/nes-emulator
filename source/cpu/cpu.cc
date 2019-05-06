@@ -1586,9 +1586,29 @@ private:
   }
 
   void execute_nop(const decode::instruction &instruction) {
-    boost::ignore_unused(instruction);
-    // nothing to do for instruction.
-    cycles_ += 2;
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::IMPLICIT:
+      cycles_ += 2;
+      break;
+    case addressing_mode_type::IMMEDIATE:
+      cycles_ += 2;
+      break;
+    case addressing_mode_type::ZERO_PAGE:
+      cycles_ += 3;
+      break;
+    case addressing_mode_type::ZERO_PAGE_X:
+      cycles_ += 4;
+      break;
+    case addressing_mode_type::ABSOLUTE:
+      cycles_ += 4;
+      break;
+    case addressing_mode_type::ABSOLUTE_X:
+      cycles_ += 5;
+      break;
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for NOP");
+      break;
+    }
   }
 
   void execute_sty(const decode::instruction &instruction) {
@@ -1826,7 +1846,7 @@ private:
         bool is_page_crossed = false;
         const auto address = get_absolute_x_address(instruction, is_page_crossed);
         const auto value = memory_.read(address);
-        registers_.set(register_type::X, value);
+        registers_.set(register_type::Y, value);
         cycles_ += 4 + (is_page_crossed ? 1 : 0);
         break;
       }
