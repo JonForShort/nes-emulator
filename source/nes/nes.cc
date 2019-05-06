@@ -159,7 +159,7 @@ private:
     if (trace_file_.is_open()) {
       const auto cpu_state = cpu_.get_state();
 
-      trace_file_ << std::hex << std::uppercase << cpu_state.registers.PC << "  ";
+      trace_file_ << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << cpu_state.registers.PC << "  ";
 
       for (const auto &i : cpu_state.instruction_bytes) {
         trace_file_ << std::right << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(i) << " ";
