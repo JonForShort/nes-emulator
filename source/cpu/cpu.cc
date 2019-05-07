@@ -111,8 +111,8 @@ public:
 
       void on_decoded(decode::instruction &instruction) override {
         if (instruction.decoded_addressing_mode == addressing_mode_type::RELATIVE) {
-          const auto address_relative = std::get<uint8_t>(instruction.decoded_operand.value);
-          const auto address_absolute = registers_.get(register_type::PC) + address_relative + instruction.encoded_length_in_bytes;
+          const int8_t address_relative = std::get<uint8_t>(instruction.decoded_operand.value);
+          const uint16_t address_absolute = registers_.get(register_type::PC) + address_relative + instruction.encoded_length_in_bytes;
           instruction.decoded_operand.value = static_cast<uint16_t>(address_absolute);
           instruction.decoded_addressing_mode = addressing_mode_type::ABSOLUTE;
         }
@@ -1488,7 +1488,7 @@ private:
       cycles_ += 2;
       if (status_register_.is_set(flag) == is_flag_set) {
         cycles_ += 1;
-        const uint8_t address_offset = std::get<uint8_t>(instruction.decoded_operand.value);
+        const int8_t address_offset = std::get<uint8_t>(instruction.decoded_operand.value);
         const uint16_t previous_pc = registers_.get(register_type::PC);
         const uint16_t previous_page = previous_pc & 0xFF00U;
         const uint16_t next_pc = registers_.get(register_type::PC) + address_offset;
@@ -1602,9 +1602,12 @@ private:
     case addressing_mode_type::ABSOLUTE:
       cycles_ += 4;
       break;
-    case addressing_mode_type::ABSOLUTE_X:
-      cycles_ += 5;
+    case addressing_mode_type::ABSOLUTE_X: {
+      auto is_page_crossed = false;
+      (void)get_absolute_x_address(instruction, is_page_crossed);
+      cycles_ += 4 + (is_page_crossed ? 1 : 0);
       break;
+    }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for NOP");
       break;
