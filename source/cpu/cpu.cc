@@ -23,6 +23,7 @@
 //
 #include <boost/assert.hpp>
 #include <boost/core/ignore_unused.hpp>
+#include <boost/format.hpp>
 
 #include "cpu.hh"
 #include "decode.hh"
@@ -476,7 +477,110 @@ private:
       execute_isc(instruction);
       break;
     }
+    case opcode_type::SLO: {
+      execute_slo(instruction);
+      break;
+    }
     default: {
+      break;
+    }
+    }
+  }
+
+  void execute_slo(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      const auto value = memory_.read(address);
+      const auto shifted_value = value << 1U;
+      memory_.write(address, shifted_value);
+      update_status_flag_c(std::bitset<8>(value).test(7));
+
+      const auto ora_value = static_cast<uint8_t>((registers_.get(register_type::AC) | shifted_value) & 0xFF);
+      registers_.set(register_type::AC, ora_value);
+      update_status_flag_zn(ora_value);
+      cycles_ += 5;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const auto address = get_zero_page_x_address(instruction);
+      const auto value = memory_.read(address);
+      const auto shifted_value = value << 1U;
+      memory_.write(address, shifted_value);
+      update_status_flag_c(std::bitset<8>(value).test(7));
+
+      const auto ora_value = static_cast<uint8_t>((registers_.get(register_type::AC) | shifted_value) & 0xFF);
+      registers_.set(register_type::AC, ora_value);
+      update_status_flag_zn(ora_value);
+      cycles_ += 6;
+    } break;
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      const auto value = memory_.read(address);
+      const auto shifted_value = value << 1U;
+      memory_.write(address, shifted_value);
+      update_status_flag_c(std::bitset<8>(value).test(7));
+
+      const auto ora_value = static_cast<uint8_t>((registers_.get(register_type::AC) | shifted_value) & 0xFF);
+      registers_.set(register_type::AC, ora_value);
+      update_status_flag_zn(ora_value);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_X: {
+      const auto address = get_absolute_x_address(instruction);
+      const auto value = memory_.read(address);
+      const auto shifted_value = value << 1U;
+      memory_.write(address, shifted_value);
+      update_status_flag_c(std::bitset<8>(value).test(7));
+
+      const auto ora_value = static_cast<uint8_t>((registers_.get(register_type::AC) | shifted_value) & 0xFF);
+      registers_.set(register_type::AC, ora_value);
+      update_status_flag_zn(ora_value);
+      cycles_ += 7;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_Y: {
+      const auto address = get_absolute_y_address(instruction);
+      const auto value = memory_.read(address);
+      const auto shifted_value = value << 1U;
+      memory_.write(address, shifted_value);
+      update_status_flag_c(std::bitset<8>(value).test(7));
+
+      const auto ora_value = static_cast<uint8_t>((registers_.get(register_type::AC) | shifted_value) & 0xFF);
+      registers_.set(register_type::AC, ora_value);
+      update_status_flag_zn(ora_value);
+      cycles_ += 7;
+      break;
+    }
+    case addressing_mode_type::INDEXED_INDIRECT: {
+      const auto address = get_indexed_indirect_address(instruction);
+      const auto value = memory_.read(address);
+      const auto shifted_value = value << 1U;
+      memory_.write(address, shifted_value);
+      update_status_flag_c(std::bitset<8>(value).test(7));
+
+      const auto ora_value = static_cast<uint8_t>((registers_.get(register_type::AC) | shifted_value) & 0xFF);
+      registers_.set(register_type::AC, ora_value);
+      update_status_flag_zn(ora_value);
+      cycles_ += 8;
+      break;
+    }
+    case addressing_mode_type::INDIRECT_INDEXED: {
+      const auto address = get_indirect_indexed_address(instruction);
+      const auto value = memory_.read(address);
+      const auto shifted_value = value << 1U;
+      memory_.write(address, shifted_value);
+      update_status_flag_c(std::bitset<8>(value).test(7));
+
+      const auto ora_value = static_cast<uint8_t>((registers_.get(register_type::AC) | shifted_value) & 0xFF);
+      registers_.set(register_type::AC, ora_value);
+      update_status_flag_zn(ora_value);
+      cycles_ += 8;
+      break;
+    }
+    default: {
+      BOOST_STATIC_ASSERT("unexpected addressing mode for execute SLO");
       break;
     }
     }
