@@ -40,10 +40,12 @@ using format = boost::format;
 
 namespace {
 
-std::string strip_instruction(std::string instruction) {
+std::string fix_instruction(std::string instruction) {
   std::vector<std::string> instruction_pieces;
   boost::split(instruction_pieces, instruction, boost::is_any_of("=@"));
-  return boost::replace_all_copy(instruction_pieces[0], "*", "");
+  const auto fixed_unofficial = boost::replace_all_copy(instruction_pieces[0], "*", "");
+  const auto fixed_opcodes = boost::replace_all_copy(fixed_unofficial, "ISB", "ISC");
+  return fixed_opcodes;
 }
 
 void check_trace_files(const std::string &trace_path, const std::string &result_path) {
@@ -65,7 +67,7 @@ void check_trace_files(const std::string &trace_path, const std::string &result_
                         format("line [%d] : check [binary] : expected [%s] found [%s]") % line_count % result_binary % trace_binary);
 
     const auto trace_instruction = boost::trim_copy(trace_line.substr(15, 16));
-    const auto result_instruction = boost::trim_copy(strip_instruction(result_line.substr(15, 16)));
+    const auto result_instruction = boost::trim_copy(fix_instruction(result_line.substr(15, 16)));
     BOOST_CHECK_MESSAGE(trace_instruction == result_instruction,
                         format("line [%d] : check [instruction] : expected [%s] found [%s]") % line_count % result_instruction % trace_instruction);
 
@@ -127,7 +129,7 @@ BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
   jones::nes nes;
   nes.load(file_path);
   nes.trace(trace_path.string().c_str());
-  nes.run(6300);
+  nes.run(6880);
 
   check_trace_files(trace_path.string(), result_path);
 }

@@ -470,8 +470,78 @@ private:
     }
     case opcode_type::DCP: {
       execute_dcp(instruction);
+      break;
+    }
+    case opcode_type::ISC: {
+      execute_isc(instruction);
+      break;
     }
     default: {
+      break;
+    }
+    }
+  }
+
+  void execute_isc(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      const auto value = memory_.read(address) + 1;
+      memory_.write(address, value);
+      execute_sbc(value);
+      cycles_ += 5;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const auto address = get_zero_page_x_address(instruction);
+      const auto value = memory_.read(address) + 1;
+      memory_.write(address, value);
+      execute_sbc(value);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      const auto value = memory_.read(address) + 1;
+      memory_.write(address, value);
+      execute_sbc(value);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_X: {
+      const auto address = get_absolute_x_address(instruction);
+      const auto value = memory_.read(address) + 1;
+      memory_.write(address, value);
+      execute_sbc(value);
+      cycles_ += 7;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_Y: {
+      const auto address = get_absolute_y_address(instruction);
+      const auto value = memory_.read(address) + 1;
+      memory_.write(address, value);
+      execute_sbc(value);
+      cycles_ += 7;
+      break;
+    }
+    case addressing_mode_type::INDEXED_INDIRECT: {
+      const auto address = get_indexed_indirect_address(instruction);
+      const auto value = memory_.read(address) + 1;
+      memory_.write(address, value);
+      execute_sbc(value);
+      cycles_ += 8;
+      break;
+    }
+    case addressing_mode_type::INDIRECT_INDEXED: {
+      const auto address = get_indirect_indexed_address(instruction);
+      const auto value = memory_.read(address) + 1;
+      memory_.write(address, value);
+      execute_sbc(value);
+      cycles_ += 8;
+      break;
+    }
+    default: {
+      BOOST_STATIC_ASSERT("unexpected addressing mode for execute ISC");
       break;
     }
     }
@@ -1416,8 +1486,6 @@ private:
   }
 
   void execute_sbc(const decode::instruction &instruction) {
-    const auto ac_register = registers_.get(register_type::AC);
-    const auto is_carry_set = status_register_.is_set(status_flag::C);
     uint16_t value = 0;
     switch (instruction.decoded_addressing_mode) {
     case addressing_mode_type::IMMEDIATE: {
@@ -1474,8 +1542,15 @@ private:
       BOOST_STATIC_ASSERT("unexpected addressing mode for ADC");
       break;
     }
+    execute_sbc(value);
+  }
+
+  void execute_sbc(const uint8_t value) {
+    const auto ac_register = registers_.get(register_type::AC);
+    const auto is_carry_set = status_register_.is_set(status_flag::C);
+
     const auto subtraction = static_cast<int>(ac_register - value - (1 - (is_carry_set ? 1 : 0)));
-    registers_.set(register_type::AC, static_cast<uint16_t>(subtraction));
+    registers_.set(register_type::AC, static_cast<uint16_t>(subtraction) & 0xFFU);
 
     const auto caused_overflow = (static_cast<uint16_t>(ac_register ^ value) & 0x80U) != 0 &&
                                  (static_cast<uint16_t>(ac_register ^ registers_.get(register_type::AC)) & 0x80U) != 0;
