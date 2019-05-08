@@ -460,10 +460,214 @@ private:
       execute_rti(instruction);
       break;
     }
+    case opcode_type::LAX: {
+      execute_lax(instruction);
+      break;
+    }
+    case opcode_type::SAX: {
+      execute_sax(instruction);
+      break;
+    }
+    case opcode_type::DCP: {
+      execute_dcp(instruction);
+    }
     default: {
       break;
     }
     }
+  }
+
+  void execute_dcp(const decode::instruction &instruction) {
+    const auto register_ac = registers_.get(register_type::AC);
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      const auto value = memory_.read(address) - 1;
+      memory_.write(address, value);
+      update_status_flag_c(register_ac - value >= 0);
+      update_status_flag_zn(register_ac - value);
+      cycles_ += 5;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const auto address = get_zero_page_x_address(instruction);
+      const auto value = memory_.read(address) - 1;
+      memory_.write(address, value);
+      update_status_flag_c(register_ac - value >= 0);
+      update_status_flag_zn(register_ac - value);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      const auto value = memory_.read(address) - 1;
+      memory_.write(address, value);
+      update_status_flag_c(register_ac - value >= 0);
+      update_status_flag_zn(register_ac - value);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_X: {
+      const auto address = get_absolute_x_address(instruction);
+      const auto value = memory_.read(address) - 1;
+      memory_.write(address, value);
+      update_status_flag_c(register_ac - value >= 0);
+      update_status_flag_zn(register_ac - value);
+      cycles_ += 7;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_Y: {
+      const auto address = get_absolute_y_address(instruction);
+      const auto value = memory_.read(address) - 1;
+      memory_.write(address, value);
+      update_status_flag_c(register_ac - value >= 0);
+      update_status_flag_zn(register_ac - value);
+      cycles_ += 7;
+      break;
+    }
+    case addressing_mode_type::INDEXED_INDIRECT: {
+      const auto address = get_indexed_indirect_address(instruction);
+      const auto value = memory_.read(address) - 1;
+      memory_.write(address, value);
+      update_status_flag_c(register_ac - value >= 0);
+      update_status_flag_zn(register_ac - value);
+      cycles_ += 8;
+      break;
+    }
+    case addressing_mode_type::INDIRECT_INDEXED: {
+      const auto address = get_indirect_indexed_address(instruction);
+      const auto value = memory_.read(address) - 1;
+      memory_.write(address, value);
+      update_status_flag_c(register_ac - value >= 0);
+      update_status_flag_zn(register_ac - value);
+      cycles_ += 8;
+      break;
+    }
+    default: {
+      BOOST_STATIC_ASSERT("unexpected addressing mode for DCP");
+      break;
+    }
+    }
+  }
+
+  void execute_sax(const decode::instruction &instruction) {
+    const auto register_ac = registers_.get(register_type::AC);
+    const auto register_x = registers_.get(register_type::X);
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      memory_.write(address, register_ac & register_x);
+      cycles_ += 3;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_Y: {
+      const auto address = get_zero_page_y_address(instruction);
+      memory_.write(address, register_ac & register_x);
+      cycles_ += 4;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      memory_.write(address, register_ac & register_x);
+      cycles_ += 4;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_Y: {
+      const auto address = get_absolute_y_address(instruction);
+      memory_.write(address, register_ac & register_x);
+      cycles_ += 5;
+      break;
+    }
+    case addressing_mode_type::INDEXED_INDIRECT: {
+      const auto address = get_indexed_indirect_address(instruction);
+      memory_.write(address, register_ac & register_x);
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::INDIRECT_INDEXED: {
+      const auto address = get_indirect_indexed_address(instruction);
+      memory_.write(address, register_ac & register_x);
+      cycles_ += 6;
+      break;
+    }
+    default:
+      BOOST_STATIC_ASSERT("unexpected addressing mode for SAX");
+      break;
+    }
+  }
+
+  void execute_lax(const decode::instruction &instruction) {
+    switch (instruction.decoded_operand.type) {
+    case operand_type::IMMEDIATE: {
+      const auto value = get_immediate(instruction);
+      registers_.set(register_type::AC, value);
+      registers_.set(register_type::X, value);
+      cycles_ += 2;
+      break;
+    }
+    case operand_type::MEMORY:
+      switch (instruction.decoded_addressing_mode) {
+      case addressing_mode_type::ZERO_PAGE: {
+        const auto address = get_zero_page_address(instruction);
+        const auto value = memory_.read(address);
+        registers_.set(register_type::AC, value);
+        registers_.set(register_type::X, value);
+        cycles_ += 3;
+        break;
+      }
+      case addressing_mode_type::ZERO_PAGE_Y: {
+        const auto address = get_zero_page_y_address(instruction);
+        const auto value = memory_.read(address);
+        registers_.set(register_type::AC, value);
+        registers_.set(register_type::X, value);
+        cycles_ += 4;
+        break;
+      }
+      case addressing_mode_type::ABSOLUTE: {
+        const auto address = get_absolute_address(instruction);
+        const auto value = memory_.read(address);
+        registers_.set(register_type::AC, value);
+        registers_.set(register_type::X, value);
+        cycles_ += 4;
+        break;
+      }
+      case addressing_mode_type::ABSOLUTE_Y: {
+        bool is_page_crossed = false;
+        const auto address = get_absolute_y_address(instruction, is_page_crossed);
+        const auto value = memory_.read(address);
+        registers_.set(register_type::AC, value);
+        registers_.set(register_type::X, value);
+        cycles_ += 4 + (is_page_crossed ? 1 : 0);
+        break;
+      }
+      case addressing_mode_type::INDEXED_INDIRECT: {
+        const auto address = get_indexed_indirect_address(instruction);
+        const auto value = memory_.read(address);
+        registers_.set(register_type::AC, value);
+        registers_.set(register_type::X, value);
+        cycles_ += 6;
+        break;
+      }
+      case addressing_mode_type::INDIRECT_INDEXED: {
+        bool is_page_crossed = false;
+        const auto address = get_indirect_indexed_address(instruction, is_page_crossed);
+        const auto value = memory_.read(address);
+        registers_.set(register_type::AC, value);
+        registers_.set(register_type::X, value);
+        cycles_ += 5 + (is_page_crossed ? 1 : 0);
+        break;
+      }
+      default: {
+        BOOST_STATIC_ASSERT("unexpected addressing mode for LAX");
+        break;
+      }
+      }
+      break;
+    default:
+      BOOST_STATIC_ASSERT("unexpected operand type for LAX");
+      break;
+    }
+    update_status_flag_zn(registers_.get(register_type::AC));
   }
 
   void execute_rti(const decode::instruction &instruction) {
