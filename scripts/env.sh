@@ -11,8 +11,8 @@ jones_tool() {
     JONES_TOOL=${JONES_OUT_DIR}/bin/jones-tool
 
     if [ ! -f "${JONES_TOOL}" ]; then
-	echo "error: unable to find tool; path is not valid [${JONES_TOOL}]"
-	return -1
+        echo "error: unable to find tool; path is not valid [${JONES_TOOL}]"
+        return -1
     fi
 
     ${JONES_TOOL} "$@"
@@ -40,4 +40,19 @@ jones_test() {
 jones_test_code_coverage() {
 
     CODE_COVERAGE=1 jones_test
+
+    if ! [ -x "$(command -v gcovr)" ]; then
+        echo "error: unable to find gcovr tool; tool is required to generate code coverage"
+        exit 1
+    fi
+
+    CODE_COVERAGE_FILE=${JONES_BUILD_DIR}/coverage.html
+
+    gcovr -r ${SCRIPT_DIR}/.. --html --html-details -o ${CODE_COVERAGE_FILE}
+
+    echo ""
+    echo "successfully generated code coverage"
+    echo ""
+    echo ${CODE_COVERAGE_FILE}
+    echo ""
 }
