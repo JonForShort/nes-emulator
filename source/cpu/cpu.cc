@@ -481,10 +481,155 @@ private:
       execute_slo(instruction);
       break;
     }
+    case opcode_type::RLA: {
+      execute_rla(instruction);
+      break;
+    }
+    case opcode_type::SRE: {
+      execute_sre(instruction);
+      break;
+    }
     default: {
       break;
     }
     }
+  }
+
+  void execute_sre(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_sre(value));
+      cycles_ += 5;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const auto address = get_zero_page_x_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_sre(value));
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_sre(value));
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_X: {
+      const auto address = get_absolute_x_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_sre(value));
+      cycles_ += 7;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_Y: {
+      const auto address = get_absolute_y_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_sre(value));
+      cycles_ += 7;
+      break;
+    }
+    case addressing_mode_type::INDEXED_INDIRECT: {
+      const auto address = get_indexed_indirect_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_sre(value));
+      cycles_ += 8;
+      break;
+    }
+    case addressing_mode_type::INDIRECT_INDEXED: {
+      const auto address = get_indirect_indexed_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_sre(value));
+      cycles_ += 8;
+      break;
+    }
+    default: {
+      BOOST_STATIC_ASSERT("unexpected addressing mode for execute SRE");
+      break;
+    }
+    }
+  }
+
+  uint8_t execute_sre(const uint8_t value) {
+    const auto shifted_value = value >> 0x1U;
+    const auto ac_register = registers_.get(register_type::AC);
+    const auto new_ac_register = ac_register ^ shifted_value;
+    registers_.set(register_type::AC, new_ac_register);
+    update_status_flag_c(value & 0x1U);
+    update_status_flag_zn(new_ac_register);
+    return value;
+  }
+
+  void execute_rla(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_rla(value));
+      cycles_ += 5;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const auto address = get_zero_page_x_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_rla(value));
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_rla(value));
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_X: {
+      const auto address = get_absolute_x_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_rla(value));
+      cycles_ += 7;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_Y: {
+      const auto address = get_absolute_y_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_rla(value));
+      cycles_ += 7;
+      break;
+    }
+    case addressing_mode_type::INDEXED_INDIRECT: {
+      const auto address = get_indexed_indirect_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_rla(value));
+      cycles_ += 8;
+      break;
+    }
+    case addressing_mode_type::INDIRECT_INDEXED: {
+      const auto address = get_indirect_indexed_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_rla(value));
+      cycles_ += 8;
+      break;
+    }
+    default: {
+      BOOST_STATIC_ASSERT("unexpected addressing mode for execute RLA");
+      break;
+    }
+    }
+  }
+
+  uint8_t execute_rla(const uint8_t value) {
+    const auto has_carry = status_register_.is_set(status_flag::C);
+    const auto shifted_value = (value << 1) | (has_carry ? 1 : 0);
+    const auto ac_register = registers_.get(register_type::AC);
+    const auto new_ac_register = ac_register & shifted_value;
+    registers_.set(register_type::AC, new_ac_register & 0xFF);
+    update_status_flag_c((value >> 7) & 0x1U);
+    update_status_flag_zn(new_ac_register);
+    return shifted_value;
   }
 
   void execute_slo(const decode::instruction &instruction) {
