@@ -489,10 +489,90 @@ private:
       execute_sre(instruction);
       break;
     }
+    case opcode_type::RRA: {
+      execute_rra(instruction);
+      break;
+    }
     default: {
       break;
     }
     }
+  }
+
+  void execute_rra(const decode::instruction &instruction) {
+    switch (instruction.decoded_addressing_mode) {
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_rra(value));
+      cycles_ += 5;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const auto address = get_zero_page_x_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_rra(value));
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_rra(value));
+      cycles_ += 6;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_X: {
+      const auto address = get_absolute_x_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_rra(value));
+      cycles_ += 7;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_Y: {
+      const auto address = get_absolute_y_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_rra(value));
+      cycles_ += 7;
+      break;
+    }
+    case addressing_mode_type::INDEXED_INDIRECT: {
+      const auto address = get_indexed_indirect_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_rra(value));
+      cycles_ += 8;
+      break;
+    }
+    case addressing_mode_type::INDIRECT_INDEXED: {
+      const auto address = get_indirect_indexed_address(instruction);
+      const auto value = memory_.read(address);
+      memory_.write(address, execute_rra(value));
+      cycles_ += 8;
+      break;
+    }
+    default: {
+      BOOST_STATIC_ASSERT("unexpected addressing mode for execute RRA");
+      break;
+    }
+    }
+  }
+
+  uint8_t execute_rra(const uint8_t value) {
+    const auto is_carry_set = status_register_.is_set(status_flag::C);
+    const auto shifted_value = static_cast<uint8_t>(value >> 0x1U) | (is_carry_set ? 1U << 7U : 0U);
+
+    const auto ac_register = registers_.get(register_type::AC);
+    const auto addition = static_cast<uint16_t>(ac_register + shifted_value + ((value & 0x1U) ? 1 : 0));
+
+    registers_.set(register_type::AC, addition & 0xFFU);
+
+    const auto caused_overflow = (static_cast<uint16_t>(ac_register ^ shifted_value) & 0x80U) == 0 &&
+                                 (static_cast<uint16_t>(ac_register ^ registers_.get(register_type::AC)) & 0x80U) != 0;
+
+    update_status_flag_c(addition > 0xFFU);
+    update_status_flag_v(caused_overflow);
+    update_status_flag_zn(registers_.get(register_type::AC));
+    return shifted_value;
   }
 
   void execute_sre(const decode::instruction &instruction) {
@@ -560,7 +640,7 @@ private:
     registers_.set(register_type::AC, new_ac_register);
     update_status_flag_c(value & 0x1U);
     update_status_flag_zn(new_ac_register);
-    return value;
+    return shifted_value;
   }
 
   void execute_rla(const decode::instruction &instruction) {
@@ -2460,6 +2540,11 @@ private:
   void update_status_flag_z(const uint8_t binary) {
     const auto bits = std::bitset<8>(binary);
     status_register_.set(status_flag::Z, !bits.any());
+    registers_.set(register_type::SR, status_register_.get());
+  }
+
+  void update_status_flag_v(const bool has_overflow) {
+    status_register_.set(status_flag::V, has_overflow);
     registers_.set(register_type::SR, status_register_.get());
   }
 
