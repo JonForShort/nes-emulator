@@ -107,7 +107,7 @@ private:
 
 class nes::impl {
 public:
-  impl() : memory_(), apu_(memory_), cpu_(memory_), ppu_(memory_), cartridge_(), sram_(), ram_(), trace_file_(nullptr) {
+  impl() : memory_(), apu_(memory_), cpu_(memory_), ppu_(memory_), cartridge_(), sram_(), ram_(), trace_file_() {
     memory_.map(std::make_unique<memory_mappable_component<memory_ram>>(ram_, 0x0000, 0x1FFF));
     memory_.map(std::make_unique<memory_mappable_component<ppu>>(ppu_, 0x2000, 0x3FFF));
     memory_.map(std::make_unique<memory_mappable_component<apu>>(apu_, 0x4000, 0x4017));

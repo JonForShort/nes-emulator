@@ -30,7 +30,7 @@ jones_build() {
 
 jones_test() {
 
-    jones_build "$@"
+    ADDRESS_SANITIZER=1 jones_build "$@"
 
     pushd ${JONES_BUILD_DIR}
         make test
