@@ -32,6 +32,10 @@ class apu::impl final {
 public:
   explicit impl(const memory &memory) : memory_(memory) {}
 
+  uint8_t step() {
+    return 0;
+  }
+
   uint8_t read(const uint16_t address) {
     boost::ignore_unused(address);
     return 0;
@@ -54,6 +58,10 @@ apu::apu(const jones::memory &memory)
 }
 
 apu::~apu() = default;
+
+uint8_t apu::step() {
+  return impl_->step();
+}
 
 uint8_t apu::read(const uint16_t address) {
   return impl_->read(address);

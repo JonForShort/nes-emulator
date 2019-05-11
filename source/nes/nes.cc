@@ -134,7 +134,15 @@ public:
   void run(const size_t step_limit) {
     trace_step();
     for (size_t step_count = 0; step_count < step_limit || step_limit == 0; step_count++) {
-      cpu_.step();
+      const auto cpu_cycles = cpu_.step();
+      const auto ppu_cycles = cpu_cycles * 3;
+      const auto apu_cycles = cpu_cycles;
+      for (auto i = 0; i < ppu_cycles; i++) {
+        ppu_.step();
+      }
+      for (auto i = 0; i < apu_cycles; i++) {
+        apu_.step();
+      }
       trace_step();
     }
     trace_done();

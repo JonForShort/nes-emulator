@@ -50,7 +50,8 @@ public:
     reset();
   }
 
-  void step() {
+  uint8_t step() {
+    const auto initial_cycles = cycles_;
     const auto fetched = fetch();
     const auto decoded = decode(fetched);
     if (decoded.decoded_result == decode::result::SUCCESS) {
@@ -60,6 +61,7 @@ public:
       BOOST_STATIC_ASSERT("unable to step cpu; decoded invalid instruction");
       interrupt(interrupt_type::BRK);
     }
+    return cycles_ - initial_cycles;
   }
 
   void reset() {
@@ -2657,7 +2659,7 @@ cpu::cpu(const memory &memory) : impl_(new impl(memory)) {}
 
 cpu::~cpu() = default;
 
-void cpu::step() { impl_->step(); }
+uint8_t cpu::step() { return impl_->step(); }
 
 void cpu::reset() { impl_->reset(); }
 

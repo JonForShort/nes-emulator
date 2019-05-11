@@ -61,7 +61,7 @@ public:
 
   ~cpu();
 
-  void step();
+  uint8_t step();
 
   void reset();
 

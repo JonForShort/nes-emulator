@@ -32,6 +32,10 @@ class ppu::impl final {
 public:
   explicit impl(const memory &memory) : memory_(memory) {}
 
+  uint8_t step() {
+    return 0;
+  }
+
   uint8_t read(uint16_t address) {
     boost::ignore_unused(address);
     return 0;
@@ -58,6 +62,10 @@ ppu::ppu(const jones::memory &memory)
 }
 
 ppu::~ppu() = default;
+
+uint8_t ppu::step() {
+  return impl_->step();
+}
 
 uint8_t ppu::read(const uint16_t address) const {
   return impl_->read(address);
