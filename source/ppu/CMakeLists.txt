@@ -7,7 +7,7 @@ set (boost-lib      ${DIR_ROOT_OUT}/boost/lib)
 
 # ppu
 
-set (sources ppu.cc)
+set (sources ppu.cc control_register.cc)
 
 add_library (ppu STATIC ${sources})
 

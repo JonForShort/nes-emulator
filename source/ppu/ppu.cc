@@ -21,8 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <boost/assert.hpp>
 #include <boost/core/ignore_unused.hpp>
+#include <boost/static_assert.hpp>
 
+#include "control_register.hh"
 #include "memory.hh"
 #include "ppu.hh"
 
@@ -36,13 +39,151 @@ public:
     return 0;
   }
 
-  uint8_t read(uint16_t address) {
-    boost::ignore_unused(address);
+  uint8_t read(const uint16_t address) const {
+    if (address >= 0x2000 && address <= 0x3FFF) {
+      return read_registers(address);
+    } else if (address == 0x4014) {
+      return read_object_attribute_memory_dma();
+    } else {
+      BOOST_STATIC_ASSERT("read unexpected for ppu");
+    }
+    return -1;
+  }
+
+  uint8_t read_registers(const uint16_t address) const {
+    BOOST_ASSERT_MSG(address < 0x2000 || address > 0x3FFF, "read unexpected address for ppu");
+    const auto address_offset = (address - 0x2000);
+    switch (address_offset % 8) {
+    case 0:
+      return read_control();
+    case 1:
+      return read_mask();
+    case 2:
+      return read_status();
+    case 3:
+      return read_object_attribute_memory_address();
+    case 4:
+      return read_object_attribute_memory_data();
+    case 5:
+      return read_scroll();
+    case 6:
+      return read_address();
+    case 7:
+      return read_data();
+    }
+    return -1;
+  }
+
+  uint8_t read_control() const {
+    return control_register_.get();
+  }
+
+  uint8_t read_mask() const {
     return 0;
   }
 
-  void write(uint16_t address, uint8_t data) {
-    boost::ignore_unused(address);
+  uint8_t read_status() const {
+    return 0;
+  }
+
+  uint8_t read_object_attribute_memory_address() const {
+    return 0;
+  }
+
+  uint8_t read_object_attribute_memory_data() const {
+    return 0;
+  }
+
+  uint8_t read_scroll() const {
+    return 0;
+  }
+
+  uint8_t read_address() const {
+    return 0;
+  }
+
+  uint8_t read_data() const {
+    return 0;
+  }
+
+  uint8_t read_object_attribute_memory_dma() const {
+    return 0;
+  }
+
+  void write(const uint16_t address, const uint8_t data) {
+    if (address >= 0x2000 && address <= 0x3FFF) {
+      write_registers(address, data);
+    } else if (address == 0x4014) {
+      write_object_attribute_memory_dma(data);
+    } else {
+      BOOST_STATIC_ASSERT("write unexpected for ppu");
+    }
+  }
+
+  void write_registers(const uint16_t address, const uint8_t data) {
+    BOOST_ASSERT_MSG(address < 0x2000 || address > 0x3FFF, "write unexpected address for ppu");
+    const auto address_offset = (address - 0x2000);
+    switch (address_offset % 8) {
+    case 0:
+      write_control(data);
+      break;
+    case 1:
+      write_mask(data);
+      break;
+    case 2:
+      write_status(data);
+      break;
+    case 3:
+      write_object_attribute_memory_address(data);
+      break;
+    case 4:
+      write_object_attribute_memory_data(data);
+      break;
+    case 5:
+      write_scroll(data);
+      break;
+    case 6:
+      write_address(data);
+      break;
+    case 7:
+      write_data(data);
+      break;
+    }
+  }
+
+  void write_control(const uint8_t data) {
+    control_register_.set(data);
+  }
+
+  void write_mask(const uint8_t data) {
+    boost::ignore_unused(data);
+  }
+
+  void write_status(const uint8_t data) {
+    boost::ignore_unused(data);
+  }
+
+  void write_object_attribute_memory_address(const uint8_t data) {
+    boost::ignore_unused(data);
+  }
+
+  void write_object_attribute_memory_data(const uint8_t data) {
+    boost::ignore_unused(data);
+  }
+
+  void write_scroll(const uint8_t data) {
+    boost::ignore_unused(data);
+  }
+
+  void write_address(const uint8_t data) {
+    boost::ignore_unused(data);
+  }
+
+  void write_data(const uint8_t data) {
+    boost::ignore_unused(data);
+  }
+
+  void write_object_attribute_memory_dma(const uint8_t data) {
     boost::ignore_unused(data);
   }
 
@@ -55,6 +196,8 @@ public:
 
 private:
   const memory &memory_;
+
+  control_register control_register_;
 };
 
 ppu::ppu(const jones::memory &memory)
