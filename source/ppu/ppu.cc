@@ -26,6 +26,7 @@
 #include <boost/static_assert.hpp>
 
 #include "control_register.hh"
+#include "mask_register.hh"
 #include "memory.hh"
 #include "ppu.hh"
 
@@ -79,7 +80,7 @@ public:
   }
 
   uint8_t read_mask() const {
-    return 0;
+    return mask_register_.get();
   }
 
   uint8_t read_status() const {
@@ -156,7 +157,7 @@ public:
   }
 
   void write_mask(const uint8_t data) {
-    boost::ignore_unused(data);
+    mask_register_.set(data);
   }
 
   void write_status(const uint8_t data) {
@@ -198,6 +199,8 @@ private:
   const memory &memory_;
 
   control_register control_register_;
+
+  mask_register mask_register_;
 };
 
 ppu::ppu(const jones::memory &memory)
@@ -219,9 +222,11 @@ void ppu::write(const uint16_t address, const uint8_t data) {
 }
 
 void ppu::initialize() {
+  impl_->initialize();
 }
 
 void ppu::uninitialize() {
+  impl_->uninitialize();
 }
 
 ppu_state ppu::get_state() const {
