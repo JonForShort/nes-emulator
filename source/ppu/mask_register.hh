@@ -27,7 +27,7 @@
 #include <bitset>
 #include <cstdint>
 
-namespace jones {
+namespace jones::ppu {
 
 //
 // https://wiki.nesdev.com/w/index.php/PPU_registers#PPUMASK
@@ -71,6 +71,6 @@ private:
   std::bitset<mask_flag_count> mask_flags_;
 };
 
-} // namespace jones
+} // namespace jones::ppu
 
 #endif // JONES_PPU_MASK_REGISTER_HH

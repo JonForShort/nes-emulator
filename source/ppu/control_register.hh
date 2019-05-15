@@ -27,7 +27,7 @@
 #include <bitset>
 #include <cstdint>
 
-namespace jones {
+namespace jones::ppu {
 
 //
 // https://wiki.nesdev.com/w/index.php/PPU_registers#PPUCTRL
@@ -71,6 +71,6 @@ private:
   std::bitset<control_flag_count> control_flags_;
 };
 
-} // namespace jones
+} // namespace jones::ppu
 
 #endif // JONES_PPU_CONTROL_REGISTER_HH

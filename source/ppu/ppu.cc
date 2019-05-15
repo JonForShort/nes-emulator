@@ -29,8 +29,9 @@
 #include "mask_register.hh"
 #include "memory.hh"
 #include "ppu.hh"
+#include "status_register.hh"
 
-using namespace jones;
+using namespace jones::ppu;
 
 class ppu::impl final {
 public:
@@ -84,7 +85,7 @@ public:
   }
 
   uint8_t read_status() const {
-    return 0;
+    return status_register_.get();
   }
 
   uint8_t read_object_attribute_memory_address() const {
@@ -123,6 +124,7 @@ public:
 
   void write_registers(const uint16_t address, const uint8_t data) {
     BOOST_ASSERT_MSG(address < 0x2000 || address > 0x3FFF, "write unexpected address for ppu");
+    status_register_.register_updated(data);
     const auto address_offset = (address - 0x2000);
     switch (address_offset % 8) {
     case 0:
@@ -161,7 +163,7 @@ public:
   }
 
   void write_status(const uint8_t data) {
-    boost::ignore_unused(data);
+    status_register_.set(data);
   }
 
   void write_object_attribute_memory_address(const uint8_t data) {
@@ -201,6 +203,8 @@ private:
   control_register control_register_;
 
   mask_register mask_register_;
+
+  status_register status_register_;
 };
 
 ppu::ppu(const jones::memory &memory)

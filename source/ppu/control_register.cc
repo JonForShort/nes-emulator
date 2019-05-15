@@ -25,7 +25,7 @@
 
 #include "control_register.hh"
 
-using namespace jones;
+using namespace jones::ppu;
 
 namespace {
 

@@ -28,7 +28,7 @@
 
 #include "memory.hh"
 
-namespace jones {
+namespace jones::ppu {
 
 struct ppu_state {
 
@@ -59,6 +59,6 @@ private:
   std::unique_ptr<impl> impl_;
 };
 
-} // namespace jones
+} // namespace jones::ppu
 
 #endif // JONES_PPU_PPU_HH
