@@ -33,6 +33,12 @@
 
 using namespace jones::ppu;
 
+namespace {
+
+constexpr uint16_t ppu_initial_cycles = 340;
+
+}
+
 class ppu::impl final {
 public:
   explicit impl(const memory &memory) : memory_(memory) {}
@@ -77,10 +83,12 @@ public:
   }
 
   uint8_t read_control() const {
+    BOOST_STATIC_ASSERT("read unexpected for control");
     return control_register_.get();
   }
 
   uint8_t read_mask() const {
+    BOOST_STATIC_ASSERT("read unexpected for mask");
     return mask_register_.get();
   }
 
@@ -89,11 +97,12 @@ public:
   }
 
   uint8_t read_object_attribute_memory_address() const {
-    return 0;
+    BOOST_STATIC_ASSERT("read unexpected for oam address");
+    return oam_address_;
   }
 
   uint8_t read_object_attribute_memory_data() const {
-    return 0;
+    return oam_data_[oam_address_];
   }
 
   uint8_t read_scroll() const {
@@ -163,15 +172,17 @@ public:
   }
 
   void write_status(const uint8_t data) {
+    BOOST_STATIC_ASSERT("write unexpected for status");
     status_register_.set(data);
   }
 
   void write_object_attribute_memory_address(const uint8_t data) {
-    boost::ignore_unused(data);
+    oam_address_ = data;
   }
 
   void write_object_attribute_memory_data(const uint8_t data) {
-    boost::ignore_unused(data);
+    oam_data_[oam_address_] = data;
+    oam_address_ += 1;
   }
 
   void write_scroll(const uint8_t data) {
@@ -192,12 +203,19 @@ public:
 
   void initialize() {
     boost::ignore_unused(memory_);
+    cycles_ = ppu_initial_cycles;
   }
 
   void uninitialize() {
   }
 
+  ppu_state get_state() {
+    return ppu_state{.cycles = cycles_};
+  }
+
 private:
+  uint64_t cycles_;
+
   const memory &memory_;
 
   control_register control_register_;
@@ -205,6 +223,10 @@ private:
   mask_register mask_register_;
 
   status_register status_register_;
+
+  uint8_t oam_address_;
+
+  uint8_t oam_data_[0xFF] = {0};
 };
 
 ppu::ppu(const jones::memory &memory)
@@ -234,5 +256,5 @@ void ppu::uninitialize() {
 }
 
 ppu_state ppu::get_state() const {
-  return ppu_state{.cycles = 0};
+  return impl_->get_state();
 }
