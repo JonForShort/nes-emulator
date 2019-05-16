@@ -25,6 +25,7 @@
 #include <boost/core/ignore_unused.hpp>
 #include <boost/static_assert.hpp>
 
+#include "color_palette.hh"
 #include "control_register.hh"
 #include "mask_register.hh"
 #include "memory.hh"
@@ -41,7 +42,7 @@ constexpr uint16_t ppu_initial_cycles = 340;
 
 class ppu::impl final {
 public:
-  explicit impl(const memory &memory) : memory_(memory) {}
+  explicit impl(const memory &memory) : cycles_(ppu_initial_cycles), memory_(memory), oam_address_(0) {}
 
   uint8_t step() {
     return 0;
