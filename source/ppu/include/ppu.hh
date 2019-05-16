@@ -27,6 +27,7 @@
 #include <memory>
 
 #include "memory.hh"
+#include "screen.hh"
 
 namespace jones::ppu {
 
@@ -37,7 +38,7 @@ struct ppu_state {
 
 class ppu final {
 public:
-  explicit ppu(const memory &memory);
+  ppu(memory &memory, screen::screen *screen);
 
   ~ppu();
 
@@ -48,8 +49,6 @@ public:
   void write(uint16_t address, uint8_t data);
 
   void initialize();
-
-  void uninitialize();
 
   ppu_state get_state() const;
 

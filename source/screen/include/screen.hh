@@ -26,19 +26,19 @@
 
 #include <memory>
 
-namespace jones {
+namespace jones::screen {
 
 class screen {
 public:
-  screen();
+  virtual ~screen() = default;
 
-  virtual ~screen();
+  virtual void initialize() = 0;
 
   virtual void draw_pixel(uint16_t x_position, uint16_t y_position) = 0;
 
   virtual void set_scale(uint8_t scale) = 0;
 };
 
-} // namespace jones
+} // namespace jones::screen
 
 #endif // JONES_SCREEN_SCREEN_HH

@@ -42,7 +42,8 @@ constexpr uint16_t ppu_initial_cycles = 340;
 
 class ppu::impl final {
 public:
-  explicit impl(const memory &memory) : cycles_(ppu_initial_cycles), memory_(memory), oam_address_(0) {}
+  explicit impl(memory &memory, screen::screen *screen)
+      : cycles_(0), memory_(memory), screen_(screen), oam_address_(0) {}
 
   uint8_t step() {
     return 0;
@@ -205,9 +206,7 @@ public:
   void initialize() {
     boost::ignore_unused(memory_);
     cycles_ = ppu_initial_cycles;
-  }
-
-  void uninitialize() {
+    screen_->initialize();
   }
 
   ppu_state get_state() {
@@ -217,7 +216,9 @@ public:
 private:
   uint64_t cycles_;
 
-  const memory &memory_;
+  memory &memory_;
+
+  screen::screen *screen_;
 
   control_register control_register_;
 
@@ -230,8 +231,8 @@ private:
   uint8_t oam_data_[0xFF] = {0};
 };
 
-ppu::ppu(const jones::memory &memory)
-    : impl_(new impl(memory)) {
+ppu::ppu(jones::memory &memory, screen::screen *screen)
+    : impl_(new impl(memory, screen)) {
 }
 
 ppu::~ppu() = default;
@@ -250,10 +251,6 @@ void ppu::write(const uint16_t address, const uint8_t data) {
 
 void ppu::initialize() {
   impl_->initialize();
-}
-
-void ppu::uninitialize() {
-  impl_->uninitialize();
 }
 
 ppu_state ppu::get_state() const {

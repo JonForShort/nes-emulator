@@ -105,9 +105,23 @@ private:
   std::vector<uint8_t> ram_;
 };
 
+class stub_screen : public screen::screen {
+public:
+  void initialize() {
+  }
+
+  void draw_pixel(uint16_t x_position, uint16_t y_position) {
+    boost::ignore_unused(x_position, y_position);
+  }
+
+  void set_scale(uint8_t scale) {
+    boost::ignore_unused(scale);
+  }
+};
+
 class nes::impl {
 public:
-  impl() : memory_(), apu_(memory_), cpu_(memory_), ppu_(memory_), cartridge_(), sram_(), ram_(), trace_file_() {
+  impl() : memory_(), screen_(std::make_unique<stub_screen>()), apu_(memory_), cpu_(memory_), ppu_(memory_, screen_.get()), cartridge_(), sram_(), ram_(), trace_file_() {
     memory_.map(std::make_unique<memory_mappable_component<memory_ram>>(ram_, 0x0000, 0x1FFF));
     memory_.map(std::make_unique<memory_mappable_component<ppu::ppu>>(ppu_, 0x2000, 0x3FFF));
     memory_.map(std::make_unique<memory_mappable_component<apu>>(apu_, 0x4000, 0x4017));
@@ -209,11 +223,19 @@ private:
 
 private:
   memory memory_;
+
+  std::unique_ptr<jones::screen::screen> screen_;
+
   apu apu_;
+
   cpu cpu_;
+
   ppu::ppu ppu_;
+
   cartridge cartridge_;
+
   memory_sram sram_;
+
   memory_ram ram_;
 
   std::ofstream trace_file_;
