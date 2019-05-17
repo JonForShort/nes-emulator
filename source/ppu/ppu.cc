@@ -36,9 +36,11 @@ using namespace jones::ppu;
 
 namespace {
 
-constexpr uint16_t ppu_initial_cycles = 340;
+constexpr uint16_t ppu_initial_cycles = 0;
 
-}
+constexpr uint16_t ppu_max_cycles = 340;
+
+} // namespace
 
 class ppu::impl final {
 public:
@@ -46,6 +48,11 @@ public:
       : cycles_(0), frames_(0), memory_(memory), screen_(screen), oam_address_(0) {}
 
   uint8_t step() {
+    cycles_++;
+    if (cycles_ > ppu_max_cycles) {
+      cycles_ = 0;
+      frames_++;
+    }
     return 0;
   }
 

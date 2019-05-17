@@ -96,9 +96,10 @@ void check_trace_files(const std::string &trace_path, const std::string &result_
     BOOST_CHECK_MESSAGE(trace_register_sp == result_register_sp,
                         format("line [%d] : check [sp] : expected [%s] found [%s]") % line_count % result_register_sp % trace_register_sp);
 
-    //    const auto trace_ppu = boost::trim_copy(trace_line.substr(74, 12));
-    //    const auto result_ppu = boost::trim_copy(result_line.substr(74, 12));
-    //    BOOST_CHECK_MESSAGE(trace_ppu == result_ppu, "ppu");
+    const auto trace_ppu = boost::trim_copy(trace_line.substr(74, 12));
+    const auto result_ppu = boost::trim_copy(result_line.substr(74, 12));
+    BOOST_CHECK_MESSAGE(trace_ppu == result_ppu,
+                        format("line [%d] : check [ppu] : expected [%s] found [%s]") % line_count % result_ppu % trace_ppu);
 
     const auto trace_cpu = boost::trim_copy(trace_line.substr(86));
     const auto result_cpu = boost::trim_copy(result_line.substr(86));
