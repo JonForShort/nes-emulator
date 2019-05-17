@@ -207,7 +207,11 @@ private:
 
       const auto ppu_state = ppu_.get_state();
 
-      trace_file_ << "PPU:" << std::dec << std::right << std::setw(3) << std::setfill(' ') << ppu_state.cycles << ",  0 ";
+      trace_file_ << "PPU:";
+
+      trace_file_ << std::dec << std::right << std::setw(3) << std::setfill(' ') << ppu_state.cycles << ",";
+
+      trace_file_ << std::dec << std::right << std::setw(3) << std::setfill(' ') << ppu_state.frames << " ";
 
       trace_file_ << "CYC:" << std::dec << cpu_state.cycles;
 

@@ -43,7 +43,7 @@ constexpr uint16_t ppu_initial_cycles = 340;
 class ppu::impl final {
 public:
   explicit impl(memory &memory, screen::screen *screen)
-      : cycles_(0), memory_(memory), screen_(screen), oam_address_(0) {}
+      : cycles_(0), frames_(0), memory_(memory), screen_(screen), oam_address_(0) {}
 
   uint8_t step() {
     return 0;
@@ -210,11 +210,13 @@ public:
   }
 
   ppu_state get_state() {
-    return ppu_state{.cycles = cycles_};
+    return ppu_state{.cycles = cycles_, .frames = frames_};
   }
 
 private:
   uint64_t cycles_;
+
+  uint64_t frames_;
 
   memory &memory_;
 
