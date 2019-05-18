@@ -24,6 +24,9 @@
 #ifndef JONES_NES_NES_HH
 #define JONES_NES_NES_HH
 
+#include "controller.hh"
+#include "screen.hh"
+
 #include <memory>
 
 namespace jones {
@@ -41,6 +44,12 @@ public:
   void reset();
 
   void trace(const char *trace_file);
+
+  controller::controller_ptr controller_one();
+
+  controller::controller_ptr controller_two();
+
+  void attach_screen(std::unique_ptr<screen::screen> screen);
 
 private:
   class impl;

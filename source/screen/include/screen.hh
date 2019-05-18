@@ -32,8 +32,6 @@ class screen {
 public:
   virtual ~screen() = default;
 
-  virtual void initialize() = 0;
-
   virtual void draw_pixel(uint16_t x_position, uint16_t y_position) = 0;
 
   virtual void set_scale(uint8_t scale) = 0;

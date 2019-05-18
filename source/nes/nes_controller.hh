@@ -21,16 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_CONTROLLER_INPUT_HANDLER_HH
-#define JONES_CONTROLLER_INPUT_HANDLER_HH
+#ifndef JONES_NES_NES_CONTROLLER_HH
+#define JONES_NES_NES_CONTROLLER_HH
 
-namespace jones::controller {
+#include "controller.hh"
+#include "memory.hh"
 
-class input_handler {
+#include <boost/core/ignore_unused.hpp>
+
+namespace jones {
+
+class nes_controller : public controller::controller {
 public:
-  virtual ~input_handler() {}
+  nes_controller(const memory &memory) : memory_(memory) {
+    boost::ignore_unused(memory_);
+  }
+
+  auto set_button_state(const jones::controller::button_state state) -> void override {
+    boost::ignore_unused(state);
+  }
+
+  auto set_controller_state(const jones::controller::controller_state state) -> void override {
+    boost::ignore_unused(state);
+  }
+
+private:
+  const memory &memory_;
 };
 
-} // namespace jones::controller
+} // namespace jones
 
-#endif // JONES_CONTROLLER_INPUT_HANDLER_HH
+#endif // JONES_NES_NES_CONTROLLER_HH

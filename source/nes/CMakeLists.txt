@@ -17,7 +17,7 @@ set (sndio-lib     ${DIR_ROOT_OUT}/sndio/lib)
 
 # jones library
 
-set (jones-lib-source nes.cc screen.cc)
+set (jones-lib-source nes.cc)
 
 add_library (jones-lib SHARED ${jones-lib-source})
 
@@ -29,6 +29,7 @@ target_link_libraries (jones-lib memory)
 target_link_libraries (jones-lib apu)
 target_link_libraries (jones-lib cpu)
 target_link_libraries (jones-lib cartridge)
+target_link_libraries (jones-lib controller)
 target_link_libraries (jones-lib ppu)
 target_link_libraries (jones-lib ${boost-lib}/libboost_filesystem.a)
 target_link_libraries (jones-lib ${sdl-lib}/libSDL2.so)

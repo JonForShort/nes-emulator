@@ -40,7 +40,7 @@ struct ppu_state {
 
 class ppu final {
 public:
-  ppu(memory &memory, screen::screen *screen);
+  ppu(memory &memory, std::unique_ptr<screen::screen> screen);
 
   ~ppu();
 

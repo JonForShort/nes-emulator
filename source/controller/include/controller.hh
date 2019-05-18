@@ -26,27 +26,46 @@
 
 namespace jones::controller {
 
-enum class buttons {
+enum class button {
   BUTTON_A,
+
   BUTTON_B,
+
   BUTTON_SELECT,
+
   BUTTON_START,
+
   BUTTON_UP,
+
   BUTTON_DOWN,
+
   BUTTON_LEFT,
+
   BUTTON_RIGHT
+};
+
+enum class button_state {
+  BUTTON_STATE_DOWN,
+
+  BUTTON_STATE_UP,
+};
+
+enum class controller_state {
+  CONNECTED,
+
+  DISCONNECTED
 };
 
 class controller {
 public:
-  virtual ~controller() {}
+  virtual ~controller() = default;
 
-  virtual auto on_connected() -> void = 0;
-  virtual auto on_disconnected() -> void = 0;
+  virtual auto set_button_state(button_state state) -> void = 0;
 
-  virtual auto is_button_pressed(buttons button) -> void = 0;
-  virtual auto is_button_unpressed(buttons button) -> void = 0;
+  virtual auto set_controller_state(controller_state state) -> void = 0;
 };
+
+using controller_ptr = controller *;
 
 } // namespace jones::controller
 

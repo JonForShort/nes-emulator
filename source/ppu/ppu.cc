@@ -44,8 +44,8 @@ constexpr uint16_t ppu_max_cycles = 340;
 
 class ppu::impl final {
 public:
-  explicit impl(memory &memory, screen::screen *screen)
-      : cycles_(0), frames_(0), memory_(memory), screen_(screen), oam_address_(0) {}
+  explicit impl(memory &memory, std::unique_ptr<screen::screen> screen)
+      : cycles_(0), frames_(0), memory_(memory), screen_(std::move(screen)), oam_address_(0) {}
 
   uint8_t step() {
     cycles_++;
@@ -213,7 +213,6 @@ public:
   void initialize() {
     boost::ignore_unused(memory_);
     cycles_ = ppu_initial_cycles;
-    screen_->initialize();
   }
 
   ppu_state get_state() {
@@ -227,7 +226,7 @@ private:
 
   memory &memory_;
 
-  screen::screen *screen_;
+  std::unique_ptr<screen::screen> screen_;
 
   control_register control_register_;
 
@@ -240,8 +239,8 @@ private:
   uint8_t oam_data_[0xFF] = {0};
 };
 
-ppu::ppu(jones::memory &memory, screen::screen *screen)
-    : impl_(new impl(memory, screen)) {
+ppu::ppu(jones::memory &memory, std::unique_ptr<screen::screen> screen)
+    : impl_(new impl(memory, std::move(screen))) {
 }
 
 ppu::~ppu() = default;

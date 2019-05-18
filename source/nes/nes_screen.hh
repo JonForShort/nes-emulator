@@ -21,44 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_NES_SCREEN_HH
-#define JONES_NES_SCREEN_HH
+#ifndef JONES_NES_NES_SCREEN_HH
+#define JONES_NES_NES_SCREEN_HH
 
-#include <SDL2/SDL.h>
-
-#include "utils.hh"
+#include "screen.hh"
 
 namespace jones {
 
-class screen {
+class nes_screen : public screen::screen {
 public:
-  screen();
+  void draw_pixel(uint16_t x_position, uint16_t y_position) override {
+    boost::ignore_unused(x_position, y_position);
+  }
 
-  ~screen();
-
-  void initialize();
-
-  void release();
-
-  void show();
-
-private:
-  void process_events();
-
-  void render_screen();
-
-  void fill_with_color(u8 r, u8 g, u8 b, u8 a);
-
-private:
-  SDL_Event events_;
-
-  SDL_Window *window_;
-
-  SDL_Renderer *renderer_;
-
-  bool is_running_;
+  void set_scale(uint8_t scale) override {
+    boost::ignore_unused(scale);
+  }
 };
 
 } // namespace jones
 
-#endif // JONES_NES_SCREEN_HH
+#endif // JONES_NES_NES_SCREEN_HH

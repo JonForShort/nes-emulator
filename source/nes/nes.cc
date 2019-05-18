@@ -31,97 +31,27 @@
 #include "cpu.hh"
 #include "memory.hh"
 #include "nes.hh"
+#include "nes_components.hh"
+#include "nes_controller.hh"
+#include "nes_screen.hh"
 #include "ppu.hh"
 
 using namespace jones;
 
-template <typename C>
-class memory_mappable_component : public memory_mappable {
-public:
-  memory_mappable_component(C &component, uint16_t start_address, uint16_t end_address)
-      : component_(component), start_address_(start_address), end_address_(end_address) {}
-
-  uint16_t start_address() override {
-    return start_address_;
-  }
-
-  uint16_t end_address() override {
-    return end_address_;
-  }
-
-  uint8_t read(const uint16_t address) override {
-    return component_.read(address);
-  }
-
-  void write(const uint16_t address, const uint8_t data) override {
-    component_.write(address, data);
-  }
-
-private:
-  C &component_;
-  const uint16_t start_address_;
-  const uint32_t end_address_;
-};
-
-class memory_sram {
-public:
-  memory_sram() : sram_(sram_size, 0) {}
-
-  ~memory_sram() = default;
-
-  uint8_t read(const uint16_t address) {
-    return sram_[address];
-  }
-
-  void write(const uint16_t address, const uint8_t data) {
-    sram_[address] = data;
-  }
-
-private:
-  static constexpr size_t sram_size = 0x2000U;
-
-  std::vector<uint8_t> sram_;
-};
-
-class memory_ram {
-public:
-  memory_ram() : ram_(ram_size, 0) {}
-
-  ~memory_ram() = default;
-
-  uint8_t read(const uint16_t address) {
-    const auto read_address = address % 0x0800U;
-    return ram_[read_address];
-  }
-
-  void write(const uint16_t address, const uint8_t data) {
-    const auto write_address = address % 0x0800U;
-    ram_[write_address] = data;
-  }
-
-private:
-  static constexpr size_t ram_size = 0x0800U;
-
-  std::vector<uint8_t> ram_;
-};
-
-class stub_screen : public screen::screen {
-public:
-  void initialize() {
-  }
-
-  void draw_pixel(uint16_t x_position, uint16_t y_position) {
-    boost::ignore_unused(x_position, y_position);
-  }
-
-  void set_scale(uint8_t scale) {
-    boost::ignore_unused(scale);
-  }
-};
-
 class nes::impl {
 public:
-  impl() : memory_(), screen_(std::make_unique<stub_screen>()), apu_(memory_), cpu_(memory_), ppu_(memory_, screen_.get()), cartridge_(), sram_(), ram_(), trace_file_() {
+  impl()
+      : memory_(),
+        apu_(memory_),
+        cpu_(memory_),
+        ppu_(memory_, std::make_unique<nes_screen>()),
+        cartridge_(),
+        sram_(),
+        ram_(),
+        trace_file_(),
+        screen_(),
+        controller_one_(std::make_unique<nes_controller>(memory_)),
+        controller_two_(std::make_unique<nes_controller>(memory_)) {
     memory_.map(std::make_unique<memory_mappable_component<memory_ram>>(ram_, 0x0000, 0x1FFF));
     memory_.map(std::make_unique<memory_mappable_component<ppu::ppu>>(ppu_, 0x2000, 0x3FFF));
     memory_.map(std::make_unique<memory_mappable_component<apu>>(apu_, 0x4000, 0x4017));
@@ -168,6 +98,18 @@ public:
 
   void trace(const char *trace_file) {
     trace_file_ = std::ofstream{trace_file};
+  }
+
+  controller::controller_ptr controller_one() {
+    return controller_one_.get();
+  }
+
+  controller::controller_ptr controller_two() {
+    return controller_two_.get();
+  }
+
+  void attach_screen(std::unique_ptr<screen::screen> screen) {
+    screen_ = std::move(screen);
   }
 
 private:
@@ -228,8 +170,6 @@ private:
 private:
   memory memory_;
 
-  std::unique_ptr<jones::screen::screen> screen_;
-
   apu apu_;
 
   cpu cpu_;
@@ -243,6 +183,12 @@ private:
   memory_ram ram_;
 
   std::ofstream trace_file_;
+
+  std::unique_ptr<screen::screen> screen_;
+
+  std::unique_ptr<controller::controller> controller_one_;
+
+  std::unique_ptr<controller::controller> controller_two_;
 };
 
 nes::nes() noexcept
@@ -265,4 +211,16 @@ void nes::reset() {
 
 void nes::trace(const char *trace_file) {
   pimpl_->trace(trace_file);
+}
+
+controller::controller_ptr nes::controller_one() {
+  return pimpl_->controller_one();
+}
+
+controller::controller_ptr nes::controller_two() {
+  return pimpl_->controller_two();
+}
+
+void nes::attach_screen(std::unique_ptr<screen::screen> screen) {
+  pimpl_->attach_screen(std::move(screen));
 }
