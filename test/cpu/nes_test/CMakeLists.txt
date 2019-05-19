@@ -14,6 +14,7 @@ add_executable (test_suite_nes_test ${sources})
 target_link_libraries (test_suite_nes_test log)
 target_link_libraries (test_suite_nes_test jones-lib)
 target_link_libraries (test_suite_nes_test ${boost-lib}/libboost_unit_test_framework.a)
+target_link_libraries (test_suite_nes_test ${boost-lib}/libboost_filesystem.a)
 
 target_include_directories (test_suite_nes_test PRIVATE ${boost-include})
 
