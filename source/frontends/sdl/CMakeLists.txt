@@ -15,7 +15,7 @@ set (sdl-lib       ${DIR_ROOT_OUT}/sdl/lib)
 set (sndio-include ${DIR_ROOT_OUT}/sndio/include)
 set (sndio-lib     ${DIR_ROOT_OUT}/sndio/lib)
 
-set (jones-source main.cc)
+set (jones-source main.cc sdl_screen.cc)
 
 add_executable (jones ${jones-source})
 

@@ -26,6 +26,7 @@
 #include <iostream>
 
 #include "nes.hh"
+#include "sdl_screen.hh"
 
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
@@ -55,8 +56,12 @@ int main(int argc, char *argv[]) {
     return -3;
   }
 
+  auto screen = std::make_unique<jones::sdl_screen>();
+  screen->initialize();
+
   jones::nes nes;
   nes.load(file_path.string().c_str());
+  nes.attach_screen(std::move(screen));
   nes.run();
 
   return 0;
