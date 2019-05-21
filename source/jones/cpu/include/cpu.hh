@@ -73,6 +73,8 @@ public:
 
   void initialize();
 
+  void uninitialize();
+
 private:
   class impl;
 

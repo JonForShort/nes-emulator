@@ -52,6 +52,8 @@ public:
 
   void initialize();
 
+  void uninitialize();
+
   ppu_state get_state() const;
 
 private:

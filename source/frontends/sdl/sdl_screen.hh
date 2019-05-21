@@ -34,20 +34,22 @@ class sdl_screen : public screen::screen {
 public:
   ~sdl_screen() override = default;
 
-  void initialize();
+  void initialize() override;
 
-  void release();
+  void uninitialize() override;
 
   void draw_pixel(uint16_t x_position, uint16_t y_position) override;
 
   void set_scale(uint8_t scale) override;
 
 private:
+  void show();
+
+  void hide();
+
   void fill_with_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
   void process_events();
-
-  void show();
 
   void render_screen();
 

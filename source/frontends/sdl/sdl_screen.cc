@@ -41,6 +41,10 @@ void sdl_screen::initialize() {
   SDL_Init(SDL_INIT_HAPTIC);
 }
 
+void sdl_screen::uninitialize() {
+  SDL_Quit();
+}
+
 void sdl_screen::show() {
   window_ = SDL_CreateWindow("Jones NES Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
   if (window_ == nullptr) {
@@ -61,6 +65,10 @@ void sdl_screen::show() {
   }
 }
 
+void sdl_screen::hide() {
+  is_running_ = false;
+}
+
 void sdl_screen::fill_with_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) {
   if (renderer_ != nullptr) {
     SDL_SetRenderDrawColor(renderer_, r, g, b, a);
@@ -77,8 +85,4 @@ void sdl_screen::process_events() {
 }
 
 void sdl_screen::render_screen() {
-}
-
-void sdl_screen::release() {
-  SDL_Quit();
 }

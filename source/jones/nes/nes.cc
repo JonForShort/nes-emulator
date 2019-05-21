@@ -94,6 +94,8 @@ public:
       trace_step();
     }
     trace_done();
+
+    uninitialize_components();
   }
 
   void reset() {
@@ -121,6 +123,18 @@ private:
     ppu_.initialize();
     cpu_.initialize();
     apu_.initialize();
+    if (screen_ != nullptr) {
+      screen_->initialize();
+    }
+  }
+
+  void uninitialize_components() {
+    ppu_.uninitialize();
+    cpu_.uninitialize();
+    apu_.uninitialize();
+    if (screen_ != nullptr) {
+      screen_->uninitialize();
+    }
   }
 
   void trace_step() {

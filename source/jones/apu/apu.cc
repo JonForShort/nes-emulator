@@ -30,7 +30,9 @@ using namespace jones;
 
 class apu::impl final {
 public:
-  explicit impl(const memory &memory) : memory_(memory) {}
+  explicit impl(const memory &memory) : memory_(memory) {
+    boost::ignore_unused(memory_);
+  }
 
   uint8_t step() {
     return 0;
@@ -46,7 +48,9 @@ public:
   }
 
   void initialize() {
-    boost::ignore_unused(memory_);
+  }
+
+  void uninitialize() {
   }
 
 private:
@@ -73,4 +77,8 @@ void apu::write(const uint16_t address, const uint8_t data) {
 
 void apu::initialize() {
   impl_->initialize();
+}
+
+void apu::uninitialize() {
+  impl_->uninitialize();
 }

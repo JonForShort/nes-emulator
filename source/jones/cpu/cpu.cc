@@ -50,6 +50,9 @@ public:
     reset();
   }
 
+  void uninitialize() {
+  }
+
   uint8_t step() {
     const auto initial_cycles = cycles_;
     const auto fetched = fetch();
@@ -2677,4 +2680,8 @@ cpu_state cpu::get_state() {
 
 void cpu::initialize() {
   impl_->initialize();
+}
+
+void cpu::uninitialize() {
+  impl_->uninitialize();
 }

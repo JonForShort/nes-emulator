@@ -215,6 +215,9 @@ public:
     cycles_ = ppu_initial_cycles;
   }
 
+  void uninitialize() {
+  }
+
   ppu_state get_state() {
     return ppu_state{.cycles = cycles_, .frames = frames_};
   }
@@ -259,6 +262,10 @@ void ppu::write(const uint16_t address, const uint8_t data) {
 
 void ppu::initialize() {
   impl_->initialize();
+}
+
+void ppu::uninitialize() {
+  impl_->uninitialize();
 }
 
 ppu_state ppu::get_state() const {

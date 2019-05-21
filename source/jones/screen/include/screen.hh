@@ -32,9 +32,13 @@ class screen {
 public:
   virtual ~screen() = default;
 
-  virtual void draw_pixel(uint16_t x_position, uint16_t y_position) = 0;
+  virtual auto initialize() -> void = 0;
 
-  virtual void set_scale(uint8_t scale) = 0;
+  virtual auto uninitialize() -> void = 0;
+
+  virtual auto draw_pixel(uint16_t x_position, uint16_t y_position) -> void = 0;
+
+  virtual auto set_scale(uint8_t scale) -> void = 0;
 };
 
 } // namespace jones::screen

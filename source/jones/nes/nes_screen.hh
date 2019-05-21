@@ -30,11 +30,17 @@ namespace jones {
 
 class nes_screen : public screen::screen {
 public:
-  void draw_pixel(uint16_t x_position, uint16_t y_position) override {
+  auto initialize() -> void override {
+  }
+
+  auto uninitialize() -> void override {
+  }
+
+  auto draw_pixel(const uint16_t x_position, const uint16_t y_position) -> void override {
     boost::ignore_unused(x_position, y_position);
   }
 
-  void set_scale(uint8_t scale) override {
+  auto set_scale(const uint8_t scale) -> void override {
     boost::ignore_unused(scale);
   }
 };
