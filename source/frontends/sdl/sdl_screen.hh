@@ -27,18 +27,29 @@
 #include "screen.hh"
 
 #include <SDL2/SDL.h>
+#include <atomic>
+#include <thread>
 
 namespace jones {
 
+class sdl_screen_listener {
+public:
+  virtual ~sdl_screen_listener() = default;
+
+  virtual void on_screen_closed() = 0;
+};
+
 class sdl_screen : public screen::screen {
 public:
+  explicit sdl_screen(sdl_screen_listener *listener = nullptr);
+
   ~sdl_screen() override = default;
 
   void initialize() override;
 
   void uninitialize() override;
 
-  void draw_pixel(uint16_t x_position, uint16_t y_position) override;
+  void draw_pixel(uint16_t x_position, uint16_t y_position, uint32_t pixel) override;
 
   void set_scale(uint8_t scale) override;
 
@@ -60,7 +71,11 @@ private:
 
   SDL_Renderer *renderer_;
 
-  bool is_running_;
+  std::atomic<bool> is_running_ = false;
+
+  std::thread running_thread_;
+
+  sdl_screen_listener *listener_;
 };
 
 } // namespace jones

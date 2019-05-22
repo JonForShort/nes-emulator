@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <atomic>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/filesystem.hpp>
 #include <fstream>
@@ -33,25 +34,24 @@
 #include "nes.hh"
 #include "nes_components.hh"
 #include "nes_controller.hh"
-#include "nes_screen.hh"
 #include "ppu.hh"
 
 using namespace jones;
 
 class nes::impl {
 public:
-  impl()
-      : memory_(),
-        apu_(memory_),
-        cpu_(memory_),
-        ppu_(memory_, std::make_unique<nes_screen>()),
-        cartridge_(),
-        sram_(),
-        ram_(),
-        trace_file_(),
-        screen_(),
-        controller_one_(std::make_unique<nes_controller>(memory_)),
-        controller_two_(std::make_unique<nes_controller>(memory_)) {
+  impl() : is_running_(false),
+           memory_(),
+           apu_(memory_),
+           cpu_(memory_),
+           ppu_(memory_),
+           cartridge_(),
+           sram_(),
+           ram_(),
+           trace_file_(),
+           screen_(),
+           controller_one_(std::make_unique<nes_controller>(memory_)),
+           controller_two_(std::make_unique<nes_controller>(memory_)) {
     auto mapped_controller_one = mapped_nes_controller(controller_one_.get());
     auto mapped_controller_two = mapped_nes_controller(controller_two_.get());
     memory_.map(std::make_unique<memory_mappable_component<memory_ram>>(ram_, 0x0000, 0x1FFF));
@@ -80,8 +80,10 @@ public:
   }
 
   void run(const size_t step_limit) {
+    is_running_ = true;
+
     trace_step();
-    for (size_t step_count = 0; step_count < step_limit || step_limit == 0; step_count++) {
+    for (size_t step_count = 0; is_running_ && (step_count < step_limit || step_limit == 0); step_count++) {
       const auto cpu_cycles = cpu_.step();
       const auto ppu_cycles = cpu_cycles * 3;
       const auto apu_cycles = cpu_cycles;
@@ -96,6 +98,10 @@ public:
     trace_done();
 
     uninitialize_components();
+  }
+
+  void stop() {
+    is_running_ = false;
   }
 
   void reset() {
@@ -186,6 +192,8 @@ private:
   }
 
 private:
+  std::atomic<bool> is_running_;
+
   memory memory_;
 
   apu apu_;
@@ -221,6 +229,10 @@ bool nes::load(const char *rom_path) {
 
 void nes::run(const size_t cycle_count) {
   pimpl_->run(cycle_count);
+}
+
+void nes::stop() {
+  pimpl_->stop();
 }
 
 void nes::reset() {

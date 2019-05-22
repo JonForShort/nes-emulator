@@ -41,6 +41,8 @@ public:
 
   void run(size_t step_limit = 0);
 
+  void stop();
+
   void reset();
 
   void trace(const char *trace_file);

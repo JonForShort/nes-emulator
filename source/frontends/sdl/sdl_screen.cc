@@ -29,8 +29,21 @@
 
 using namespace jones;
 
-void sdl_screen::draw_pixel(const uint16_t x_position, const uint16_t y_position) {
-  boost::ignore_unused(x_position, y_position);
+namespace {
+
+void push_sdl_quit_event() {
+  SDL_Event event;
+  event.type = SDL_QUIT;
+  SDL_PushEvent(&event);
+}
+
+} // namespace
+
+sdl_screen::sdl_screen(sdl_screen_listener *listener) : listener_(listener) {
+}
+
+void sdl_screen::draw_pixel(const uint16_t x_position, const uint16_t y_position, const uint32_t pixel) {
+  boost::ignore_unused(x_position, y_position, pixel);
 }
 
 void sdl_screen::set_scale(const uint8_t scale) {
@@ -38,14 +51,15 @@ void sdl_screen::set_scale(const uint8_t scale) {
 }
 
 void sdl_screen::initialize() {
-  SDL_Init(SDL_INIT_HAPTIC);
+  show();
 }
 
 void sdl_screen::uninitialize() {
-  SDL_Quit();
+  hide();
 }
 
 void sdl_screen::show() {
+  SDL_Init(SDL_INIT_HAPTIC);
   window_ = SDL_CreateWindow("Jones NES Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
   if (window_ == nullptr) {
     is_running_ = false;
@@ -59,14 +73,20 @@ void sdl_screen::show() {
   fill_with_color(0, 0, 0, 0);
 
   is_running_ = true;
-  while (is_running_) {
-    process_events();
-    render_screen();
-  }
+
+  running_thread_ = std::thread([this]() {
+    while (is_running_) {
+      process_events();
+      render_screen();
+    }
+  });
 }
 
 void sdl_screen::hide() {
   is_running_ = false;
+  push_sdl_quit_event();
+  running_thread_.join();
+  SDL_Quit();
 }
 
 void sdl_screen::fill_with_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) {
@@ -79,8 +99,13 @@ void sdl_screen::fill_with_color(const uint8_t r, const uint8_t g, const uint8_t
 
 void sdl_screen::process_events() {
   while (SDL_PollEvent(&events_)) {
-    if (events_.type == SDL_QUIT)
+    if (events_.type == SDL_QUIT) {
       is_running_ = false;
+      if (listener_ != nullptr) {
+        listener_->on_screen_closed();
+      }
+      break;
+    }
   }
 }
 

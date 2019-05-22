@@ -44,8 +44,7 @@ constexpr uint16_t ppu_max_cycles = 340;
 
 class ppu::impl final {
 public:
-  explicit impl(memory &memory, std::unique_ptr<screen::screen> screen)
-      : cycles_(0), frames_(0), memory_(memory), screen_(std::move(screen)), oam_address_(0) {}
+  explicit impl(memory &memory) : cycles_(0), frames_(0), memory_(memory), oam_address_(0) {}
 
   uint8_t step() {
     cycles_++;
@@ -68,7 +67,7 @@ public:
   }
 
   uint8_t read_registers(const uint16_t address) const {
-    BOOST_ASSERT_MSG(address < 0x2000 || address > 0x3FFF, "read unexpected address for ppu");
+    BOOST_ASSERT_MSG(address >= 0x2000 && address <= 0x3FFF, "read unexpected address for ppu");
     const auto address_offset = (address - 0x2000);
     switch (address_offset % 8) {
     case 0:
@@ -141,7 +140,7 @@ public:
   }
 
   void write_registers(const uint16_t address, const uint8_t data) {
-    BOOST_ASSERT_MSG(address < 0x2000 || address > 0x3FFF, "write unexpected address for ppu");
+    BOOST_ASSERT_MSG(address >= 0x2000 && address <= 0x3FFF, "write unexpected address for ppu");
     status_register_.register_updated(data);
     const auto address_offset = (address - 0x2000);
     switch (address_offset % 8) {
@@ -229,8 +228,6 @@ private:
 
   memory &memory_;
 
-  std::unique_ptr<screen::screen> screen_;
-
   control_register control_register_;
 
   mask_register mask_register_;
@@ -242,9 +239,7 @@ private:
   uint8_t oam_data_[0xFF] = {0};
 };
 
-ppu::ppu(jones::memory &memory, std::unique_ptr<screen::screen> screen)
-    : impl_(new impl(memory, std::move(screen))) {
-}
+ppu::ppu(jones::memory &memory) : impl_(new impl(memory)) {}
 
 ppu::~ppu() = default;
 

@@ -31,6 +31,18 @@
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
+class screen_listener : public jones::sdl_screen_listener {
+public:
+  explicit screen_listener(jones::nes &nes) : nes_(nes) {}
+
+  void on_screen_closed() override {
+    nes_.stop();
+  }
+
+private:
+  jones::nes &nes_;
+};
+
 int main(int argc, char *argv[]) {
   std::string file_argument;
   try {
@@ -57,7 +69,9 @@ int main(int argc, char *argv[]) {
   }
 
   jones::nes nes;
-  nes.attach_screen(std::make_unique<jones::sdl_screen>());
+  auto listener = std::make_unique<screen_listener>(nes);
+
+  nes.attach_screen(std::make_unique<jones::sdl_screen>(listener.get()));
   nes.load(file_path.string().c_str());
   nes.run();
 

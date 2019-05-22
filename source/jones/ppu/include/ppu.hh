@@ -27,7 +27,6 @@
 #include <memory>
 
 #include "memory.hh"
-#include "screen.hh"
 
 namespace jones::ppu {
 
@@ -40,7 +39,7 @@ struct ppu_state {
 
 class ppu final {
 public:
-  ppu(memory &memory, std::unique_ptr<screen::screen> screen);
+  explicit ppu(memory &memory);
 
   ~ppu();
 
