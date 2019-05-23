@@ -62,11 +62,7 @@ private:
 
   void process_events();
 
-  void render_screen();
-
 private:
-  SDL_Event events_;
-
   SDL_Window *window_;
 
   SDL_Renderer *renderer_;

@@ -25,6 +25,7 @@
 #include <boost/core/ignore_unused.hpp>
 #include <cstdint>
 
+#include "log.hh"
 #include "sdl_screen.hh"
 
 using namespace jones;
@@ -62,22 +63,20 @@ void sdl_screen::show() {
   SDL_Init(SDL_INIT_HAPTIC);
   window_ = SDL_CreateWindow("Jones NES Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
   if (window_ == nullptr) {
-    is_running_ = false;
+    LOG_ERROR << "unable to create window";
     return;
   }
   renderer_ = SDL_CreateRenderer(window_, -1, 0);
   if (renderer_ == nullptr) {
-    is_running_ = false;
+    LOG_ERROR << "unable to create renderer";
     return;
   }
   fill_with_color(0, 0, 0, 0);
 
-  is_running_ = true;
-
   running_thread_ = std::thread([this]() {
+    is_running_ = true;
     while (is_running_) {
       process_events();
-      render_screen();
     }
   });
 }
@@ -86,6 +85,14 @@ void sdl_screen::hide() {
   is_running_ = false;
   push_sdl_quit_event();
   running_thread_.join();
+  if (renderer_ != nullptr) {
+    SDL_DestroyRenderer(renderer_);
+    renderer_ = nullptr;
+  }
+  if (window_ != nullptr) {
+    SDL_DestroyWindow(window_);
+    window_ = nullptr;
+  }
   SDL_Quit();
 }
 
@@ -98,8 +105,9 @@ void sdl_screen::fill_with_color(const uint8_t r, const uint8_t g, const uint8_t
 }
 
 void sdl_screen::process_events() {
-  while (SDL_PollEvent(&events_)) {
-    if (events_.type == SDL_QUIT) {
+  SDL_Event events;
+  while (SDL_PollEvent(&events)) {
+    if (events.type == SDL_QUIT) {
       is_running_ = false;
       if (listener_ != nullptr) {
         listener_->on_screen_closed();
@@ -107,7 +115,4 @@ void sdl_screen::process_events() {
       break;
     }
   }
-}
-
-void sdl_screen::render_screen() {
 }

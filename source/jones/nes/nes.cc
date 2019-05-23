@@ -70,18 +70,14 @@ public:
 
   bool load(const char *rom_path) {
     if (boost::filesystem::exists(rom_path)) {
-      const auto loaded_cartridge = cartridge_.attach(rom_path);
-      if (loaded_cartridge) {
-        initialize_components();
-        return true;
-      }
+      return cartridge_.attach(rom_path);
     }
     return false;
   }
 
   void run(const size_t step_limit) {
+    initialize_components();
     is_running_ = true;
-
     trace_step();
     for (size_t step_count = 0; is_running_ && (step_count < step_limit || step_limit == 0); step_count++) {
       const auto cpu_cycles = cpu_.step();
@@ -96,7 +92,6 @@ public:
       trace_step();
     }
     trace_done();
-
     uninitialize_components();
   }
 
