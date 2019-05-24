@@ -6,6 +6,18 @@ JONES_OUT_DIR=${SCRIPT_DIR}/../out/jones
 
 JONES_BUILD_DIR=${SCRIPT_DIR}/../build
 
+jones() {
+
+    JONES=${JONES_OUT_DIR}/bin/jones
+
+    if [ ! -f "${JONES}" ]; then
+        echo "error: unable to find jones; path is not valid [${JONES}]"
+        return -1
+    fi
+
+    ${JONES} "$@"
+}
+
 jones_tool() {
 
     JONES_TOOL=${JONES_OUT_DIR}/bin/jones-tool
