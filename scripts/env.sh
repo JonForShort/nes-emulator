@@ -6,6 +6,8 @@ JONES_OUT_DIR=${SCRIPT_DIR}/../out/jones
 
 JONES_BUILD_DIR=${SCRIPT_DIR}/../build
 
+JONES_CMAKE_DIR=${SCRIPT_DIR}/../cmake
+
 jones() {
 
     JONES=${JONES_OUT_DIR}/bin/jones
@@ -19,8 +21,10 @@ jones() {
 }
 
 jones_asan() {
-
-    ASAN_OPTIONS="fast_unwind_on_malloc=0" jones "$@"
+    
+    ASAN_OPTIONS="fast_unwind_on_malloc=0" \
+    LSAN_OPTIONS="suppressions=${JONES_CMAKE_DIR}/AddressSanitizer.suppressions" \
+    jones "$@"
 }
 
 jones_tool() {

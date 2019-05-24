@@ -49,6 +49,10 @@ void sdl_shutdown() {
 sdl_screen::sdl_screen(std::unique_ptr<sdl_screen_listener> listener) : listener_(std::move(listener)) {
 }
 
+sdl_screen::~sdl_screen() {
+  uninitialize();
+}
+
 void sdl_screen::draw_pixel(const uint16_t x_position, const uint16_t y_position, const uint32_t pixel) {
   boost::ignore_unused(x_position, y_position, pixel);
 }
@@ -93,7 +97,10 @@ void sdl_screen::show() {
 void sdl_screen::hide() {
   is_running_ = false;
   sdl_push_quit_event();
-  running_thread_->join();
+  if (running_thread_ != nullptr) {
+    running_thread_->join();
+    running_thread_ = nullptr;
+  }
   if (renderer_ != nullptr) {
     SDL_DestroyRenderer(renderer_);
     renderer_ = nullptr;

@@ -43,7 +43,7 @@ class sdl_screen : public screen::screen {
 public:
   explicit sdl_screen(std::unique_ptr<sdl_screen_listener> listener = nullptr);
 
-  ~sdl_screen() override = default;
+  ~sdl_screen() override;
 
   void initialize() override;
 
@@ -69,9 +69,9 @@ private:
 
   std::atomic<bool> is_running_ = false;
 
-  std::unique_ptr<std::thread> running_thread_;
+  std::unique_ptr<std::thread> running_thread_ = nullptr;
 
-  std::unique_ptr<sdl_screen_listener> listener_;
+  std::unique_ptr<sdl_screen_listener> listener_ = nullptr;
 };
 
 } // namespace jones
