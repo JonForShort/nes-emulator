@@ -18,6 +18,11 @@ jones() {
     ${JONES} "$@"
 }
 
+jones_asan() {
+
+    ASAN_OPTIONS="fast_unwind_on_malloc=0" jones "$@"
+}
+
 jones_tool() {
 
     JONES_TOOL=${JONES_OUT_DIR}/bin/jones-tool
@@ -42,16 +47,21 @@ jones_build() {
 
 jones_test() {
 
-    ADDRESS_SANITIZER=1 jones_build "$@"
+    jones_build "$@"
 
     pushd ${JONES_BUILD_DIR}
         make test
     popd
 }
 
+jones_test_asan() {
+
+    ADDRESS_SANITIZER=1 jones_test "$@"
+}
+
 jones_test_code_coverage() {
 
-    CODE_COVERAGE=1 jones_test
+    CODE_COVERAGE=1 jones_test "$@"
 
     if ! [ -x "$(command -v gcovr)" ]; then
         echo "error: unable to find gcovr tool; tool is required to generate code coverage"

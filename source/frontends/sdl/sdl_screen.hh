@@ -41,7 +41,7 @@ public:
 
 class sdl_screen : public screen::screen {
 public:
-  explicit sdl_screen(sdl_screen_listener *listener = nullptr);
+  explicit sdl_screen(std::unique_ptr<sdl_screen_listener> listener = nullptr);
 
   ~sdl_screen() override = default;
 
@@ -63,15 +63,15 @@ private:
   void process_events();
 
 private:
-  SDL_Window *window_;
+  SDL_Window *window_ = nullptr;
 
-  SDL_Renderer *renderer_;
+  SDL_Renderer *renderer_ = nullptr;
 
   std::atomic<bool> is_running_ = false;
 
-  std::thread running_thread_;
+  std::unique_ptr<std::thread> running_thread_;
 
-  sdl_screen_listener *listener_;
+  std::unique_ptr<sdl_screen_listener> listener_;
 };
 
 } // namespace jones
