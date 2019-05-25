@@ -54,11 +54,18 @@ sdl_screen::~sdl_screen() {
 }
 
 void sdl_screen::draw_pixel(const uint16_t x_position, const uint16_t y_position, const uint32_t pixel) {
-  boost::ignore_unused(x_position, y_position, pixel);
+  if (renderer_ != nullptr) {
+    const auto red = pixel & 0xF000U;
+    const auto green = pixel & 0xF00U;
+    const auto blue = pixel & 0xF0U;
+    const auto alpha = pixel & 0xFU;
+    SDL_SetRenderDrawColor(renderer_, red, green, blue, alpha);
+    SDL_RenderDrawPoint(renderer_, x_position, y_position);
+  }
 }
 
 void sdl_screen::set_scale(const uint8_t scale) {
-  boost::ignore_unused(scale);
+  scale_ = scale;
 }
 
 void sdl_screen::initialize() {

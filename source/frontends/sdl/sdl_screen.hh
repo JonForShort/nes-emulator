@@ -63,6 +63,8 @@ private:
   void process_events();
 
 private:
+  uint8_t scale_ = 1;
+
   SDL_Window *window_ = nullptr;
 
   SDL_Renderer *renderer_ = nullptr;
