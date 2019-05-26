@@ -31,7 +31,7 @@ namespace jones {
 template <typename C>
 class memory_mappable_component : public memory_mappable {
 public:
-  memory_mappable_component(C &component, uint16_t start_address, uint16_t end_address)
+  memory_mappable_component(C *const component, const uint16_t start_address, const uint16_t end_address)
       : component_(component), start_address_(start_address), end_address_(end_address) {}
 
   uint16_t start_address() override {
@@ -43,15 +43,15 @@ public:
   }
 
   uint8_t read(const uint16_t address) override {
-    return component_.read(address);
+    return component_->read(address);
   }
 
   void write(const uint16_t address, const uint8_t data) override {
-    component_.write(address, data);
+    component_->write(address, data);
   }
 
 private:
-  C &component_;
+  C *const component_;
   const uint16_t start_address_;
   const uint32_t end_address_;
 };
