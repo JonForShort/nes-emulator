@@ -62,7 +62,7 @@ class controller final {
 public:
   explicit controller(const memory &memory);
 
-  ~controller() = default;
+  ~controller();
 
   auto set_button_state(button_state state) -> void;
 

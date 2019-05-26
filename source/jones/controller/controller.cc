@@ -56,7 +56,11 @@ private:
   const memory &memory_;
 };
 
-controller::controller(const memory &memory) : impl_(std::make_unique<impl>(memory)) {}
+controller::controller(const memory &memory)
+    : impl_(std::make_unique<impl>(memory)) {
+}
+
+controller::~controller() = default;
 
 auto controller::set_button_state(const button_state state) -> void {
   impl_->set_button_state(state);
@@ -67,9 +71,9 @@ auto controller::set_controller_state(const controller_state state) -> void {
 }
 
 auto controller::read(const uint16_t address) -> uint8_t {
-  impl_->read(address);
+  return impl_->read(address);
 }
 
 auto controller::write(const uint16_t address, const uint8_t data) -> void {
-  return impl_->write(address, data);
+  impl_->write(address, data);
 }
