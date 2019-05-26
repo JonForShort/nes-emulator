@@ -30,13 +30,15 @@
 #include "apu.hh"
 #include "cartridge.hh"
 #include "cpu.hh"
+#include "mapped_controller.hh"
 #include "memory.hh"
 #include "nes.hh"
 #include "nes_components.hh"
-#include "nes_controller.hh"
 #include "ppu.hh"
 
 using namespace jones;
+
+using mapped_controller = jones::controller::mapped_controller;
 
 class nes::impl {
 public:
@@ -52,14 +54,14 @@ public:
            screen_(),
            controller_one_(std::make_unique<controller::controller>(memory_)),
            controller_two_(std::make_unique<controller::controller>(memory_)) {
-    auto mapped_controller_one = mapped_nes_controller(controller_one_.get());
-    auto mapped_controller_two = mapped_nes_controller(controller_two_.get());
+    auto mapped_controller_one = mapped_controller(controller_one_.get());
+    auto mapped_controller_two = mapped_controller(controller_two_.get());
     memory_.map(std::make_unique<memory_mappable_component<memory_ram>>(ram_, 0x0000, 0x1FFF));
     memory_.map(std::make_unique<memory_mappable_component<ppu::ppu>>(ppu_, 0x2000, 0x3FFF));
     memory_.map(std::make_unique<memory_mappable_component<apu>>(apu_, 0x4000, 0x4015));
     memory_.map(std::make_unique<memory_mappable_component<cpu>>(cpu_, 0x4000, 0x4015));
-    memory_.map(std::make_unique<memory_mappable_component<mapped_nes_controller>>(mapped_controller_one, 0x4016, 0x4016));
-    memory_.map(std::make_unique<memory_mappable_component<mapped_nes_controller>>(mapped_controller_two, 0x4017, 0x4017));
+    memory_.map(std::make_unique<memory_mappable_component<mapped_controller>>(mapped_controller_one, 0x4016, 0x4016));
+    memory_.map(std::make_unique<memory_mappable_component<mapped_controller>>(mapped_controller_two, 0x4017, 0x4017));
     memory_.map(std::make_unique<memory_mappable_component<apu>>(apu_, 0x4018, 0x401F));
     memory_.map(std::make_unique<memory_mappable_component<cpu>>(cpu_, 0x4018, 0x401F));
     memory_.map(std::make_unique<memory_mappable_component<memory_sram>>(sram_, 0x6000, 0x7FFF));
