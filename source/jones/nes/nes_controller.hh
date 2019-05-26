@@ -31,43 +31,20 @@
 
 namespace jones {
 
-class nes_controller : public controller::controller {
-public:
-  explicit nes_controller(const memory &memory) : memory_(memory) {
-    boost::ignore_unused(memory_);
-  }
-
-  ~nes_controller() override = default;
-
-  auto set_button_state(const jones::controller::button_state state) -> void override {
-    boost::ignore_unused(state);
-  }
-
-  auto set_controller_state(const jones::controller::controller_state state) -> void override {
-    boost::ignore_unused(state);
-  }
-
-private:
-  const memory &memory_;
-};
-
 class mapped_nes_controller {
 public:
-  explicit mapped_nes_controller(controller::controller *controller) : controller_(controller) {
-    boost::ignore_unused(controller_);
-  }
+  explicit mapped_nes_controller(controller::controller *controller) : controller_(controller) {}
 
   auto read(const uint16_t address) const -> uint8_t {
-    boost::ignore_unused(address);
-    return 0;
+    return controller_->read(address);
   }
 
   auto write(const uint16_t address, const uint8_t data) -> void {
-    boost::ignore_unused(address, data);
+    controller_->write(address, data);
   }
 
 private:
-  controller::controller *controller_;
+  controller::controller *const controller_;
 };
 
 } // namespace jones

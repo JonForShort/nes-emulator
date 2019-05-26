@@ -50,8 +50,8 @@ public:
            ram_(),
            trace_file_(),
            screen_(),
-           controller_one_(std::make_unique<nes_controller>(memory_)),
-           controller_two_(std::make_unique<nes_controller>(memory_)) {
+           controller_one_(std::make_unique<controller::controller>(memory_)),
+           controller_two_(std::make_unique<controller::controller>(memory_)) {
     auto mapped_controller_one = mapped_nes_controller(controller_one_.get());
     auto mapped_controller_two = mapped_nes_controller(controller_two_.get());
     memory_.map(std::make_unique<memory_mappable_component<memory_ram>>(ram_, 0x0000, 0x1FFF));

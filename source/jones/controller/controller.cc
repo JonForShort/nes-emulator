@@ -21,3 +21,55 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include "controller.hh"
+
+#include <boost/core/ignore_unused.hpp>
+
+using namespace jones::controller;
+
+class controller::impl {
+public:
+  explicit impl(const memory &memory) : memory_(memory) {
+    boost::ignore_unused(memory_);
+  }
+
+  ~impl() = default;
+
+  auto set_button_state(const button_state state) -> void {
+    boost::ignore_unused(state);
+  }
+
+  auto set_controller_state(const controller_state state) -> void {
+    boost::ignore_unused(state);
+  }
+
+  auto read(const uint16_t address) -> uint8_t {
+    boost::ignore_unused(address);
+    return 0;
+  }
+
+  auto write(const uint16_t address, const uint8_t data) -> void {
+    boost::ignore_unused(address, data);
+  }
+
+private:
+  const memory &memory_;
+};
+
+controller::controller(const memory &memory) : impl_(std::make_unique<impl>(memory)) {}
+
+auto controller::set_button_state(const button_state state) -> void {
+  impl_->set_button_state(state);
+}
+
+auto controller::set_controller_state(const controller_state state) -> void {
+  impl_->set_controller_state(state);
+}
+
+auto controller::read(const uint16_t address) -> uint8_t {
+  impl_->read(address);
+}
+
+auto controller::write(const uint16_t address, const uint8_t data) -> void {
+  return impl_->write(address, data);
+}
