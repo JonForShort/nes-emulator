@@ -30,8 +30,9 @@
 
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
+namespace js = jones::sdl;
 
-class screen_listener : public jones::sdl_screen_listener {
+class screen_listener : public js::sdl_screen_listener {
 public:
   explicit screen_listener(jones::nes &nes) : nes_(nes) {}
 
@@ -72,7 +73,7 @@ int main(int argc, char *argv[]) {
 
   jones::nes nes;
   auto listener = std::make_unique<screen_listener>(nes);
-  auto screen = std::make_unique<jones::sdl_screen>(std::move(listener));
+  auto screen = std::make_unique<js::sdl_screen>(std::move(listener));
 
   nes.attach_screen(std::move(screen));
   nes.load(file_path.string().c_str());

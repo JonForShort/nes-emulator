@@ -21,67 +21,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_CONTROLLER_CONTROLLER_HH
-#define JONES_CONTROLLER_CONTROLLER_HH
+#ifndef JONES_SDL_SDL_CONTROLLER_HH
+#define JONES_SDL_SDL_CONTROLLER_HH
 
-#include "memory.hh"
+#include "controller.hh"
 
-namespace jones::controller {
+#include <SDL2/SDL.h>
 
-enum class button {
-  BUTTON_A,
+namespace jones::sdl {
 
-  BUTTON_B,
-
-  BUTTON_SELECT,
-
-  BUTTON_START,
-
-  BUTTON_UP,
-
-  BUTTON_DOWN,
-
-  BUTTON_LEFT,
-
-  BUTTON_RIGHT,
-
-  BUTTON_INVALID
-};
-
-enum class button_state {
-  BUTTON_STATE_DOWN,
-
-  BUTTON_STATE_UP,
-};
-
-enum class controller_state {
-  CONNECTED,
-
-  DISCONNECTED
-};
-
-class controller final {
+class sdl_controller final {
 public:
-  explicit controller(const memory &memory);
+  sdl_controller(const controller::controller &controller_one, const controller::controller &controller_two)
+      : controller_one_(controller_one), controller_two_(controller_two) {}
 
-  ~controller();
+  ~sdl_controller() = default;
 
-  auto set_button_state(button button, button_state state) -> void;
+  void initialize();
 
-  auto set_controller_state(controller_state state) -> void;
-
-  auto read(uint16_t address) -> uint8_t;
-
-  auto write(uint16_t address, uint8_t data) -> void;
+  void uninitialize();
 
 private:
-  class impl;
+  const controller::controller &controller_one_;
 
-  std::unique_ptr<impl> impl_;
+  const controller::controller &controller_two_;
+
+  SDL_GameController *sdl_controller_one_ = nullptr;
+
+  SDL_GameController *sdl_controller_two_ = nullptr;
+
+  bool is_running_ = false;
 };
 
-using controller_ptr = controller *;
+} // namespace jones::sdl
 
-} // namespace jones::controller
-
-#endif // JONES_CONTROLLER_CONTROLLER_HH
+#endif // JONES_SDL_SDL_CONTROLLER_HH

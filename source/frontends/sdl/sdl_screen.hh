@@ -30,7 +30,7 @@
 #include <atomic>
 #include <thread>
 
-namespace jones {
+namespace jones::sdl {
 
 class sdl_screen_listener {
 public:
@@ -76,6 +76,6 @@ private:
   std::unique_ptr<sdl_screen_listener> listener_ = nullptr;
 };
 
-} // namespace jones
+} // namespace jones::sdl
 
 #endif // JONES_SDL_SDL_SCREEN_HH

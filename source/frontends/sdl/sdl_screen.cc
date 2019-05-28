@@ -28,7 +28,7 @@
 #include "log.hh"
 #include "sdl_screen.hh"
 
-using namespace jones;
+using namespace jones::sdl;
 
 namespace {
 
