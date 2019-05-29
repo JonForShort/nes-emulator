@@ -28,12 +28,35 @@
 
 using namespace jones::sdl;
 
+using button = jones::controller::button;
+using button_state = jones::controller::button_state;
+
+namespace {
+
+const button button_mapping[] = {
+    button::BUTTON_A,
+    button::BUTTON_B,
+    button::BUTTON_A,
+    button::BUTTON_B,
+    button::BUTTON_SELECT,
+    button::BUTTON_START,
+    button::BUTTON_SELECT,
+    button::BUTTON_START,
+};
+
+}
+
 auto sdl_controller::initialize() -> void {
+  if (is_running_) {
+    LOG_DEBUG << "sdl controller is already running";
+    return;
+  }
+  is_running_ = true;
   if (SDL_Init(SDL_INIT_GAMECONTROLLER) < 0) {
     LOG_ERROR << "unable to initialize joysticks";
     return;
   }
-  is_running_ = true;
+  SDL_JoystickEventState(SDL_ENABLE);
   if (SDL_NumJoysticks() > 0) {
     sdl_controller_one_ = SDL_GameControllerOpen(0);
   }
@@ -59,5 +82,37 @@ auto sdl_controller::uninitialize() -> void {
 }
 
 auto sdl_controller::on_event(const SDL_Event event) -> void {
-  (void)event;
+  switch (event.type) {
+  case SDL_JOYAXISMOTION: {
+    const auto controller = event.jbutton.which == 0 ? controller_one_ : controller_two_;
+    const auto button_state = event.jbutton.state == SDL_PRESSED ? button_state::BUTTON_STATE_DOWN : button_state::BUTTON_STATE_UP;
+    if ((event.jaxis.value < (SDL_JOYSTICK_AXIS_MIN + 100)) || (event.jaxis.value > (SDL_JOYSTICK_AXIS_MAX - 100))) {
+      if (event.jaxis.axis == 0) {
+        if (event.jaxis.value > 0) {
+          controller->set_button_state(button::BUTTON_RIGHT, button_state);
+        } else {
+          controller->set_button_state(button::BUTTON_LEFT, button_state);
+        }
+      }
+      if (event.jaxis.axis == 1) {
+        if (event.jaxis.value > 0) {
+          controller->set_button_state(button::BUTTON_DOWN, button_state);
+        } else {
+          controller->set_button_state(button::BUTTON_UP, button_state);
+        }
+      }
+    }
+    break;
+  }
+  case SDL_JOYBUTTONUP:
+  case SDL_JOYBUTTONDOWN: {
+    const auto controller = event.jbutton.which == 0 ? controller_one_ : controller_two_;
+    const auto button_state = event.jbutton.state == SDL_PRESSED ? button_state::BUTTON_STATE_DOWN : button_state::BUTTON_STATE_UP;
+    const auto button = button_mapping[event.jbutton.button];
+    controller->set_button_state(button, button_state);
+    break;
+  }
+  default:
+    break;
+  }
 }
