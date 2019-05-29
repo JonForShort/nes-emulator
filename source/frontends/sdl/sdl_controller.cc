@@ -57,3 +57,7 @@ auto sdl_controller::uninitialize() -> void {
   }
   is_running_ = false;
 }
+
+auto sdl_controller::on_event(const SDL_Event event) -> void {
+  (void)event;
+}

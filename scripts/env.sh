@@ -23,7 +23,7 @@ jones() {
 jones_asan() {
     
     ASAN_OPTIONS="fast_unwind_on_malloc=0" \
-    LSAN_OPTIONS="suppressions=${JONES_CMAKE_DIR}/AddressSanitizer.suppressions" \
+    LSAN_OPTIONS="suppressions=${JONES_CMAKE_DIR}/AddressSanitizer.suppressions:verbosity=1:log_threads=1" \
     jones "$@"
 }
 

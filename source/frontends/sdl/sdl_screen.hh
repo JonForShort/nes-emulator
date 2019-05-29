@@ -25,6 +25,7 @@
 #define JONES_SDL_SDL_SCREEN_HH
 
 #include "screen.hh"
+#include "sdl_component.hh"
 
 #include <SDL2/SDL.h>
 #include <atomic>
@@ -39,28 +40,28 @@ public:
   virtual void on_screen_closed() = 0;
 };
 
-class sdl_screen : public screen::screen {
+class sdl_screen : public screen::screen, public sdl_component {
 public:
   explicit sdl_screen(std::unique_ptr<sdl_screen_listener> listener = nullptr);
 
   ~sdl_screen() override;
 
-  void initialize() override;
+  auto initialize() -> void override;
 
-  void uninitialize() override;
+  auto uninitialize() -> void override;
 
-  void draw_pixel(uint16_t x_position, uint16_t y_position, uint32_t pixel) override;
+  auto draw_pixel(uint16_t x_position, uint16_t y_position, uint32_t pixel) -> void override;
 
-  void set_scale(uint8_t scale) override;
+  auto set_scale(uint8_t scale) -> void override;
+
+  auto on_event(SDL_Event event) -> void override;
 
 private:
-  void show();
+  auto show() -> void;
 
-  void hide();
+  auto hide() -> void;
 
-  void fill_with_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-
-  void process_events();
+  auto fill_with_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) -> void;
 
 private:
   uint8_t scale_ = 1;

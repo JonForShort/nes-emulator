@@ -24,10 +24,11 @@
 #ifndef JONES_SDL_SDL_MANAGER_HH
 #define JONES_SDL_SDL_MANAGER_HH
 
-#include "sdl_event_listener.hh"
+#include "sdl_component.hh"
 
 #include <SDL2/SDL.h>
 #include <atomic>
+#include <memory>
 #include <thread>
 #include <vector>
 
@@ -43,15 +44,15 @@ public:
 
   auto uninitialize() -> void;
 
-  auto add_event_listener(sdl_event_listener *listener) -> void;
+  auto add_component(sdl_component *listener) -> void;
 
-  auto remove_event_listener(sdl_event_listener *listener) -> void;
+  auto remove_component(sdl_component *listener) -> void;
 
 private:
   auto process_events() -> void;
 
 private:
-  std::vector<sdl_event_listener *> listeners_;
+  std::vector<sdl_component *> components_;
 
   std::atomic<bool> is_running_;
 

@@ -21,20 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_SDL_SDL_EVENT_LISTENER_HH
-#define JONES_SDL_SDL_EVENT_LISTENER_HH
+#ifndef JONES_SDL_SDL_COMPONENT_HH
+#define JONES_SDL_SDL_COMPONENT_HH
 
 #include <SDL2/SDL.h>
 
 namespace jones::sdl {
 
-class sdl_event_listener {
+class sdl_component {
 public:
-  virtual ~sdl_event_listener() = default;
+  virtual ~sdl_component() = default;
+
+  virtual auto initialize() -> void = 0;
+
+  virtual auto uninitialize() -> void = 0;
 
   virtual auto on_event(SDL_Event event) -> void = 0;
 };
 
 } // namespace jones::sdl
 
-#endif // JONES_SDL_SDL_EVENT_LISTENER_HH
+#endif // JONES_SDL_SDL_COMPONENT_HH

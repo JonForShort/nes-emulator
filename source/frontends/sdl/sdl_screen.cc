@@ -22,7 +22,6 @@
 // SOFTWARE.
 //
 #include <SDL2/SDL.h>
-#include <boost/core/ignore_unused.hpp>
 #include <cstdint>
 
 #include "log.hh"
@@ -30,42 +29,12 @@
 
 using namespace jones::sdl;
 
-namespace {
-
-void sdl_push_quit_event() {
-  SDL_Event event;
-  event.type = SDL_QUIT;
-  SDL_PushEvent(&event);
-}
-
-void sdl_shutdown() {
-  SDL_PumpEvents();
-  SDL_FlushEvents(SDL_USEREVENT, SDL_LASTEVENT);
-  SDL_Quit();
-}
-
-} // namespace
-
-sdl_screen::sdl_screen(std::unique_ptr<sdl_screen_listener> listener) : listener_(std::move(listener)) {
+sdl_screen::sdl_screen(std::unique_ptr<sdl_screen_listener> listener)
+    : listener_(std::move(listener)) {
 }
 
 sdl_screen::~sdl_screen() {
   uninitialize();
-}
-
-void sdl_screen::draw_pixel(const uint16_t x_position, const uint16_t y_position, const uint32_t pixel) {
-  if (renderer_ != nullptr) {
-    const auto red = pixel & 0xF000U;
-    const auto green = pixel & 0xF00U;
-    const auto blue = pixel & 0xF0U;
-    const auto alpha = pixel & 0xFU;
-    SDL_SetRenderDrawColor(renderer_, red, green, blue, alpha);
-    SDL_RenderDrawPoint(renderer_, x_position, y_position);
-  }
-}
-
-void sdl_screen::set_scale(const uint8_t scale) {
-  scale_ = scale;
 }
 
 void sdl_screen::initialize() {
@@ -93,20 +62,13 @@ void sdl_screen::show() {
     return;
   }
   fill_with_color(0, 0, 0, 0);
-  running_thread_ = std::make_unique<std::thread>([this]() {
-    is_running_ = true;
-    while (is_running_) {
-      process_events();
-    }
-  });
+  is_running_ = true;
 }
 
 void sdl_screen::hide() {
-  is_running_ = false;
-  sdl_push_quit_event();
-  if (running_thread_ != nullptr) {
-    running_thread_->join();
-    running_thread_ = nullptr;
+  if (!is_running_) {
+    LOG_DEBUG << "screen is already being hidden";
+    return;
   }
   if (renderer_ != nullptr) {
     SDL_DestroyRenderer(renderer_);
@@ -116,7 +78,22 @@ void sdl_screen::hide() {
     SDL_DestroyWindow(window_);
     window_ = nullptr;
   }
-  sdl_shutdown();
+  is_running_ = false;
+}
+
+void sdl_screen::draw_pixel(const uint16_t x_position, const uint16_t y_position, const uint32_t pixel) {
+  if (renderer_ != nullptr) {
+    const auto red = pixel & 0xF000U;
+    const auto green = pixel & 0xF00U;
+    const auto blue = pixel & 0xF0U;
+    const auto alpha = pixel & 0xFU;
+    SDL_SetRenderDrawColor(renderer_, red, green, blue, alpha);
+    SDL_RenderDrawPoint(renderer_, x_position, y_position);
+  }
+}
+
+void sdl_screen::set_scale(const uint8_t scale) {
+  scale_ = scale;
 }
 
 void sdl_screen::fill_with_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) {
@@ -127,15 +104,11 @@ void sdl_screen::fill_with_color(const uint8_t r, const uint8_t g, const uint8_t
   }
 }
 
-void sdl_screen::process_events() {
-  SDL_Event events;
-  while (SDL_PollEvent(&events)) {
-    if (events.type == SDL_QUIT) {
-      is_running_ = false;
-      if (listener_ != nullptr) {
-        listener_->on_screen_closed();
-      }
-      break;
+auto sdl_screen::on_event(const SDL_Event event) -> void {
+  if (event.type == SDL_QUIT) {
+    is_running_ = false;
+    if (listener_ != nullptr) {
+      listener_->on_screen_closed();
     }
   }
 }

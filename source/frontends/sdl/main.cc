@@ -26,6 +26,8 @@
 #include <iostream>
 
 #include "nes.hh"
+#include "sdl_controller.hh"
+#include "sdl_manager.hh"
 #include "sdl_screen.hh"
 
 namespace fs = boost::filesystem;
@@ -50,7 +52,9 @@ int main(int argc, char *argv[]) {
   std::string file_argument;
   try {
     po::options_description desc{"Options"};
-    desc.add_options()("help,h", "Help screen")("file,f", po::value<std::string>(&file_argument)->required(), "file path to nes rom");
+    desc.add_options()
+    ("help,h", "Help screen")
+    ("file,f", po::value<std::string>(&file_argument)->required(), "file path to nes rom");
 
     po::variables_map vm;
     po::store(parse_command_line(argc, argv, desc), vm);
@@ -72,8 +76,15 @@ int main(int argc, char *argv[]) {
   }
 
   jones::nes nes;
+
   auto listener = std::make_unique<screen_listener>(nes);
   auto screen = std::make_unique<js::sdl_screen>(std::move(listener));
+  auto controller = std::make_unique<js::sdl_controller>(nes.controller_one(), nes.controller_two());
+
+  js::sdl_manager manager;
+  manager.add_component(screen.get());
+  manager.add_component(controller.get());
+  manager.initialize();
 
   nes.attach_screen(std::move(screen));
   nes.load(file_path.string().c_str());

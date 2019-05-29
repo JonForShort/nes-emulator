@@ -46,7 +46,7 @@ void sdl_shutdown() {
 
 } // namespace
 
-sdl_manager::sdl_manager() : listeners_(), is_running_(false), running_thread_(nullptr) {}
+sdl_manager::sdl_manager() : components_(), is_running_(false), running_thread_(nullptr) {}
 
 sdl_manager::~sdl_manager() {
   uninitialize();
@@ -56,6 +56,9 @@ void sdl_manager::initialize() {
   if (is_running_) {
     LOG_DEBUG << "screen is already being shown";
     return;
+  }
+  for (auto component : components_) {
+    component->initialize();
   }
   running_thread_ = std::make_unique<std::thread>([this]() {
     is_running_ = true;
@@ -72,14 +75,18 @@ void sdl_manager::uninitialize() {
     running_thread_->join();
     running_thread_ = nullptr;
   }
+  for (auto component : components_) {
+    component->uninitialize();
+  }
+  components_.clear();
   sdl_shutdown();
 }
 
 void sdl_manager::process_events() {
   SDL_Event events;
   while (SDL_PollEvent(&events)) {
-    for (auto listener : listeners_) {
-      listener->on_event(events);
+    for (auto component : components_) {
+      component->on_event(events);
     }
     if (events.type == SDL_QUIT) {
       is_running_ = false;
@@ -88,10 +95,10 @@ void sdl_manager::process_events() {
   }
 }
 
-auto sdl_manager::add_event_listener(sdl_event_listener *listener) -> void {
-  listeners_.push_back(listener);
+auto sdl_manager::add_component(sdl_component *const listener) -> void {
+  components_.push_back(listener);
 }
 
-auto sdl_manager::remove_event_listener(sdl_event_listener *listener) -> void {
-  (void)std::remove(listeners_.begin(), listeners_.end(), listener);
+auto sdl_manager::remove_component(sdl_component *const listener) -> void {
+  (void)std::remove(components_.begin(), components_.end(), listener);
 }

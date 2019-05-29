@@ -25,26 +25,29 @@
 #define JONES_SDL_SDL_CONTROLLER_HH
 
 #include "controller.hh"
+#include "sdl_component.hh"
 
 #include <SDL2/SDL.h>
 
 namespace jones::sdl {
 
-class sdl_controller final {
+class sdl_controller final : public sdl_component {
 public:
-  sdl_controller(const controller::controller &controller_one, const controller::controller &controller_two)
+  sdl_controller(controller::controller *const controller_one, controller::controller *const controller_two)
       : controller_one_(controller_one), controller_two_(controller_two) {}
 
-  ~sdl_controller() = default;
+  ~sdl_controller() override = default;
 
-  void initialize();
+  auto initialize() -> void override;
 
-  void uninitialize();
+  auto uninitialize() -> void override;
+
+  auto on_event(SDL_Event event) -> void override;
 
 private:
-  const controller::controller &controller_one_;
+  controller::controller *const controller_one_;
 
-  const controller::controller &controller_two_;
+  controller::controller *const controller_two_;
 
   SDL_GameController *sdl_controller_one_ = nullptr;
 
