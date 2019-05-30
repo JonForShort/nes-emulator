@@ -87,20 +87,18 @@ auto sdl_controller::on_event(const SDL_Event event) -> void {
     const auto controller = event.jbutton.which == 0 ? controller_one_ : controller_two_;
     const auto button_state = event.jbutton.state == SDL_PRESSED ? button_state::BUTTON_STATE_DOWN : button_state::BUTTON_STATE_UP;
     if ((event.jaxis.value < (SDL_JOYSTICK_AXIS_MIN + 100)) || (event.jaxis.value > (SDL_JOYSTICK_AXIS_MAX - 100))) {
+      auto button = button::BUTTON_INVALID;
       if (event.jaxis.axis == 0) {
-        if (event.jaxis.value > 0) {
-          controller->set_button_state(button::BUTTON_RIGHT, button_state);
-        } else {
-          controller->set_button_state(button::BUTTON_LEFT, button_state);
-        }
+        button = event.jaxis.value > 0 ? button::BUTTON_RIGHT : button::BUTTON_LEFT;
+        controller->set_button_state(button, button_state);
       }
       if (event.jaxis.axis == 1) {
-        if (event.jaxis.value > 0) {
-          controller->set_button_state(button::BUTTON_DOWN, button_state);
-        } else {
-          controller->set_button_state(button::BUTTON_UP, button_state);
-        }
+        button = event.jaxis.value > 0 ? button::BUTTON_DOWN : button::BUTTON_UP;
+        controller->set_button_state(button, button_state);
       }
+      LOG_DEBUG << "sdl_controller::on_event : "
+                << "button [" << controller::button_to_string(button) << "] "
+                << "button_state [" << controller::button_state_to_string(button_state) << "]";
     }
     break;
   }
@@ -110,6 +108,9 @@ auto sdl_controller::on_event(const SDL_Event event) -> void {
     const auto button_state = event.jbutton.state == SDL_PRESSED ? button_state::BUTTON_STATE_DOWN : button_state::BUTTON_STATE_UP;
     const auto button = button_mapping[event.jbutton.button];
     controller->set_button_state(button, button_state);
+    LOG_DEBUG << "sdl_controller::on_event : "
+              << "button [" << controller::button_to_string(button) << "] "
+              << "button_state [" << controller::button_state_to_string(button_state) << "]";
     break;
   }
   default:

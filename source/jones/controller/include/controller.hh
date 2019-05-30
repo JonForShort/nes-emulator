@@ -52,13 +52,21 @@ enum class button_state {
   BUTTON_STATE_DOWN,
 
   BUTTON_STATE_UP,
+
+  BUTTON_STATE_INVALID
 };
 
 enum class controller_state {
   CONNECTED,
 
-  DISCONNECTED
+  DISCONNECTED,
+
+  INVALID
 };
+
+const char *button_to_string(button button);
+
+const char *button_state_to_string(button_state button_state);
 
 class controller final {
 public:

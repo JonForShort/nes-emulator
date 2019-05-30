@@ -27,8 +27,10 @@
 #include <boost/static_assert.hpp>
 #include <map>
 
-using namespace jones::controller;
+using namespace jones;
 
+using button = jones::controller::button;
+using button_state = jones::controller::button_state;
 using button_state_map = std::map<button, button_state>;
 
 namespace {
@@ -59,7 +61,41 @@ button position_to_button(const uint8_t position) {
 
 } // namespace
 
-class controller::impl {
+const char *controller::button_to_string(const button button) {
+  switch (button) {
+  case button::BUTTON_A:
+    return "BUTTON_A";
+  case button::BUTTON_B:
+    return "BUTTON_B";
+  case button::BUTTON_SELECT:
+    return "BUTTON_SELECT";
+  case button::BUTTON_START:
+    return "BUTTON_START";
+  case button::BUTTON_UP:
+    return "BUTTON_UP";
+  case button::BUTTON_DOWN:
+    return "BUTTON_DOWN";
+  case button::BUTTON_LEFT:
+    return "BUTTON_LEFT";
+  case button::BUTTON_RIGHT:
+    return "BUTTON_RIGHT";
+  default:
+    return "BUTTON_INVALID";
+  }
+}
+
+const char *controller::button_state_to_string(const button_state button_state) {
+  switch (button_state) {
+  case button_state::BUTTON_STATE_DOWN:
+    return "BUTTON_STATE_DOWN";
+  case button_state::BUTTON_STATE_UP:
+    return "BUTTON_STATE_UP";
+  default:
+    return "BUTTON_STATE_INVALID";
+  }
+}
+
+class controller::controller::impl {
 public:
   explicit impl(const memory &memory)
       : memory_(memory), strobe_(0), index_(0), button_states_(), controller_state_(controller_state::DISCONNECTED) {
@@ -112,24 +148,24 @@ private:
   controller_state controller_state_;
 };
 
-controller::controller(const memory &memory)
+controller::controller::controller(const memory &memory)
     : impl_(std::make_unique<impl>(memory)) {
 }
 
-controller::~controller() = default;
+controller::controller::~controller() = default;
 
-auto controller::set_button_state(const button button, const button_state state) -> void {
+auto controller::controller::set_button_state(const button button, const button_state state) -> void {
   impl_->set_button_state(button, state);
 }
 
-auto controller::set_controller_state(const controller_state state) -> void {
+auto controller::controller::set_controller_state(const controller_state state) -> void {
   impl_->set_controller_state(state);
 }
 
-auto controller::read(const uint16_t address) -> uint8_t {
+auto controller::controller::read(const uint16_t address) -> uint8_t {
   return impl_->read(address);
 }
 
-auto controller::write(const uint16_t address, const uint8_t data) -> void {
+auto controller::controller::write(const uint16_t address, const uint8_t data) -> void {
   impl_->write(address, data);
 }
