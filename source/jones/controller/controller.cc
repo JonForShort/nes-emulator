@@ -22,6 +22,7 @@
 // SOFTWARE.
 //
 #include "controller.hh"
+#include "log.hh"
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/static_assert.hpp>
@@ -61,7 +62,7 @@ button position_to_button(const uint8_t position) {
 
 } // namespace
 
-const char *controller::button_to_string(const button button) {
+auto controller::button_to_string(const button button) -> auto {
   switch (button) {
   case button::BUTTON_A:
     return "BUTTON_A";
@@ -84,7 +85,7 @@ const char *controller::button_to_string(const button button) {
   }
 }
 
-const char *controller::button_state_to_string(const button_state button_state) {
+auto controller::button_state_to_string(const button_state button_state) -> auto {
   switch (button_state) {
   case button_state::BUTTON_STATE_DOWN:
     return "BUTTON_STATE_DOWN";
@@ -95,21 +96,45 @@ const char *controller::button_state_to_string(const button_state button_state) 
   }
 }
 
+auto controller::controller_state_to_string(const controller_state controller_state) -> auto {
+  switch (controller_state) {
+  case controller_state::CONTROLLER_STATE_CONNECTED:
+    return "CONTROLLER_STATE_CONNECTED";
+  case controller_state::CONTROLLER_STATE_DISCONNECTED:
+    return "CONTROLLER_STATE_DISCONNECTED";
+  default:
+    return "CONTROLLER_STATE_INVALID";
+  }
+}
+
 class controller::controller::impl {
 public:
   explicit impl(const memory &memory)
-      : memory_(memory), strobe_(0), index_(0), button_states_(), controller_state_(controller_state::DISCONNECTED) {
+      : memory_(memory), strobe_(0), index_(0), button_states_(), controller_state_(controller_state::CONTROLLER_STATE_DISCONNECTED) {
     boost::ignore_unused(memory_);
   }
 
   ~impl() = default;
 
-  auto set_button_state(const button button, const button_state state) -> void {
-    button_states_[button] = state;
+  auto set_button_state(const button button, const button_state button_state) -> void {
+    button_states_[button] = button_state;
+    LOG_DEBUG << "controller::set_button_state : "
+              << "button [" << button_to_string(button) << "] "
+              << "button_state [" << button_state_to_string(button_state) << "]";
   }
 
-  auto set_controller_state(const controller_state state) -> void {
-    controller_state_ = state;
+  auto get_button_state(const button button) -> auto {
+    return button_states_[button];
+  }
+
+  auto set_controller_state(const controller_state controller_state) -> void {
+    controller_state_ = controller_state;
+    LOG_DEBUG << "controller::set_controller_state : "
+              << "controller_state [" << controller_state_to_string(controller_state) << "]";
+  }
+
+  auto get_controller_state() -> auto {
+    return controller_state_;
   }
 
   auto read(const uint16_t address) -> uint8_t {
@@ -158,8 +183,16 @@ auto controller::controller::set_button_state(const button button, const button_
   impl_->set_button_state(button, state);
 }
 
+auto controller::controller::get_button_state(const button button) const -> button_state {
+  return impl_->get_button_state(button);
+}
+
 auto controller::controller::set_controller_state(const controller_state state) -> void {
   impl_->set_controller_state(state);
+}
+
+auto controller::controller::get_controller_state() const -> controller_state {
+  return impl_->get_controller_state();
 }
 
 auto controller::controller::read(const uint16_t address) -> uint8_t {

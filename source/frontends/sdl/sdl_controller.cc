@@ -30,6 +30,7 @@ using namespace jones::sdl;
 
 using button = jones::controller::button;
 using button_state = jones::controller::button_state;
+using controller_state = jones::controller::controller_state;
 
 namespace {
 
@@ -44,7 +45,9 @@ const button button_mapping[] = {
     button::BUTTON_START,
 };
 
-}
+const auto button_axis_offset = 100;
+
+} // namespace
 
 auto sdl_controller::initialize() -> void {
   if (is_running_) {
@@ -59,9 +62,11 @@ auto sdl_controller::initialize() -> void {
   SDL_JoystickEventState(SDL_ENABLE);
   if (SDL_NumJoysticks() > 0) {
     sdl_controller_one_ = SDL_GameControllerOpen(0);
+    controller_one_->set_controller_state(controller_state::CONTROLLER_STATE_CONNECTED);
   }
   if (SDL_NumJoysticks() > 1) {
     sdl_controller_two_ = SDL_GameControllerOpen(1);
+    controller_two_->set_controller_state(controller_state::CONTROLLER_STATE_CONNECTED);
   }
 }
 
@@ -73,10 +78,12 @@ auto sdl_controller::uninitialize() -> void {
   if (sdl_controller_one_ != nullptr) {
     SDL_GameControllerClose(sdl_controller_one_);
     sdl_controller_one_ = nullptr;
+    controller_one_->set_controller_state(controller_state::CONTROLLER_STATE_DISCONNECTED);
   }
   if (sdl_controller_two_ != nullptr) {
     SDL_GameControllerClose(sdl_controller_two_);
     sdl_controller_two_ = nullptr;
+    controller_two_->set_controller_state(controller_state::CONTROLLER_STATE_DISCONNECTED);
   }
   is_running_ = false;
 }
@@ -85,20 +92,24 @@ auto sdl_controller::on_event(const SDL_Event event) -> void {
   switch (event.type) {
   case SDL_JOYAXISMOTION: {
     const auto controller = event.jbutton.which == 0 ? controller_one_ : controller_two_;
-    const auto button_state = event.jbutton.state == SDL_PRESSED ? button_state::BUTTON_STATE_DOWN : button_state::BUTTON_STATE_UP;
-    if ((event.jaxis.value < (SDL_JOYSTICK_AXIS_MIN + 100)) || (event.jaxis.value > (SDL_JOYSTICK_AXIS_MAX - 100))) {
-      auto button = button::BUTTON_INVALID;
+    const auto is_button_pushed = event.jaxis.value < (SDL_JOYSTICK_AXIS_MIN + button_axis_offset) || event.jaxis.value > (SDL_JOYSTICK_AXIS_MAX - button_axis_offset);
+    const auto is_button_released = event.jaxis.value > -button_axis_offset && event.jaxis.value < button_axis_offset;
+    if (is_button_pushed) {
       if (event.jaxis.axis == 0) {
-        button = event.jaxis.value > 0 ? button::BUTTON_RIGHT : button::BUTTON_LEFT;
-        controller->set_button_state(button, button_state);
+        const auto button = event.jaxis.value > 0 ? button::BUTTON_RIGHT : button::BUTTON_LEFT;
+        controller->set_button_state(button, button_state::BUTTON_STATE_DOWN);
       }
       if (event.jaxis.axis == 1) {
-        button = event.jaxis.value > 0 ? button::BUTTON_DOWN : button::BUTTON_UP;
-        controller->set_button_state(button, button_state);
+        const auto button = event.jaxis.value > 0 ? button::BUTTON_DOWN : button::BUTTON_UP;
+        controller->set_button_state(button, button_state::BUTTON_STATE_DOWN);
       }
-      LOG_DEBUG << "sdl_controller::on_event : "
-                << "button [" << controller::button_to_string(button) << "] "
-                << "button_state [" << controller::button_state_to_string(button_state) << "]";
+    }
+    if (is_button_released) {
+      for (auto button : {button::BUTTON_UP, button::BUTTON_DOWN, button::BUTTON_LEFT, button::BUTTON_RIGHT}) {
+        if (controller->get_button_state(button) == button_state::BUTTON_STATE_DOWN) {
+          controller->set_button_state(button, button_state::BUTTON_STATE_UP);
+        }
+      }
     }
     break;
   }
@@ -108,9 +119,24 @@ auto sdl_controller::on_event(const SDL_Event event) -> void {
     const auto button_state = event.jbutton.state == SDL_PRESSED ? button_state::BUTTON_STATE_DOWN : button_state::BUTTON_STATE_UP;
     const auto button = button_mapping[event.jbutton.button];
     controller->set_button_state(button, button_state);
-    LOG_DEBUG << "sdl_controller::on_event : "
-              << "button [" << controller::button_to_string(button) << "] "
-              << "button_state [" << controller::button_state_to_string(button_state) << "]";
+    break;
+  }
+  case SDL_JOYDEVICEADDED: {
+    if (event.jdevice.which == 0) {
+      controller_one_->set_controller_state(controller::controller_state::CONTROLLER_STATE_CONNECTED);
+    }
+    if (event.jdevice.which == 1) {
+      controller_one_->set_controller_state(controller::controller_state::CONTROLLER_STATE_DISCONNECTED);
+    }
+    break;
+  }
+  case SDL_JOYDEVICEREMOVED: {
+    if (event.jdevice.which == 0) {
+      controller_one_->set_controller_state(controller::controller_state::CONTROLLER_STATE_DISCONNECTED);
+    }
+    if (event.jdevice.which == 1) {
+      controller_one_->set_controller_state(controller::controller_state::CONTROLLER_STATE_DISCONNECTED);
+    }
     break;
   }
   default:

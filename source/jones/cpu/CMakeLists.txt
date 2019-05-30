@@ -23,7 +23,6 @@ add_dependencies (cpu log)
 
 target_link_libraries (cpu log)
 target_link_libraries (cpu memory)
-target_link_libraries (cpu pthread)
 
 target_include_directories (cpu PRIVATE ${boost-include})
 target_include_directories (cpu PRIVATE ${gsl-include})

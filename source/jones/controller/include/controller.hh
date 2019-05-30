@@ -49,24 +49,26 @@ enum class button {
 };
 
 enum class button_state {
-  BUTTON_STATE_DOWN,
-
   BUTTON_STATE_UP,
+
+  BUTTON_STATE_DOWN,
 
   BUTTON_STATE_INVALID
 };
 
 enum class controller_state {
-  CONNECTED,
+  CONTROLLER_STATE_CONNECTED,
 
-  DISCONNECTED,
+  CONTROLLER_STATE_DISCONNECTED,
 
-  INVALID
+  CONTROLLER_STATE_INVALID
 };
 
-const char *button_to_string(button button);
+auto button_to_string(button button) -> auto;
 
-const char *button_state_to_string(button_state button_state);
+auto button_state_to_string(button_state button_state) -> auto;
+
+auto controller_state_to_string(controller_state controller_state) -> auto;
 
 class controller final {
 public:
@@ -74,9 +76,13 @@ public:
 
   ~controller();
 
-  auto set_button_state(button button, button_state state) -> void;
+  auto set_button_state(button button, button_state button_state) -> void;
 
-  auto set_controller_state(controller_state state) -> void;
+  auto get_button_state(button button) const -> button_state;
+
+  auto set_controller_state(controller_state controller_state) -> void;
+
+  auto get_controller_state() const -> controller_state;
 
   auto read(uint16_t address) -> uint8_t;
 

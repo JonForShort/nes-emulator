@@ -9,6 +9,7 @@ set (sources controller.cc)
 
 add_library (controller STATIC ${sources})
 
+target_link_libraries (controller log)
 target_link_libraries (controller memory)
 
 target_include_directories (controller PRIVATE ${boost-include})
