@@ -37,7 +37,7 @@ public:
 
   auto initialize() -> void;
 
-  auto tick() -> void;
+  auto step() -> void;
 
 private:
   auto initialize_prerender_scanline() -> void;
@@ -55,7 +55,9 @@ private:
 
   static constexpr auto ppu_num_scanlines = 262;
 
-  std::array<uint32_t, ppu_num_scanlines> scanlines_{};
+  static constexpr auto ppu_num_cycles = 341;
+
+  std::array<std::array<uint32_t, ppu_num_cycles>, ppu_num_scanlines> scanlines_{};
 };
 
 } // namespace jones::ppu

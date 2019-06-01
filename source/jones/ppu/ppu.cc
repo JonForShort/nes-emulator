@@ -30,6 +30,7 @@
 #include "mask_register.hh"
 #include "memory.hh"
 #include "ppu.hh"
+#include "ppu_frame.hh"
 #include "status_register.hh"
 
 using namespace jones::ppu;
@@ -44,7 +45,9 @@ constexpr uint16_t ppu_max_cycles = 340;
 
 class ppu::impl final {
 public:
-  explicit impl(memory &memory) : cycles_(0), frames_(0), memory_(memory), oam_address_(0) {}
+  explicit impl(memory &memory) : cycles_(0), frames_(0), memory_(memory), oam_address_(0) {
+    boost::ignore_unused(memory_);
+  }
 
   uint8_t step() {
     cycles_++;
@@ -52,6 +55,7 @@ public:
       cycles_ = 0;
       frames_++;
     }
+    ppu_frame_.step();
     return 0;
   }
 
@@ -210,8 +214,8 @@ public:
   }
 
   void initialize() {
-    boost::ignore_unused(memory_);
     cycles_ = ppu_initial_cycles;
+    ppu_frame_.initialize();
   }
 
   void uninitialize() {
@@ -222,21 +226,23 @@ public:
   }
 
 private:
-  uint64_t cycles_;
+  uint64_t cycles_{};
 
-  uint64_t frames_;
+  uint64_t frames_{};
 
   memory &memory_;
 
-  control_register control_register_;
+  control_register control_register_{};
 
-  mask_register mask_register_;
+  mask_register mask_register_{};
 
-  status_register status_register_;
+  status_register status_register_{};
 
-  uint8_t oam_address_;
+  uint8_t oam_address_{};
 
   uint8_t oam_data_[0xFF] = {0};
+
+  ppu_frame ppu_frame_{};
 };
 
 ppu::ppu(jones::memory &memory) : impl_(new impl(memory)) {}
