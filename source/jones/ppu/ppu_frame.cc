@@ -23,6 +23,8 @@
 //
 #include "ppu_frame.hh"
 
+#include <vector>
+
 //
 // PPU implementation is largely influenced by the following.
 //
@@ -45,9 +47,9 @@ constexpr auto ppu_screen_height = 240;
 
 constexpr auto ppu_screen_refresh_rate = 60.0988;
 
-constexpr auto ppu_max_dots = 341;
-
 constexpr auto ppu_num_scanlines = 262;
+
+constexpr auto ppu_num_cycles = 341;
 
 constexpr auto ppu_oam_size = 32;
 
@@ -115,11 +117,16 @@ enum class ppu_frame_state : uint32_t {
   STATE_REG_SPRITE_SHIFT = bit_value(18),
 };
 
+constexpr inline auto is_state_set(const ppu_frame_state_mask state, const ppu_frame_state frame_state) {
+  return (static_cast<uint32_t>(frame_state) & state) == state;
+}
+
 } // namespace
 
-ppu_frame::ppu_frame() = default;
-
-ppu_frame::~ppu_frame() = default;
+ppu_frame::ppu_frame(const mask_register &mask_register) : mask_register_(mask_register) {
+  const auto scanline_cycles = std::vector<ppu_frame_state_mask>(ppu_num_cycles, 0);
+  scanlines_ = std::vector<ppu_frame_cycles>(ppu_num_scanlines, scanline_cycles);
+}
 
 auto ppu_frame::initialize() -> void {
   initialize_prerender_scanline();
@@ -128,7 +135,74 @@ auto ppu_frame::initialize() -> void {
   initialize_vblank_scanline();
 }
 
-auto ppu_frame::step() -> void {
+auto ppu_frame::step() -> uint16_t {
+  process_frame_state();
+  update_frame_counters();
+  return 1;
+}
+
+auto ppu_frame::process_frame_state() -> void {
+  const auto state = current_frame_state();
+  if (is_state_set(state, ppu_frame_state::STATE_FLAG_VISIBLE)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_REG_BG_SHIFT)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_REG_SPRITE_SHIFT)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_REG_BG_RELOAD)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_NT_BYTE)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_AT_BYTE)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_BG_LOW_BYTE)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_BG_HIGH_BYTE)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_FLAG_VBLANK_SET)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_FLAG_VBLANK_CLEAR)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_LOOPY_INC_HORI_V)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_LOOPY_INC_VERT_V)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_LOOPY_SET_HORI_V)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_LOOPY_SET_VERT_V)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_SECONDARY_OAM_CLEAR)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_EVALUATE_SPRITE)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_SPRITE_LOW_BYTE)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_SPRITE_HIGH_BYTE)) {
+  }
+  if (is_state_set(state, ppu_frame_state::STATE_IDLE)) {
+  }
+}
+
+auto ppu_frame::update_frame_counters() -> void {
+  current_cycle_ += 1;
+  if (current_cycle_ <= ppu_max_cycles) {
+    return;
+  }
+  current_cycle_ = 0;
+
+  current_scanline_ += 1;
+  if (current_scanline_ < ppu_num_scanlines) {
+    return;
+  }
+  current_scanline_ = 0;
+
+  current_frame_ += 1;
+
+  const auto is_odd_frame = current_frame_ % 2 == 1;
+  const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+  if (is_odd_frame && is_background_visible) {
+    current_cycle_ += 1;
+  }
 }
 
 auto ppu_frame::initialize_prerender_scanline() -> void {
@@ -312,4 +386,8 @@ auto ppu_frame::initialize_visible_scanline() -> void {
 
 auto ppu_frame::initialize_vblank_scanline() -> void {
   scanlines_[ppu_scanline_vblank][1] |= static_cast<uint32_t>(ppu_frame_state::STATE_FLAG_VBLANK_SET);
+}
+
+inline auto ppu_frame::current_frame_state() -> ppu_frame_state_mask {
+  return scanlines_[current_scanline_][current_cycle_];
 }

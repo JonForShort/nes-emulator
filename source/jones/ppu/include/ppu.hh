@@ -32,9 +32,11 @@ namespace jones::ppu {
 
 struct ppu_state {
 
-  size_t cycles;
+  size_t cycle;
 
-  size_t frames;
+  size_t scanline;
+
+  size_t frame;
 };
 
 class ppu final {

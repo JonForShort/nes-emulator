@@ -40,31 +40,17 @@ using namespace jones::ppu;
 template <typename T>
 using memory_mappable_component = jones::memory_mappable_component<T>;
 
-namespace {
-
-constexpr uint16_t ppu_initial_cycles = 0;
-
-constexpr uint16_t ppu_max_cycles = 340;
-
-} // namespace
-
 class ppu::impl final {
 public:
   impl(memory &cpu_memory, memory &ppu_memory)
-      : cpu_memory_(cpu_memory), ppu_memory_(ppu_memory) {
+      : cpu_memory_(cpu_memory), ppu_memory_(ppu_memory), ppu_frame_(mask_register_) {
     ppu_memory_.map(std::make_unique<memory_mappable_component<pattern_table>>(&pattern_table_, pattern_table_memory_begin, pattern_table_memory_end));
     ppu_memory_.map(std::make_unique<memory_mappable_component<name_table>>(&name_table_, name_table_memory_begin, name_table_memory_end));
     ppu_memory_.map(std::make_unique<memory_mappable_component<palette>>(&palette_, palette_memory_begin, palette_memory_end));
   }
 
   uint8_t step() {
-    cycles_++;
-    if (cycles_ > ppu_max_cycles) {
-      cycles_ = 0;
-      frames_++;
-    }
-    ppu_frame_.step();
-    return 0;
+    return ppu_frame_.step();
   }
 
   uint8_t read(const uint16_t address) const {
@@ -222,7 +208,6 @@ public:
   }
 
   void initialize() {
-    cycles_ = ppu_initial_cycles;
     ppu_frame_.initialize();
   }
 
@@ -230,14 +215,13 @@ public:
   }
 
   ppu_state get_state() {
-    return ppu_state{.cycles = cycles_, .frames = frames_};
+    return ppu_state{
+        .cycle = ppu_frame_.cycle(),
+        .scanline = ppu_frame_.scanline(),
+        .frame = ppu_frame_.frame()};
   }
 
 private:
-  uint64_t cycles_{};
-
-  uint64_t frames_{};
-
   memory &cpu_memory_;
 
   memory &ppu_memory_;
@@ -252,7 +236,7 @@ private:
 
   uint8_t oam_data_[0xFF] = {0};
 
-  ppu_frame ppu_frame_{};
+  ppu_frame ppu_frame_;
 
   palette palette_{};
 

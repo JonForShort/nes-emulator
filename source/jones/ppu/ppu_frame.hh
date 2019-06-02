@@ -24,20 +24,40 @@
 #ifndef JONES_PPU_PPU_FRAME_HH
 #define JONES_PPU_PPU_FRAME_HH
 
-#include <array>
+#include "mask_register.hh"
+
 #include <cstdint>
+#include <vector>
 
 namespace jones::ppu {
 
+using ppu_frame_state_mask = uint32_t;
+
+using ppu_frame_cycles = std::vector<ppu_frame_state_mask>;
+
+using ppu_frame_scanlines = std::vector<ppu_frame_cycles>;
+
 class ppu_frame final {
 public:
-  ppu_frame();
+  explicit ppu_frame(const mask_register &mask_register);
 
-  ~ppu_frame();
+  ~ppu_frame() = default;
 
   auto initialize() -> void;
 
-  auto step() -> void;
+  auto step() -> uint16_t;
+
+  auto cycle() -> auto {
+    return current_cycle_;
+  }
+
+  auto scanline() -> auto {
+    return current_scanline_;
+  }
+
+  auto frame() -> auto {
+    return current_frame_;
+  }
 
 private:
   auto initialize_prerender_scanline() -> void;
@@ -48,16 +68,22 @@ private:
 
   auto initialize_vblank_scanline() -> void;
 
+  auto update_frame_counters() -> void;
+
+  auto process_frame_state() -> void;
+
+  auto current_frame_state() -> ppu_frame_state_mask;
+
 private:
   uint16_t current_cycle_{};
 
   uint16_t current_scanline_{};
 
-  static constexpr auto ppu_num_scanlines = 262;
+  uint64_t current_frame_{};
 
-  static constexpr auto ppu_num_cycles = 341;
+  ppu_frame_scanlines scanlines_{};
 
-  std::array<std::array<uint32_t, ppu_num_cycles>, ppu_num_scanlines> scanlines_{};
+  const mask_register &mask_register_;
 };
 
 } // namespace jones::ppu

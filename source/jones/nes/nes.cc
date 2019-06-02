@@ -168,9 +168,9 @@ private:
 
       trace_file_ << "PPU:";
 
-      trace_file_ << std::dec << std::right << std::setw(3) << std::setfill(' ') << ppu_state.cycles << ",";
+      trace_file_ << std::dec << std::right << std::setw(3) << std::setfill(' ') << ppu_state.cycle << ",";
 
-      trace_file_ << std::dec << std::right << std::setw(3) << std::setfill(' ') << ppu_state.frames << " ";
+      trace_file_ << std::dec << std::right << std::setw(3) << std::setfill(' ') << ppu_state.scanline << " ";
 
       trace_file_ << "CYC:" << std::dec << cpu_state.cycles;
 
