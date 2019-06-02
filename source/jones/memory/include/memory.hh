@@ -32,7 +32,7 @@ namespace jones {
 
 // ----------------------------------------------------------------------------
 //
-// Memory layout for NES is documented here:
+// Memory layout for NES CPU is documented here:
 //
 // https://wiki.nesdev.com/w/index.php/CPU_memory_map
 //
@@ -49,6 +49,28 @@ namespace jones {
 // $4000-$4017	  |  $0018  | Mapped to APU and I/O registers.
 // $4018-$401F	  |  $0008  | Mapped to APU and I/O functionality (disabled).
 // $4020-$FFFF    |  $BFE0  | Mapped to Cartridge.
+// ----------------------------------------------------------------------------
+//
+// ----------------------------------------------------------------------------
+//
+// Memory layout for NES PPU is documented here:
+//
+// https://wiki.nesdev.com/w/index.php/PPU_memory_map
+//
+// ----------------------------------------------------------------------------
+// Address Range  |  Size   | Device
+// ----------------------------------------------------------------------------
+// $0000-$0FFF    |  $1000  | Pattern Table #0
+// $1000-$1FFF    |  $1000  | Pattern Table #1
+// ----------------------------------------------------------------------------
+// $2000-$23FF    |  $0400  | Name Table #0
+// $2400-$27FF    |  $0400  | Name Table #1
+// $2800-$2BFF    |  $0400  | Name Table #2
+// $2C00-$2FFF    |  $0400  | Name Table #3
+// ----------------------------------------------------------------------------
+// $3000-$3EFF    |  $0F00  | Mirrors of $2000-$2FFF
+// $3F00-$3F1F    |  $0020  | Palette RAM indexes
+// $3F20-$3FFF    |  $00E0  | Mirrors of $3F00-$3F1F
 // ----------------------------------------------------------------------------
 //
 class memory_mappable {
