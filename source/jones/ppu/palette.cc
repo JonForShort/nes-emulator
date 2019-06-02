@@ -21,12 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_PPU_COLOR_PALETTE_HH
-#define JONES_PPU_COLOR_PALETTE_HH
+#include "palette.hh"
 
-#include <cstdint>
+using namespace jones::ppu;
 
-namespace jones::ppu {
+namespace {
 
 //
 // https://wiki.nesdev.com/w/index.php/PPU_palettes
@@ -98,6 +97,14 @@ constexpr std::uint32_t palette[] = {
     0x000000ff,
 };
 
-} // namespace jones::ppu
+} // namespace
 
-#endif // JONES_PPU_COLOR_PALETTE_HH
+auto palette::read(const uint16_t address) const -> uint8_t {
+  (void)address;
+  return 0;
+}
+
+auto palette::write(const uint16_t address, const uint8_t data) -> void {
+  (void)address;
+  (void)data;
+}

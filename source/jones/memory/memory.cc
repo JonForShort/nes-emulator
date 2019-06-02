@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <boost/core/ignore_unused.hpp>
-
 #include "memory.hh"
+
+#include <boost/static_assert.hpp>
 
 using namespace jones;
 
@@ -33,6 +33,7 @@ uint8_t memory::read(const uint16_t address) const {
       return i->read(address);
     }
   }
+  BOOST_STATIC_ASSERT("unexpected read address");
   return 0;
 }
 
@@ -45,8 +46,10 @@ void memory::write(const uint16_t address, uint8_t data) const {
   for (const auto &i : memory_mappings_) {
     if (address >= i->start_address() && address <= i->end_address()) {
       i->write(address, data);
+      return;
     }
   }
+  BOOST_STATIC_ASSERT("unexpected write address");
 }
 
 void memory::map(memory_mappable_ptr mappable) {

@@ -21,55 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_NES_NES_COMPONENTS_HH
-#define JONES_NES_NES_COMPONENTS_HH
+#ifndef JONES_PPU_PATTERN_TABLE_HH
+#define JONES_PPU_PATTERN_TABLE_HH
 
 #include <cstdint>
 
-namespace jones {
+namespace jones::ppu {
 
-class memory_sram {
+class pattern_table {
 public:
-  memory_sram() : sram_(sram_size, 0) {}
+  pattern_table() = default;
 
-  ~memory_sram() = default;
+  ~pattern_table() = default;
 
-  uint8_t read(const uint16_t address) {
-    return sram_[address];
-  }
+  auto read(uint16_t address) const -> uint8_t;
 
-  void write(const uint16_t address, const uint8_t data) {
-    sram_[address] = data;
-  }
-
-private:
-  static constexpr size_t sram_size = 0x2000U;
-
-  std::vector<uint8_t> sram_;
+  auto write(uint16_t address, uint8_t data) -> void;
 };
 
-class memory_ram {
-public:
-  memory_ram() : ram_(ram_size, 0) {}
+} // namespace jones::ppu
 
-  ~memory_ram() = default;
-
-  uint8_t read(const uint16_t address) {
-    const auto read_address = address % 0x0800U;
-    return ram_[read_address];
-  }
-
-  void write(const uint16_t address, const uint8_t data) {
-    const auto write_address = address % 0x0800U;
-    ram_[write_address] = data;
-  }
-
-private:
-  static constexpr size_t ram_size = 0x0800U;
-
-  std::vector<uint8_t> ram_;
-};
-
-} // namespace jones
-
-#endif // JONES_NES_NES_COMPONENTS_HH
+#endif // JONES_PPU_PATTERN_TABLE_HH

@@ -39,7 +39,7 @@ struct ppu_state {
 
 class ppu final {
 public:
-  explicit ppu(memory &memory);
+  ppu(memory &cpu_memory, memory &ppu_memory);
 
   ~ppu();
 

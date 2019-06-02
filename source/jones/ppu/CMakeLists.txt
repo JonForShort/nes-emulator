@@ -7,7 +7,7 @@ set (boost-lib      ${DIR_ROOT_OUT}/boost/lib)
 
 # ppu
 
-set (sources ppu.cc ppu_frame.cc control_register.cc mask_register.cc status_register.cc)
+set (sources ppu.cc ppu_frame.cc control_register.cc mask_register.cc status_register.cc palette.cc name_table.cc pattern_table.cc)
 
 add_library (ppu STATIC ${sources})
 

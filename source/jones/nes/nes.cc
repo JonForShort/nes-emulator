@@ -40,27 +40,28 @@ using namespace jones;
 class nes::impl {
 public:
   impl() : is_running_(false),
-           memory_(),
-           apu_(memory_),
-           cpu_(memory_),
-           ppu_(memory_),
+           cpu_memory_(),
+           ppu_memory_(),
+           apu_(cpu_memory_),
+           cpu_(cpu_memory_),
+           ppu_(cpu_memory_, ppu_memory_),
            cartridge_(),
            sram_(),
            ram_(),
            trace_file_(),
            screen_(),
-           controller_one_(std::make_unique<controller::controller>(memory_)),
-           controller_two_(std::make_unique<controller::controller>(memory_)) {
-    memory_.map(std::make_unique<memory_mappable_component<memory_ram>>(&ram_, 0x0000, 0x1FFF));
-    memory_.map(std::make_unique<memory_mappable_component<ppu::ppu>>(&ppu_, 0x2000, 0x3FFF));
-    memory_.map(std::make_unique<memory_mappable_component<apu>>(&apu_, 0x4000, 0x4015));
-    memory_.map(std::make_unique<memory_mappable_component<cpu>>(&cpu_, 0x4000, 0x4015));
-    memory_.map(std::make_unique<memory_mappable_component<controller::controller>>(controller_one_.get(), 0x4016, 0x4016));
-    memory_.map(std::make_unique<memory_mappable_component<controller::controller>>(controller_two_.get(), 0x4017, 0x4017));
-    memory_.map(std::make_unique<memory_mappable_component<apu>>(&apu_, 0x4018, 0x401F));
-    memory_.map(std::make_unique<memory_mappable_component<cpu>>(&cpu_, 0x4018, 0x401F));
-    memory_.map(std::make_unique<memory_mappable_component<memory_sram>>(&sram_, 0x6000, 0x7FFF));
-    memory_.map(std::make_unique<memory_mappable_component<cartridge>>(&cartridge_, 0x8000, 0xFFFF));
+           controller_one_(std::make_unique<controller::controller>(cpu_memory_)),
+           controller_two_(std::make_unique<controller::controller>(cpu_memory_)) {
+    cpu_memory_.map(std::make_unique<memory_mappable_component<memory_ram>>(&ram_, 0x0000, 0x1FFF));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<ppu::ppu>>(&ppu_, 0x2000, 0x3FFF));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<apu>>(&apu_, 0x4000, 0x4015));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<cpu>>(&cpu_, 0x4000, 0x4015));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<controller::controller>>(controller_one_.get(), 0x4016, 0x4016));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<controller::controller>>(controller_two_.get(), 0x4017, 0x4017));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<apu>>(&apu_, 0x4018, 0x401F));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<cpu>>(&cpu_, 0x4018, 0x401F));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<memory_sram>>(&sram_, 0x6000, 0x7FFF));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<cartridge>>(&cartridge_, 0x8000, 0xFFFF));
   }
 
   ~impl() = default;
@@ -186,7 +187,9 @@ private:
 private:
   std::atomic<bool> is_running_;
 
-  memory memory_;
+  memory cpu_memory_;
+
+  memory ppu_memory_;
 
   apu apu_;
 

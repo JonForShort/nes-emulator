@@ -79,13 +79,43 @@ public:
 
   virtual ~memory_mappable() = default;
 
-  virtual uint16_t start_address() = 0;
+  virtual auto start_address() -> uint16_t = 0;
 
-  virtual uint16_t end_address() = 0;
+  virtual auto end_address() -> uint16_t = 0;
 
-  virtual uint8_t read(uint16_t address) = 0;
+  virtual auto read(uint16_t address) -> uint8_t = 0;
 
-  virtual void write(uint16_t address, uint8_t data) = 0;
+  virtual auto write(uint16_t address, uint8_t data) -> void = 0;
+};
+
+template <typename C>
+class memory_mappable_component : public memory_mappable {
+public:
+  memory_mappable_component(C *const component, const uint16_t start_address, const uint16_t end_address)
+      : component_(component), start_address_(start_address), end_address_(end_address) {}
+
+  auto start_address() -> uint16_t override {
+    return start_address_;
+  }
+
+  auto end_address() -> uint16_t override {
+    return end_address_;
+  }
+
+  auto read(const uint16_t address) -> uint8_t override {
+    return component_->read(address);
+  }
+
+  auto write(const uint16_t address, const uint8_t data) -> void override {
+    component_->write(address, data);
+  }
+
+private:
+  C *const component_;
+
+  const uint16_t start_address_;
+
+  const uint32_t end_address_;
 };
 
 using memory_mappable_ptr = std::unique_ptr<memory_mappable>;

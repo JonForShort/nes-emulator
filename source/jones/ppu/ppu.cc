@@ -25,15 +25,20 @@
 #include <boost/core/ignore_unused.hpp>
 #include <boost/static_assert.hpp>
 
-#include "color_palette.hh"
 #include "control_register.hh"
 #include "mask_register.hh"
 #include "memory.hh"
+#include "name_table.hh"
+#include "palette.hh"
+#include "pattern_table.hh"
 #include "ppu.hh"
 #include "ppu_frame.hh"
 #include "status_register.hh"
 
 using namespace jones::ppu;
+
+template <typename T>
+using memory_mappable_component = jones::memory_mappable_component<T>;
 
 namespace {
 
@@ -45,8 +50,10 @@ constexpr uint16_t ppu_max_cycles = 340;
 
 class ppu::impl final {
 public:
-  explicit impl(memory &memory) : cycles_(0), frames_(0), memory_(memory), oam_address_(0) {
-    boost::ignore_unused(memory_);
+  impl(memory &cpu_memory, memory &ppu_memory) : cpu_memory_(cpu_memory), ppu_memory_(ppu_memory) {
+    ppu_memory_.map(std::make_unique<memory_mappable_component<pattern_table>>(&pattern_table_, 0x0000, 0x1FFF));
+    ppu_memory_.map(std::make_unique<memory_mappable_component<name_table>>(&name_table_, 0x2000, 0x3EFF));
+    ppu_memory_.map(std::make_unique<memory_mappable_component<palette>>(&palette_, 0x3F00, 0x3FFF));
   }
 
   uint8_t step() {
@@ -230,7 +237,9 @@ private:
 
   uint64_t frames_{};
 
-  memory &memory_;
+  memory &cpu_memory_;
+
+  memory &ppu_memory_;
 
   control_register control_register_{};
 
@@ -243,9 +252,15 @@ private:
   uint8_t oam_data_[0xFF] = {0};
 
   ppu_frame ppu_frame_{};
+
+  palette palette_{};
+
+  name_table name_table_{};
+
+  pattern_table pattern_table_{};
 };
 
-ppu::ppu(jones::memory &memory) : impl_(new impl(memory)) {}
+ppu::ppu(jones::memory &cpu_memory, jones::memory &ppu_memory) : impl_(new impl(cpu_memory, ppu_memory)) {}
 
 ppu::~ppu() = default;
 
