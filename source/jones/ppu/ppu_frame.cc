@@ -118,7 +118,7 @@ enum class ppu_frame_state : uint32_t {
 };
 
 constexpr inline auto is_state_set(const ppu_frame_state_mask state, const ppu_frame_state frame_state) {
-  return (static_cast<uint32_t>(frame_state) & state) == state;
+  return (static_cast<uint32_t>(frame_state) & state) != 0;
 }
 
 } // namespace
@@ -126,6 +126,11 @@ constexpr inline auto is_state_set(const ppu_frame_state_mask state, const ppu_f
 ppu_frame::ppu_frame(const mask_register &mask_register) : mask_register_(mask_register) {
   const auto scanline_cycles = std::vector<ppu_frame_state_mask>(ppu_num_cycles, 0);
   scanlines_ = std::vector<ppu_frame_cycles>(ppu_num_scanlines, scanline_cycles);
+
+  buffer_.resize(ppu_screen_height);
+  for (auto &height : buffer_) {
+    height.resize(ppu_screen_width);
+  }
 }
 
 auto ppu_frame::initialize() -> void {
@@ -144,6 +149,7 @@ auto ppu_frame::step() -> uint16_t {
 auto ppu_frame::process_frame_state() -> void {
   const auto state = current_frame_state();
   if (is_state_set(state, ppu_frame_state::STATE_FLAG_VISIBLE)) {
+    process_state_flag_visible();
   }
   if (is_state_set(state, ppu_frame_state::STATE_REG_BG_SHIFT)) {
   }
@@ -181,6 +187,23 @@ auto ppu_frame::process_frame_state() -> void {
   }
   if (is_state_set(state, ppu_frame_state::STATE_IDLE)) {
   }
+}
+
+auto ppu_frame::process_state_flag_visible() -> void {
+  const auto screen_x_position = current_cycle_ - 2;
+  const auto screen_y_position = current_scanline_;
+
+  const auto is_background_clipped = mask_register_.is_set(mask_flag::SHOW_LEFT_BACKGROUND) && screen_x_position < ppu_tile_width;
+  const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+  if (is_background_visible && !is_background_clipped) {
+  }
+
+  const auto is_sprite_clipped = mask_register_.is_set(mask_flag::SHOW_LEFT_SPRITES) && screen_x_position < ppu_tile_width;
+  const auto is_sprite_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
+  if (is_sprite_visible && !is_sprite_clipped) {
+  }
+
+  buffer_[screen_y_position][screen_x_position] = 0xFF000000U;
 }
 
 auto ppu_frame::update_frame_counters() -> void {

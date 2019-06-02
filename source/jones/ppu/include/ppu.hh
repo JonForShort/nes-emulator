@@ -45,17 +45,19 @@ public:
 
   ~ppu();
 
-  uint8_t step();
+  auto initialize() -> void;
 
-  uint8_t read(uint16_t address) const;
+  auto uninitialize() -> void;
 
-  void write(uint16_t address, uint8_t data);
+  auto read(uint16_t address) const -> uint8_t;
 
-  void initialize();
+  auto write(uint16_t address, uint8_t data) -> void;
 
-  void uninitialize();
+  auto step() -> uint8_t;
 
-  ppu_state get_state() const;
+  auto get_state() const -> ppu_state;
+
+  auto get_buffer() const -> std::vector<std::vector<uint32_t>>;
 
 private:
   class impl;

@@ -51,7 +51,7 @@ void sdl_screen::show() {
     return;
   }
   SDL_Init(SDL_INIT_HAPTIC);
-  window_ = SDL_CreateWindow("Jones NES Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
+  window_ = SDL_CreateWindow("Jones NES Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 256, 240, SDL_WINDOW_OPENGL);
   if (window_ == nullptr) {
     LOG_ERROR << "unable to create window";
     return;
@@ -83,12 +83,18 @@ void sdl_screen::hide() {
 
 void sdl_screen::draw_pixel(const uint16_t x_position, const uint16_t y_position, const uint32_t pixel) {
   if (renderer_ != nullptr) {
-    const auto red = pixel & 0xF000U;
-    const auto green = pixel & 0xF00U;
-    const auto blue = pixel & 0xF0U;
-    const auto alpha = pixel & 0xFU;
-    SDL_SetRenderDrawColor(renderer_, red, green, blue, alpha);
-    SDL_RenderDrawPoint(renderer_, x_position, y_position);
+    const auto red = (pixel & 0xFF000000U) >> 24U;
+    const auto green = (pixel & 0xFF0000U) >> 16U;
+    const auto blue = (pixel & 0xFF00U) >> 8U;
+    const auto alpha = (pixel & 0xFFU);
+    if (SDL_SetRenderDrawColor(renderer_, red, green, blue, alpha) == -1) {
+      LOG_ERROR << SDL_GetError();
+      return;
+    }
+    if (SDL_RenderDrawPoint(renderer_, x_position, y_position) == -1) {
+      LOG_ERROR << SDL_GetError();
+      return;
+    }
   }
 }
 
@@ -98,8 +104,14 @@ void sdl_screen::set_scale(const uint8_t scale) {
 
 void sdl_screen::fill_with_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) {
   if (renderer_ != nullptr) {
-    SDL_SetRenderDrawColor(renderer_, r, g, b, a);
-    SDL_RenderClear(renderer_);
+    if (SDL_SetRenderDrawColor(renderer_, r, g, b, a) == -1) {
+      LOG_ERROR << SDL_GetError();
+      return;
+    }
+    if (SDL_RenderClear(renderer_) == -1) {
+      LOG_ERROR << SDL_GetError();
+      return;
+    }
     SDL_RenderPresent(renderer_);
   }
 }

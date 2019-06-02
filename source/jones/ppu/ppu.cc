@@ -221,6 +221,10 @@ public:
         .frame = ppu_frame_.frame()};
   }
 
+  auto get_buffer() const -> auto {
+    return ppu_frame_.buffer();
+  }
+
 private:
   memory &cpu_memory_;
 
@@ -271,4 +275,8 @@ void ppu::uninitialize() {
 
 ppu_state ppu::get_state() const {
   return impl_->get_state();
+}
+
+auto ppu::get_buffer() const -> std::vector<std::vector<uint32_t>> {
+  return impl_->get_buffer();
 }

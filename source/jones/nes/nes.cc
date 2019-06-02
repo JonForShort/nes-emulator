@@ -87,6 +87,7 @@ public:
       for (auto i = 0; i < apu_cycles; i++) {
         apu_.step();
       }
+      update_components();
       trace_step();
     }
     trace_done();
@@ -133,6 +134,17 @@ private:
     apu_.uninitialize();
     if (screen_ != nullptr) {
       screen_->uninitialize();
+    }
+  }
+
+  void update_components() {
+    if (screen_ != nullptr) {
+      const auto buffer = ppu_.get_buffer();
+      for (size_t y = 0; y < buffer.size(); y++) {
+        for (size_t x = 0; x < buffer[y].size(); x++) {
+          screen_->draw_pixel(x, y, buffer[y][x]);
+        }
+      }
     }
   }
 

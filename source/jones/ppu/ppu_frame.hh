@@ -37,6 +37,8 @@ using ppu_frame_cycles = std::vector<ppu_frame_state_mask>;
 
 using ppu_frame_scanlines = std::vector<ppu_frame_cycles>;
 
+using ppu_frame_buffer = std::vector<std::vector<uint32_t>>;
+
 class ppu_frame final {
 public:
   explicit ppu_frame(const mask_register &mask_register);
@@ -47,16 +49,20 @@ public:
 
   auto step() -> uint16_t;
 
-  auto cycle() -> auto {
+  auto cycle() const -> auto {
     return current_cycle_;
   }
 
-  auto scanline() -> auto {
+  auto scanline() const -> auto {
     return current_scanline_;
   }
 
-  auto frame() -> auto {
+  auto frame() const -> auto {
     return current_frame_;
+  }
+
+  auto buffer() const -> auto {
+    return buffer_;
   }
 
 private:
@@ -74,6 +80,8 @@ private:
 
   auto current_frame_state() -> ppu_frame_state_mask;
 
+  auto process_state_flag_visible() -> void;
+
 private:
   uint16_t current_cycle_{};
 
@@ -82,6 +90,8 @@ private:
   uint64_t current_frame_{};
 
   ppu_frame_scanlines scanlines_{};
+
+  ppu_frame_buffer buffer_{};
 
   const mask_register &mask_register_;
 };
