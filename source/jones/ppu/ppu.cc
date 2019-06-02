@@ -50,10 +50,11 @@ constexpr uint16_t ppu_max_cycles = 340;
 
 class ppu::impl final {
 public:
-  impl(memory &cpu_memory, memory &ppu_memory) : cpu_memory_(cpu_memory), ppu_memory_(ppu_memory) {
-    ppu_memory_.map(std::make_unique<memory_mappable_component<pattern_table>>(&pattern_table_, 0x0000, 0x1FFF));
-    ppu_memory_.map(std::make_unique<memory_mappable_component<name_table>>(&name_table_, 0x2000, 0x3EFF));
-    ppu_memory_.map(std::make_unique<memory_mappable_component<palette>>(&palette_, 0x3F00, 0x3FFF));
+  impl(memory &cpu_memory, memory &ppu_memory)
+      : cpu_memory_(cpu_memory), ppu_memory_(ppu_memory) {
+    ppu_memory_.map(std::make_unique<memory_mappable_component<pattern_table>>(&pattern_table_, pattern_table_memory_begin, pattern_table_memory_end));
+    ppu_memory_.map(std::make_unique<memory_mappable_component<name_table>>(&name_table_, name_table_memory_begin, name_table_memory_end));
+    ppu_memory_.map(std::make_unique<memory_mappable_component<palette>>(&palette_, palette_memory_begin, palette_memory_end));
   }
 
   uint8_t step() {

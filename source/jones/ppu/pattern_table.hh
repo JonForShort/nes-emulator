@@ -28,6 +28,10 @@
 
 namespace jones::ppu {
 
+constexpr auto pattern_table_memory_begin = 0x0000;
+
+constexpr auto pattern_table_memory_end = 0x1FFF;
+
 class pattern_table {
 public:
   pattern_table() = default;

@@ -26,8 +26,6 @@
 
 #include <cstdint>
 
-namespace jones::ppu {
-
 // ----------------------------------------------------------------------------
 //
 // Memory layout for Palette is documented here:
@@ -50,6 +48,23 @@ namespace jones::ppu {
 // $3F1D-$3F1F    |  $0002  | Sprite Palette #3
 // ----------------------------------------------------------------------------
 //
+
+namespace jones::ppu {
+
+constexpr auto palette_size_bytes = 0x20;
+
+constexpr auto palette_background_begin = 0x3F00;
+
+constexpr auto palette_background_end = 0x3F0F;
+
+constexpr auto palette_sprite_begin = 0x3F11;
+
+constexpr auto palette_sprite_end = 0x3F1F;
+
+constexpr auto palette_memory_begin = 0x3F00;
+
+constexpr auto palette_memory_end = 0x3FFF;
+
 class palette {
 public:
   palette() = default;

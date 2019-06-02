@@ -28,6 +28,10 @@
 
 namespace jones::ppu {
 
+constexpr auto name_table_memory_begin = 0x2000;
+
+constexpr auto name_table_memory_end = 0x3EFF;
+
 class name_table {
 public:
   name_table() = default;
