@@ -22,6 +22,7 @@
 // SOFTWARE.
 //
 #include "ppu_frame.hh"
+#include "ppu_frame_state.hh"
 
 #include <vector>
 
@@ -37,15 +38,11 @@ using namespace jones::ppu;
 
 namespace {
 
-constexpr auto ppu_initial_cycles = 0;
-
 constexpr auto ppu_max_cycles = 340;
 
 constexpr auto ppu_screen_width = 256;
 
 constexpr auto ppu_screen_height = 240;
-
-constexpr auto ppu_screen_refresh_rate = 60.0988;
 
 constexpr auto ppu_num_scanlines = 262;
 
@@ -68,58 +65,6 @@ constexpr auto ppu_scanline_visible_end = 239;
 constexpr auto ppu_scanline_postrender = 240;
 
 constexpr auto ppu_scanline_vblank = 241;
-
-constexpr inline uint32_t bit_value(const uint8_t i) {
-  return 1U << i;
-}
-
-//
-// States are from timing diagram: https://wiki.nesdev.com/w/images/4/4f/Ppu.svg
-//
-enum class ppu_frame_state : uint32_t {
-
-  STATE_IDLE = bit_value(0),
-
-  STATE_FLAG_VBLANK_CLEAR = bit_value(1),
-
-  STATE_FLAG_VBLANK_SET = bit_value(2),
-
-  STATE_FLAG_VISIBLE = bit_value(3),
-
-  STATE_VRAM_FETCH_NT_BYTE = bit_value(4),
-
-  STATE_VRAM_FETCH_AT_BYTE = bit_value(5),
-
-  STATE_VRAM_FETCH_BG_LOW_BYTE = bit_value(6),
-
-  STATE_VRAM_FETCH_BG_HIGH_BYTE = bit_value(7),
-
-  STATE_VRAM_FETCH_SPRITE_LOW_BYTE = bit_value(8),
-
-  STATE_VRAM_FETCH_SPRITE_HIGH_BYTE = bit_value(9),
-
-  STATE_LOOPY_INC_HORI_V = bit_value(10),
-
-  STATE_LOOPY_INC_VERT_V = bit_value(11),
-
-  STATE_LOOPY_SET_HORI_V = bit_value(12),
-
-  STATE_LOOPY_SET_VERT_V = bit_value(13),
-
-  STATE_SECONDARY_OAM_CLEAR = bit_value(14),
-
-  STATE_EVALUATE_SPRITE = bit_value(15),
-
-  STATE_REG_BG_SHIFT = bit_value(16),
-
-  STATE_REG_BG_RELOAD = bit_value(17),
-
-  STATE_REG_SPRITE_SHIFT = bit_value(18),
-};
-
-constexpr inline auto is_state_set(const ppu_frame_state_mask state, const ppu_frame_state frame_state) {
-  return (static_cast<uint32_t>(frame_state) & state) != 0;
-}
 
 } // namespace
 
@@ -148,46 +93,57 @@ auto ppu_frame::step() -> uint16_t {
 
 auto ppu_frame::process_frame_state() -> void {
   const auto state = current_frame_state();
-  if (is_state_set(state, ppu_frame_state::STATE_FLAG_VISIBLE)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_FLAG_VISIBLE)) {
     process_state_flag_visible();
   }
-  if (is_state_set(state, ppu_frame_state::STATE_REG_BG_SHIFT)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_REG_BG_SHIFT)) {
   }
-  if (is_state_set(state, ppu_frame_state::STATE_REG_SPRITE_SHIFT)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_REG_SPRITE_SHIFT)) {
   }
-  if (is_state_set(state, ppu_frame_state::STATE_REG_BG_RELOAD)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_REG_BG_RELOAD)) {
   }
-  if (is_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_NT_BYTE)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_NT_BYTE)) {
+    process_state_vram_fetch_nt_byte();
   }
-  if (is_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_AT_BYTE)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_AT_BYTE)) {
   }
-  if (is_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_BG_LOW_BYTE)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_BG_LOW_BYTE)) {
   }
-  if (is_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_BG_HIGH_BYTE)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_BG_HIGH_BYTE)) {
   }
-  if (is_state_set(state, ppu_frame_state::STATE_FLAG_VBLANK_SET)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_FLAG_VBLANK_SET)) {
     process_state_flag_vblank_set();
   }
-  if (is_state_set(state, ppu_frame_state::STATE_FLAG_VBLANK_CLEAR)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_FLAG_VBLANK_CLEAR)) {
     process_state_flag_vblank_clear();
   }
-  if (is_state_set(state, ppu_frame_state::STATE_LOOPY_INC_HORI_V)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_LOOPY_INC_HORI_V)) {
   }
-  if (is_state_set(state, ppu_frame_state::STATE_LOOPY_INC_VERT_V)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_LOOPY_INC_VERT_V)) {
   }
-  if (is_state_set(state, ppu_frame_state::STATE_LOOPY_SET_HORI_V)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_LOOPY_SET_HORI_V)) {
   }
-  if (is_state_set(state, ppu_frame_state::STATE_LOOPY_SET_VERT_V)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_LOOPY_SET_VERT_V)) {
   }
-  if (is_state_set(state, ppu_frame_state::STATE_SECONDARY_OAM_CLEAR)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_SECONDARY_OAM_CLEAR)) {
   }
-  if (is_state_set(state, ppu_frame_state::STATE_EVALUATE_SPRITE)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_EVALUATE_SPRITE)) {
   }
-  if (is_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_SPRITE_LOW_BYTE)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_SPRITE_LOW_BYTE)) {
   }
-  if (is_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_SPRITE_HIGH_BYTE)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_SPRITE_HIGH_BYTE)) {
   }
-  if (is_state_set(state, ppu_frame_state::STATE_IDLE)) {
+  if (is_frame_state_set(state, ppu_frame_state::STATE_IDLE)) {
+    //
+    // Nothing to do.
+    //
+  }
+}
+
+auto ppu_frame::process_state_vram_fetch_nt_byte() -> void {
+  const auto is_background_enabled = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+  if (!is_background_enabled) {
+    return;
   }
 }
 

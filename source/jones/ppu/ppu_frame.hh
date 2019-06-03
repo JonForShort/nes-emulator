@@ -25,13 +25,12 @@
 #define JONES_PPU_PPU_FRAME_HH
 
 #include "mask_register.hh"
+#include "ppu_frame_state.hh"
 
 #include <cstdint>
 #include <vector>
 
 namespace jones::ppu {
-
-using ppu_frame_state_mask = uint32_t;
 
 using ppu_frame_cycles = std::vector<ppu_frame_state_mask>;
 
@@ -89,6 +88,8 @@ private:
   auto process_state_flag_vblank_set() -> void;
 
   auto process_state_flag_vblank_clear() -> void;
+
+  auto process_state_vram_fetch_nt_byte() -> void;
 
 private:
   uint16_t current_cycle_{};
