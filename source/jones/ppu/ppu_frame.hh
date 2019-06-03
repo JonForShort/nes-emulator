@@ -25,7 +25,9 @@
 #define JONES_PPU_PPU_FRAME_HH
 
 #include "mask_register.hh"
+#include "memory.hh"
 #include "ppu_frame_state.hh"
+#include "ppu_render_context.hh"
 
 #include <cstdint>
 #include <vector>
@@ -40,7 +42,7 @@ using ppu_frame_buffer = std::vector<std::vector<uint32_t>>;
 
 class ppu_frame final {
 public:
-  explicit ppu_frame(const mask_register &mask_register);
+  ppu_frame(const memory &memory, const mask_register &mask_register);
 
   ~ppu_frame() = default;
 
@@ -102,7 +104,11 @@ private:
 
   ppu_frame_buffer buffer_{};
 
+  ppu_render_context render_context_{};
+
   bool buffer_ready_{};
+
+  const memory &memory_;
 
   const mask_register &mask_register_;
 };

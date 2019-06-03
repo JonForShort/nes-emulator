@@ -43,7 +43,7 @@ using memory_mappable_component = jones::memory_mappable_component<T>;
 class ppu::impl final {
 public:
   impl(memory &cpu_memory, memory &ppu_memory)
-      : cpu_memory_(cpu_memory), ppu_memory_(ppu_memory), ppu_frame_(mask_register_) {
+      : cpu_memory_(cpu_memory), ppu_memory_(ppu_memory), ppu_frame_(ppu_memory, mask_register_) {
     ppu_memory_.map(std::make_unique<memory_mappable_component<pattern_table>>(&pattern_table_, pattern_table_memory_begin, pattern_table_memory_end));
     ppu_memory_.map(std::make_unique<memory_mappable_component<name_table>>(&name_table_, name_table_memory_begin, name_table_memory_end));
     ppu_memory_.map(std::make_unique<memory_mappable_component<palette>>(&palette_, palette_memory_begin, palette_memory_end));

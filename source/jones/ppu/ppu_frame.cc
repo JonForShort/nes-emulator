@@ -68,7 +68,8 @@ constexpr auto ppu_scanline_vblank = 241;
 
 } // namespace
 
-ppu_frame::ppu_frame(const mask_register &mask_register) : mask_register_(mask_register) {
+ppu_frame::ppu_frame(const memory &memory, const mask_register &mask_register)
+    : memory_(memory), mask_register_(mask_register) {
   const auto scanline_cycles = std::vector<ppu_frame_state_mask>(ppu_num_cycles, 0);
   scanlines_ = std::vector<ppu_frame_cycles>(ppu_num_scanlines, scanline_cycles);
 
