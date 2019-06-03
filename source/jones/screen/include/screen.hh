@@ -36,9 +36,11 @@ public:
 
   virtual auto uninitialize() -> void = 0;
 
-  virtual auto draw_pixel(uint16_t x_position, uint16_t y_position, uint32_t pixel) -> void = 0;
+  virtual auto set_pixel(uint16_t x_position, uint16_t y_position, uint32_t pixel) -> void = 0;
 
   virtual auto set_scale(uint8_t scale) -> void = 0;
+
+  virtual auto update() -> void = 0;
 };
 
 } // namespace jones::screen

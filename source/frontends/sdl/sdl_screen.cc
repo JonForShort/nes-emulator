@@ -81,12 +81,12 @@ void sdl_screen::hide() {
   is_running_ = false;
 }
 
-void sdl_screen::draw_pixel(const uint16_t x_position, const uint16_t y_position, const uint32_t pixel) {
+void sdl_screen::set_pixel(const uint16_t x_position, const uint16_t y_position, const uint32_t pixel) {
   if (renderer_ != nullptr) {
-    const auto red = (pixel & 0xFF000000U) >> 24U;
-    const auto green = (pixel & 0xFF0000U) >> 16U;
-    const auto blue = (pixel & 0xFF00U) >> 8U;
-    const auto alpha = (pixel & 0xFFU);
+    const uint8_t red = (pixel & 0xFF000000U) >> 24U;
+    const uint8_t green = (pixel & 0xFF0000U) >> 16U;
+    const uint8_t blue = (pixel & 0xFF00U) >> 8U;
+    const uint8_t alpha = (pixel & 0xFFU);
     if (SDL_SetRenderDrawColor(renderer_, red, green, blue, alpha) == -1) {
       LOG_ERROR << SDL_GetError();
       return;
@@ -102,6 +102,10 @@ void sdl_screen::set_scale(const uint8_t scale) {
   scale_ = scale;
 }
 
+auto sdl_screen::update() -> void {
+  SDL_RenderPresent(renderer_);
+}
+
 void sdl_screen::fill_with_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) {
   if (renderer_ != nullptr) {
     if (SDL_SetRenderDrawColor(renderer_, r, g, b, a) == -1) {
@@ -112,7 +116,6 @@ void sdl_screen::fill_with_color(const uint8_t r, const uint8_t g, const uint8_t
       LOG_ERROR << SDL_GetError();
       return;
     }
-    SDL_RenderPresent(renderer_);
   }
 }
 

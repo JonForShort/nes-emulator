@@ -59,6 +59,8 @@ public:
 
   auto get_buffer() const -> std::vector<std::vector<uint32_t>>;
 
+  auto is_buffer_ready() const -> bool;
+
 private:
   class impl;
 

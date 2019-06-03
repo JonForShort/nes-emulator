@@ -83,11 +83,13 @@ public:
       const auto apu_cycles = cpu_cycles;
       for (auto i = 0; i < ppu_cycles; i++) {
         ppu_.step();
+        if (ppu_.is_buffer_ready()) {
+          update_screen();
+        }
       }
       for (auto i = 0; i < apu_cycles; i++) {
         apu_.step();
       }
-      update_components();
       trace_step();
     }
     trace_done();
@@ -137,14 +139,15 @@ private:
     }
   }
 
-  void update_components() {
+  void update_screen() {
     if (screen_ != nullptr) {
       const auto buffer = ppu_.get_buffer();
       for (size_t y = 0; y < buffer.size(); y++) {
         for (size_t x = 0; x < buffer[y].size(); x++) {
-          screen_->draw_pixel(x, y, buffer[y][x]);
+          screen_->set_pixel(x, y, buffer[y][x]);
         }
       }
+      screen_->update();
     }
   }
 

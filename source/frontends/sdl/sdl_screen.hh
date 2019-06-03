@@ -50,9 +50,11 @@ public:
 
   auto uninitialize() -> void override;
 
-  auto draw_pixel(uint16_t x_position, uint16_t y_position, uint32_t pixel) -> void override;
+  auto set_pixel(uint16_t x_position, uint16_t y_position, uint32_t pixel) -> void override;
 
   auto set_scale(uint8_t scale) -> void override;
+
+  auto update() -> void override;
 
   auto on_event(SDL_Event event) -> void override;
 

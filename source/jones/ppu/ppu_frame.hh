@@ -65,6 +65,10 @@ public:
     return buffer_;
   }
 
+  auto buffer_ready() const -> auto {
+    return buffer_ready_;
+  }
+
 private:
   auto initialize_prerender_scanline() -> void;
 
@@ -82,6 +86,10 @@ private:
 
   auto process_state_flag_visible() -> void;
 
+  auto process_state_flag_vblank_set() -> void;
+
+  auto process_state_flag_vblank_clear() -> void;
+
 private:
   uint16_t current_cycle_{};
 
@@ -92,6 +100,8 @@ private:
   ppu_frame_scanlines scanlines_{};
 
   ppu_frame_buffer buffer_{};
+
+  bool buffer_ready_{};
 
   const mask_register &mask_register_;
 };

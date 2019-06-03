@@ -166,8 +166,10 @@ auto ppu_frame::process_frame_state() -> void {
   if (is_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_BG_HIGH_BYTE)) {
   }
   if (is_state_set(state, ppu_frame_state::STATE_FLAG_VBLANK_SET)) {
+    process_state_flag_vblank_set();
   }
   if (is_state_set(state, ppu_frame_state::STATE_FLAG_VBLANK_CLEAR)) {
+    process_state_flag_vblank_clear();
   }
   if (is_state_set(state, ppu_frame_state::STATE_LOOPY_INC_HORI_V)) {
   }
@@ -187,6 +189,14 @@ auto ppu_frame::process_frame_state() -> void {
   }
   if (is_state_set(state, ppu_frame_state::STATE_IDLE)) {
   }
+}
+
+auto ppu_frame::process_state_flag_vblank_set() -> void {
+  buffer_ready_ = true;
+}
+
+auto ppu_frame::process_state_flag_vblank_clear() -> void {
+  buffer_ready_ = false;
 }
 
 auto ppu_frame::process_state_flag_visible() -> void {

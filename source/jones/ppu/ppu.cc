@@ -225,6 +225,10 @@ public:
     return ppu_frame_.buffer();
   }
 
+  auto is_buffer_ready() const -> auto {
+    return ppu_frame_.buffer_ready();
+  }
+
 private:
   memory &cpu_memory_;
 
@@ -253,30 +257,34 @@ ppu::ppu(jones::memory &cpu_memory, jones::memory &ppu_memory) : impl_(new impl(
 
 ppu::~ppu() = default;
 
-uint8_t ppu::step() {
+auto ppu::step() -> uint8_t {
   return impl_->step();
 }
 
-uint8_t ppu::read(const uint16_t address) const {
+auto ppu::read(const uint16_t address) const -> uint8_t {
   return impl_->read(address);
 }
 
-void ppu::write(const uint16_t address, const uint8_t data) {
+auto ppu::write(const uint16_t address, const uint8_t data) -> void {
   impl_->write(address, data);
 }
 
-void ppu::initialize() {
+auto ppu::initialize() -> void {
   impl_->initialize();
 }
 
-void ppu::uninitialize() {
+auto ppu::uninitialize() -> void {
   impl_->uninitialize();
 }
 
-ppu_state ppu::get_state() const {
+auto ppu::get_state() const -> ppu_state {
   return impl_->get_state();
 }
 
 auto ppu::get_buffer() const -> std::vector<std::vector<uint32_t>> {
   return impl_->get_buffer();
+}
+
+auto ppu::is_buffer_ready() const -> bool {
+  return impl_->is_buffer_ready();
 }
