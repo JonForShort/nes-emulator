@@ -34,10 +34,6 @@ constexpr auto pattern_table_memory_end = 0x1FFF;
 
 class pattern_table {
 public:
-  pattern_table() = default;
-
-  ~pattern_table() = default;
-
   auto read(uint16_t address) const -> uint8_t;
 
   auto write(uint16_t address, uint8_t data) -> void;

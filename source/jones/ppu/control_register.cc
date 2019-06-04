@@ -29,7 +29,7 @@ using namespace jones::ppu;
 
 namespace {
 
-uint8_t flag_to_position(const control_flag flag) {
+auto flag_to_position(const control_flag flag) -> auto {
   switch (flag) {
   case control_flag::NAME_TABLE_ONE:
     return 0;
@@ -54,19 +54,19 @@ uint8_t flag_to_position(const control_flag flag) {
 }
 } // namespace
 
-bool control_register::is_set(const control_flag flag) const {
+auto control_register::is_set(const control_flag flag) const -> bool {
   return control_flags_.test(flag_to_position(flag));
 }
 
-void control_register::set(const control_flag flag) {
+auto control_register::set(const control_flag flag) -> void {
   control_flags_.set(flag_to_position(flag), true);
 }
 
-void control_register::clear(const control_flag flag) {
+auto control_register::clear(const control_flag flag) -> void {
   control_flags_.set(flag_to_position(flag), false);
 }
 
-void control_register::set(const uint8_t flags) {
+auto control_register::set(const uint8_t flags) -> void {
   (0x01U & flags) ? set(control_flag::NAME_TABLE_ONE) : clear(control_flag::NAME_TABLE_ONE);
   (0x02U & flags) ? set(control_flag::NAME_TABLE_TWO) : clear(control_flag::NAME_TABLE_TWO);
   (0x04U & flags) ? set(control_flag::VRAM_INCREMENT) : clear(control_flag::VRAM_INCREMENT);
@@ -77,7 +77,7 @@ void control_register::set(const uint8_t flags) {
   (0x80U & flags) ? set(control_flag::NMI) : clear(control_flag::NMI);
 }
 
-uint8_t control_register::get() const {
+auto control_register::get() const -> uint8_t {
   return (is_set(control_flag::NAME_TABLE_ONE) ? 0x01U : 0x00U) |
          (is_set(control_flag::NAME_TABLE_TWO) ? 0x02U : 0x00U) |
          (is_set(control_flag::VRAM_INCREMENT) ? 0x04U : 0x00U) |

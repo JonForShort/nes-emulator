@@ -34,10 +34,6 @@ constexpr auto name_table_memory_end = 0x3EFF;
 
 class name_table {
 public:
-  name_table() = default;
-
-  ~name_table() = default;
-
   auto read(uint16_t address) const -> uint8_t;
 
   auto write(uint16_t address, uint8_t data) -> void;

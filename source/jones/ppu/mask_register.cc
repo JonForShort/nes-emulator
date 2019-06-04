@@ -29,7 +29,7 @@ using namespace jones::ppu;
 
 namespace {
 
-uint8_t flag_to_position(const mask_flag flag) {
+auto flag_to_position(const mask_flag flag) -> auto {
   switch (flag) {
   case mask_flag::USE_GRAYSCALE:
     return 0;
@@ -55,19 +55,19 @@ uint8_t flag_to_position(const mask_flag flag) {
 
 } // namespace
 
-bool mask_register::is_set(const mask_flag flag) const {
+auto mask_register::is_set(const mask_flag flag) const -> bool {
   return mask_flags_.test(flag_to_position(flag));
 }
 
-void mask_register::set(const mask_flag flag) {
+auto mask_register::set(const mask_flag flag) -> void {
   mask_flags_.set(flag_to_position(flag), true);
 }
 
-void mask_register::clear(const mask_flag flag) {
+auto mask_register::clear(const mask_flag flag) -> void {
   mask_flags_.set(flag_to_position(flag), false);
 }
 
-void mask_register::set(const uint8_t flags) {
+auto mask_register::set(const uint8_t flags) -> void {
   (0x01U & flags) ? set(mask_flag::USE_GRAYSCALE) : clear(mask_flag::USE_GRAYSCALE);
   (0x02U & flags) ? set(mask_flag::SHOW_LEFT_BACKGROUND) : clear(mask_flag::SHOW_LEFT_BACKGROUND);
   (0x04U & flags) ? set(mask_flag::SHOW_LEFT_SPRITES) : clear(mask_flag::SHOW_LEFT_SPRITES);
@@ -78,7 +78,7 @@ void mask_register::set(const uint8_t flags) {
   (0x80U & flags) ? set(mask_flag::TINT_BLUE) : clear(mask_flag::TINT_BLUE);
 }
 
-uint8_t mask_register::get() const {
+auto mask_register::get() const -> uint8_t {
   return (is_set(mask_flag::USE_GRAYSCALE) ? 0x01U : 0x00U) |
          (is_set(mask_flag::SHOW_LEFT_BACKGROUND) ? 0x02U : 0x00U) |
          (is_set(mask_flag::SHOW_LEFT_SPRITES) ? 0x04U : 0x00U) |

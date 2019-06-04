@@ -32,7 +32,7 @@ namespace jones::ppu {
 //
 // https://wiki.nesdev.com/w/index.php/PPU_registers#PPUMASK
 //
-enum class mask_flag {
+enum class mask_flag : uint16_t {
 
   USE_GRAYSCALE,
 
@@ -55,18 +55,18 @@ enum class mask_flag {
 
 class mask_register final {
 public:
-  bool is_set(mask_flag flag) const;
+  auto is_set(mask_flag flag) const -> bool;
 
-  void set(mask_flag flag);
+  auto clear(mask_flag flag) -> void;
 
-  void clear(mask_flag flag);
+  auto set(mask_flag flag) -> void;
 
-  void set(uint8_t flags);
+  auto set(uint8_t flags) -> void;
 
-  uint8_t get() const;
+  auto get() const -> uint8_t;
 
 private:
-  static constexpr size_t mask_flag_count = static_cast<size_t>(mask_flag::COUNT);
+  static constexpr auto mask_flag_count = static_cast<uint16_t>(mask_flag::COUNT);
 
   std::bitset<mask_flag_count> mask_flags_;
 };

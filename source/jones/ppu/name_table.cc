@@ -23,14 +23,15 @@
 //
 #include "name_table.hh"
 
+#include <boost/core/ignore_unused.hpp>
+
 using namespace jones::ppu;
 
 auto name_table::read(const uint16_t address) const -> uint8_t {
-  (void)address;
+  boost::ignore_unused(address);
   return 0;
 }
 
 auto name_table::write(const uint16_t address, const uint8_t data) -> void {
-  (void)address;
-  (void)data;
+  boost::ignore_unused(address, data);
 }

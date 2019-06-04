@@ -32,7 +32,7 @@ namespace jones::ppu {
 //
 // https://wiki.nesdev.com/w/index.php/PPU_registers#PPUCTRL
 //
-enum class control_flag {
+enum class control_flag : uint16_t {
 
   NAME_TABLE_ONE = 0,
 
@@ -55,18 +55,18 @@ enum class control_flag {
 
 class control_register final {
 public:
-  bool is_set(control_flag flag) const;
+  auto is_set(control_flag flag) const -> bool;
 
-  void set(control_flag flag);
+  auto clear(control_flag flag) -> void;
 
-  void clear(control_flag flag);
+  auto set(control_flag flag) -> void;
 
-  void set(uint8_t flags);
+  auto set(uint8_t flags) -> void;
 
-  uint8_t get() const;
+  auto get() const -> uint8_t;
 
 private:
-  static constexpr size_t control_flag_count = static_cast<size_t>(control_flag::COUNT);
+  static constexpr auto control_flag_count = static_cast<uint16_t>(control_flag::COUNT);
 
   std::bitset<control_flag_count> control_flags_;
 };
