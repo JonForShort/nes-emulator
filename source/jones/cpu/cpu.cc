@@ -149,7 +149,6 @@ public:
     return current_cpu_state;
   }
 
-private:
   void interrupt(const interrupt_type type) {
     if (status_register_.is_set(status_flag::I)) {
       return;
@@ -166,6 +165,7 @@ private:
     cycles_ += 7;
   }
 
+private:
   void push(const uint8_t value) {
     memory_.write(get_stack_pointer(), value);
     registers_.decrement(register_type::SP);
@@ -743,7 +743,8 @@ private:
       registers_.set(register_type::AC, ora_value);
       update_status_flag_zn(ora_value);
       cycles_ += 6;
-    } break;
+      break;
+    }
     case addressing_mode_type::ABSOLUTE: {
       const auto address = get_absolute_address(instruction);
       const auto value = memory_.read(address);
@@ -2662,26 +2663,34 @@ cpu::cpu(const memory &memory) : impl_(new impl(memory)) {}
 
 cpu::~cpu() = default;
 
-uint8_t cpu::step() { return impl_->step(); }
-
-void cpu::reset() { impl_->reset(); }
-
-uint8_t cpu::read(uint16_t address) {
-  return impl_->read(address);
-}
-
-void cpu::write(uint16_t address, uint8_t data) {
-  impl_->write(address, data);
-}
-
-cpu_state cpu::get_state() {
-  return impl_->get_state();
-}
-
-void cpu::initialize() {
+auto cpu::initialize() -> void {
   impl_->initialize();
 }
 
-void cpu::uninitialize() {
+auto cpu::uninitialize() -> void {
   impl_->uninitialize();
+}
+
+auto cpu::step() -> uint8_t {
+  return impl_->step();
+}
+
+auto cpu::reset() -> void {
+  impl_->reset();
+}
+
+auto cpu::read(const uint16_t address) -> uint8_t {
+  return impl_->read(address);
+}
+
+auto cpu::write(const uint16_t address, const uint8_t data) -> void {
+  impl_->write(address, data);
+}
+
+auto cpu::get_state() -> cpu_state {
+  return impl_->get_state();
+}
+
+auto cpu::interrupt(const interrupt_type interrupt) -> void {
+  return impl_->interrupt(interrupt);
 }

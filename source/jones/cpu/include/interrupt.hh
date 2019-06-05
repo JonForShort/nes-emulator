@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2017-2019
+// Copyright 2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,69 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_CPU_CPU_HH
-#define JONES_CPU_CPU_HH
+#ifndef JONES_CPU_INTERRUPT_HH
+#define JONES_CPU_INTERRUPT_HH
 
-#include "interrupt.hh"
-#include "memory.hh"
-
-#include <memory>
+#include <cstdint>
 
 namespace jones {
 
-struct cpu_state {
+enum class interrupt_type : uint8_t {
 
-  std::string instruction;
+  // Reset
+  RESET = 0,
 
-  std::vector<uint8_t> instruction_bytes;
+  // Non-Maskable
+  NMI,
 
-  size_t cycles;
+  // Interrupt Request
+  IRQ,
 
-  struct registers {
+  // Break
+  BRK,
 
-    uint16_t PC;
-
-    uint8_t A;
-
-    uint8_t X;
-
-    uint8_t Y;
-
-    uint8_t SR;
-
-    uint8_t SP;
-
-  } registers;
-};
-
-class cpu final {
-public:
-  explicit cpu(const memory &memory);
-
-  ~cpu();
-
-  auto initialize() -> void;
-
-  auto uninitialize() -> void;
-
-  auto step() -> uint8_t;
-
-  auto reset() -> void;
-
-  auto read(uint16_t address) -> uint8_t;
-
-  auto write(uint16_t address, uint8_t data) -> void;
-
-  auto get_state() -> cpu_state;
-
-  auto interrupt(interrupt_type interrupt) -> void;
-
-private:
-  class impl;
-
-  std::unique_ptr<impl> impl_;
+  // Number of Interrupts
+  COUNT
 };
 
 } // namespace jones
 
-#endif // JONES_CPU_CPU_HH
+#endif // JONES_CPU_INTERRUPT_HH

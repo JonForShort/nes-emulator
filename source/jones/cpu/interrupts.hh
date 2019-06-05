@@ -24,28 +24,12 @@
 #ifndef JONES_CPU_INTERRUPTS_HH
 #define JONES_CPU_INTERRUPTS_HH
 
+#include "interrupt.hh"
+
 #include <array>
 #include <boost/static_assert.hpp>
 
 namespace jones {
-
-enum class interrupt_type {
-
-  // Reset
-  RESET,
-
-  // Non-Maskable
-  NMI,
-
-  // Interrupt Request
-  IRQ,
-
-  // Break
-  BRK,
-
-  // Number of Interrupts
-  COUNT
-};
 
 class interrupts {
 public:
