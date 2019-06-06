@@ -36,15 +36,15 @@
 #include "ppu_render_context.hh"
 #include "status_register.hh"
 
-using namespace jones::ppu;
+//
+// PPU implementation is largely influenced by the following documents.
+//
+// https://wiki.nesdev.com/w/index.php/PPU_rendering
+//
+// https://wiki.nesdev.com/w/images/4/4f/Ppu.svg
+//
 
-//
-// PPU implementation is largely influenced by the following.
-//
-// * https://wiki.nesdev.com/w/index.php/PPU_rendering
-//
-// * https://wiki.nesdev.com/w/images/4/4f/Ppu.svg
-//
+using namespace jones::ppu;
 
 using ppu_frame_cycles = std::vector<ppu_frame_state_mask>;
 
@@ -139,9 +139,9 @@ public:
 
   auto get_state() -> ppu_state {
     return ppu_state{
-        .cycle = current_frame_cycle_,
-        .scanline = current_frame_scanline_,
-        .frame = current_frame_};
+        .cycle = frame_current_cycle_,
+        .scanline = frame_current_scanline_,
+        .frame = frame_current_frame_};
   }
 
   auto get_buffer() const -> auto {
@@ -351,8 +351,8 @@ private:
   }
 
   auto process_state_flag_visible() -> void {
-    const auto screen_x_position = current_frame_cycle_ - 2;
-    const auto screen_y_position = current_frame_scanline_;
+    const auto screen_x_position = frame_current_cycle_ - 2;
+    const auto screen_y_position = frame_current_scanline_;
 
     const auto is_background_clipped = mask_register_.is_set(mask_flag::SHOW_LEFT_BACKGROUND) && screen_x_position < ppu_tile_width;
     const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
@@ -368,24 +368,24 @@ private:
   }
 
   auto update_frame_counters() -> void {
-    current_frame_cycle_ += 1;
-    if (current_frame_cycle_ <= ppu_max_cycles) {
+    frame_current_cycle_ += 1;
+    if (frame_current_cycle_ <= ppu_max_cycles) {
       return;
     }
-    current_frame_cycle_ = 0;
+    frame_current_cycle_ = 0;
 
-    current_frame_scanline_ += 1;
-    if (current_frame_scanline_ < ppu_num_scanlines) {
+    frame_current_scanline_ += 1;
+    if (frame_current_scanline_ < ppu_num_scanlines) {
       return;
     }
-    current_frame_scanline_ = 0;
+    frame_current_scanline_ = 0;
 
-    current_frame_ += 1;
+    frame_current_frame_ += 1;
 
-    const auto is_odd_frame = current_frame_ % 2 == 1;
+    const auto is_odd_frame = frame_current_frame_ % 2 == 1;
     const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
     if (is_odd_frame && is_background_visible) {
-      current_frame_cycle_ += 1;
+      frame_current_cycle_ += 1;
     }
   }
 
@@ -583,7 +583,7 @@ private:
   }
 
   inline auto current_frame_state() -> ppu_frame_state_mask {
-    return frame_scanlines_[current_frame_scanline_][current_frame_cycle_];
+    return frame_scanlines_[frame_current_scanline_][frame_current_cycle_];
   }
 
 private:
@@ -607,11 +607,11 @@ private:
 
   pattern_table pattern_table_{};
 
-  uint16_t current_frame_cycle_{};
+  uint16_t frame_current_cycle_{};
 
-  uint16_t current_frame_scanline_{};
+  uint16_t frame_current_scanline_{};
 
-  uint64_t current_frame_{};
+  uint64_t frame_current_frame_{};
 
   ppu_frame_scanlines frame_scanlines_{};
 
@@ -631,8 +631,12 @@ ppu::ppu(jones::memory &cpu_memory, jones::memory &ppu_memory)
 
 ppu::~ppu() = default;
 
-auto ppu::step() -> uint8_t {
-  return impl_->step();
+auto ppu::initialize() -> void {
+  impl_->initialize();
+}
+
+auto ppu::uninitialize() -> void {
+  impl_->uninitialize();
 }
 
 auto ppu::read(const uint16_t address) const -> uint8_t {
@@ -643,12 +647,8 @@ auto ppu::write(const uint16_t address, const uint8_t data) -> void {
   impl_->write(address, data);
 }
 
-auto ppu::initialize() -> void {
-  impl_->initialize();
-}
-
-auto ppu::uninitialize() -> void {
-  impl_->uninitialize();
+auto ppu::step() -> uint8_t {
+  return impl_->step();
 }
 
 auto ppu::get_state() const -> ppu_state {
