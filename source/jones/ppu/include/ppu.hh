@@ -37,6 +37,10 @@ struct ppu_state {
   size_t scanline;
 
   size_t frame;
+
+  bool is_vblank_set;
+
+  bool is_nmi_set;
 };
 
 class ppu final {
@@ -58,8 +62,6 @@ public:
   auto get_state() const -> ppu_state;
 
   auto get_buffer() const -> std::vector<std::vector<uint32_t>>;
-
-  auto is_buffer_ready() const -> bool;
 
 private:
   class impl;

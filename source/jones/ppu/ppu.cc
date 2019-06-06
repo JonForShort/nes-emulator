@@ -141,15 +141,13 @@ public:
     return ppu_state{
         .cycle = frame_current_cycle_,
         .scanline = frame_current_scanline_,
-        .frame = frame_current_frame_};
+        .frame = frame_current_frame_,
+        .is_vblank_set = status_register_.is_set(status_flag::VERTICAL_BLANK_STARTED),
+        .is_nmi_set = control_register_.is_set(control_flag::NMI)};
   }
 
   auto get_buffer() const -> auto {
     return frame_buffer_;
-  }
-
-  auto is_buffer_ready() const -> auto {
-    return is_buffer_ready_;
   }
 
 private:
@@ -343,11 +341,13 @@ private:
   }
 
   auto process_state_flag_vblank_set() -> void {
-    is_buffer_ready_ = true;
+    status_register_.set(status_flag::VERTICAL_BLANK_STARTED);
   }
 
   auto process_state_flag_vblank_clear() -> void {
-    is_buffer_ready_ = false;
+    status_register_.clear(status_flag::VERTICAL_BLANK_STARTED);
+    status_register_.clear(status_flag::SPRITE_OVER_FLOW);
+    status_register_.clear(status_flag::SPRITE_ZERO_HIT);
   }
 
   auto process_state_flag_visible() -> void {
@@ -618,8 +618,6 @@ private:
   ppu_frame_buffer frame_buffer_{};
 
   ppu_render_context render_context_{};
-
-  bool is_buffer_ready_{};
 };
 
 ppu::ppu(jones::memory &cpu_memory, jones::memory &ppu_memory)
@@ -657,8 +655,4 @@ auto ppu::get_state() const -> ppu_state {
 
 auto ppu::get_buffer() const -> std::vector<std::vector<uint32_t>> {
   return impl_->get_buffer();
-}
-
-auto ppu::is_buffer_ready() const -> bool {
-  return impl_->is_buffer_ready();
 }

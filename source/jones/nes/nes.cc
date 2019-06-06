@@ -83,9 +83,7 @@ public:
       const auto apu_cycles = cpu_cycles;
       for (auto i = 0; i < ppu_cycles; i++) {
         ppu_.step();
-        if (ppu_.is_buffer_ready()) {
-          update_screen();
-        }
+        check_ppu_state();
       }
       for (auto i = 0; i < apu_cycles; i++) {
         apu_.step();
@@ -136,6 +134,16 @@ private:
     apu_.uninitialize();
     if (screen_ != nullptr) {
       screen_->uninitialize();
+    }
+  }
+
+  void check_ppu_state() {
+    const auto ppu_state = ppu_.get_state();
+    if (ppu_state.is_vblank_set) {
+      update_screen();
+      if (ppu_state.is_nmi_set) {
+        cpu_.interrupt(interrupt_type::NMI);
+      }
     }
   }
 
