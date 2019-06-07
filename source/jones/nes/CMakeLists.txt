@@ -19,6 +19,7 @@ target_link_libraries (jones-lib cpu)
 target_link_libraries (jones-lib cartridge)
 target_link_libraries (jones-lib controller)
 target_link_libraries (jones-lib ppu)
+target_link_libraries (jones-lib screen)
 target_link_libraries (jones-lib ${boost-lib}/libboost_filesystem.a)
 
 target_include_directories (jones-lib PRIVATE ${boost-include})

@@ -21,50 +21,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_PPU_PPU_HH
-#define JONES_PPU_PPU_HH
+#ifndef JONES_NES_SCREEN_PROXY_HH
+#define JONES_NES_SCREEN_PROXY_HH
 
-#include <memory>
-
-#include "cpu.hh"
-#include "memory.hh"
 #include "screen.hh"
 
-namespace jones::ppu {
+namespace jones {
 
-struct ppu_state {
-
-  size_t cycle;
-
-  size_t scanline;
-
-  size_t frame;
-};
-
-class ppu final {
+class screen_proxy : public screen::screen {
 public:
-  ppu(memory &cpu_memory, memory &ppu_memory, cpu &cpu, screen::screen *screen);
+  auto set_pixel(uint16_t x_position, uint16_t y_position, uint32_t pixel) -> void override {
+    if (screen_) {
+      screen_->set_pixel(x_position, y_position, pixel);
+    }
+  }
 
-  ~ppu();
+  auto set_scale(uint8_t scale) -> void override {
+    if (screen_) {
+      screen_->set_scale(scale);
+    }
+  }
 
-  auto initialize() -> void;
+  auto update() -> void override {
+    if (screen_) {
+      screen_->update();
+    }
+  }
 
-  auto uninitialize() -> void;
-
-  auto read(uint16_t address) const -> uint8_t;
-
-  auto write(uint16_t address, uint8_t data) -> void;
-
-  auto step() -> uint8_t;
-
-  auto get_state() const -> ppu_state;
+  auto attach_screen(std::unique_ptr<screen> screen) {
+    screen_ = std::move(screen);
+  }
 
 private:
-  class impl;
-
-  std::unique_ptr<impl> impl_;
+  std::unique_ptr<screen> screen_{};
 };
 
-} // namespace jones::ppu
+} // namespace jones
 
-#endif // JONES_PPU_PPU_HH
+#endif // JONES_NES_SCREEN_PROXY_HH

@@ -39,12 +39,7 @@ using namespace jones;
 
 class cpu::impl final {
 public:
-  explicit impl(const memory &memory)
-      : memory_(memory),
-        status_register_(),
-        registers_(),
-        interrupts_(),
-        cycles_(0) {}
+  explicit impl(const memory &memory) : memory_(memory) {}
 
   void initialize() {
     reset();
@@ -55,15 +50,11 @@ public:
 
   uint8_t step() {
     const auto initial_cycles = cycles_;
-    const auto fetched = fetch();
-    const auto decoded = decode(fetched);
-    if (decoded.decoded_result == decode::result::SUCCESS) {
-      registers_.increment_by(register_type::PC, decoded.encoded_length_in_bytes);
-      execute(decoded);
-    } else {
-      BOOST_STATIC_ASSERT("unable to step cpu; decoded invalid instruction");
-      interrupt(interrupt_type::BRK);
-    }
+    //    if (const auto triggered = interrupts_.get_triggered(); triggered != interrupt_type::INVALID) {
+    //      handle_interrupt(triggered);
+    //    } else {
+    step_execute();
+    //    }
     return cycles_ - initial_cycles;
   }
 
@@ -103,8 +94,7 @@ public:
   }
 
   void write(const uint16_t address, const uint8_t data) {
-    boost::ignore_unused(address);
-    boost::ignore_unused(data);
+    boost::ignore_unused(address, data);
   }
 
   cpu_state get_state() const {
@@ -150,10 +140,23 @@ public:
   }
 
   void interrupt(const interrupt_type type) {
-    if (status_register_.is_set(status_flag::I)) {
-      return;
-    }
+    interrupts_.set_state(type, true);
+  }
 
+private:
+  void step_execute() {
+    const auto fetched = fetch();
+    const auto decoded = decode(fetched);
+    if (decoded.decoded_result == decode::result::SUCCESS) {
+      registers_.increment_by(register_type::PC, decoded.encoded_length_in_bytes);
+      execute(decoded);
+    } else {
+      BOOST_STATIC_ASSERT("unable to step cpu; decoded invalid instruction");
+      interrupt(interrupt_type::BRK);
+    }
+  }
+
+  void handle_interrupt(const interrupt_type type) {
     push_pc();
     push_flags();
 
@@ -165,7 +168,6 @@ public:
     cycles_ += 7;
   }
 
-private:
   void push(const uint8_t value) {
     memory_.write(get_stack_pointer(), value);
     registers_.decrement(register_type::SP);
@@ -2650,13 +2652,13 @@ private:
 
   const memory &memory_;
 
-  status_register status_register_;
+  status_register status_register_{};
 
-  registers registers_;
+  registers registers_{};
 
-  interrupts interrupts_;
+  interrupts interrupts_{};
 
-  uint64_t cycles_;
+  uint64_t cycles_{};
 };
 
 cpu::cpu(const memory &memory) : impl_(new impl(memory)) {}

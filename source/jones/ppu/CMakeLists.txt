@@ -11,6 +11,7 @@ set (sources ppu.cc control_register.cc mask_register.cc status_register.cc pale
 
 add_library (ppu STATIC ${sources})
 
+target_link_libraries (ppu cpu)
 target_link_libraries (ppu memory)
 target_link_libraries (ppu screen)
 

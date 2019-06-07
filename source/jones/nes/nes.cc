@@ -34,22 +34,17 @@
 #include "nes.hh"
 #include "nes_components.hh"
 #include "ppu.hh"
+#include "screen.hh"
+#include "screen_proxy.hh"
 
 using namespace jones;
 
 class nes::impl {
 public:
-  impl() : is_running_(false),
-           cpu_memory_(),
-           ppu_memory_(),
+  impl() : screen_(std::make_unique<screen_proxy>()),
            apu_(cpu_memory_),
            cpu_(cpu_memory_),
-           ppu_(cpu_memory_, ppu_memory_),
-           cartridge_(),
-           sram_(),
-           ram_(),
-           trace_file_(),
-           screen_(),
+           ppu_(cpu_memory_, ppu_memory_, cpu_, screen_.get()),
            controller_one_(std::make_unique<controller::controller>(cpu_memory_)),
            controller_two_(std::make_unique<controller::controller>(cpu_memory_)) {
     cpu_memory_.map(std::make_unique<memory_mappable_component<memory_ram>>(&ram_, 0x0000, 0x1FFF));
@@ -83,7 +78,6 @@ public:
       const auto apu_cycles = cpu_cycles;
       for (auto i = 0; i < ppu_cycles; i++) {
         ppu_.step();
-        check_ppu_state();
       }
       for (auto i = 0; i < apu_cycles; i++) {
         apu_.step();
@@ -115,7 +109,7 @@ public:
   }
 
   void attach_screen(std::unique_ptr<screen::screen> screen) {
-    screen_ = std::move(screen);
+    screen_->attach_screen(std::move(screen));
   }
 
 private:
@@ -123,40 +117,12 @@ private:
     ppu_.initialize();
     cpu_.initialize();
     apu_.initialize();
-    if (screen_ != nullptr) {
-      screen_->initialize();
-    }
   }
 
   void uninitialize_components() {
     ppu_.uninitialize();
     cpu_.uninitialize();
     apu_.uninitialize();
-    if (screen_ != nullptr) {
-      screen_->uninitialize();
-    }
-  }
-
-  void check_ppu_state() {
-    const auto ppu_state = ppu_.get_state();
-    if (ppu_state.is_vblank_set) {
-      update_screen();
-      if (ppu_state.is_nmi_set) {
-        cpu_.interrupt(interrupt_type::NMI);
-      }
-    }
-  }
-
-  void update_screen() {
-    if (screen_ != nullptr) {
-      const auto buffer = ppu_.get_buffer();
-      for (size_t y = 0; y < buffer.size(); y++) {
-        for (size_t x = 0; x < buffer[y].size(); x++) {
-          screen_->set_pixel(x, y, buffer[y][x]);
-        }
-      }
-      screen_->update();
-    }
   }
 
   void trace_step() {
@@ -208,11 +174,13 @@ private:
   }
 
 private:
-  std::atomic<bool> is_running_;
+  std::atomic<bool> is_running_{};
 
-  memory cpu_memory_;
+  std::unique_ptr<screen_proxy> screen_{};
 
-  memory ppu_memory_;
+  memory cpu_memory_{};
+
+  memory ppu_memory_{};
 
   apu apu_;
 
@@ -220,19 +188,17 @@ private:
 
   ppu::ppu ppu_;
 
-  cartridge cartridge_;
+  cartridge cartridge_{};
 
-  memory_sram sram_;
+  memory_sram sram_{};
 
-  memory_ram ram_;
+  memory_ram ram_{};
 
-  std::ofstream trace_file_;
+  std::ofstream trace_file_{};
 
-  std::unique_ptr<screen::screen> screen_;
+  std::unique_ptr<controller::controller> controller_one_{};
 
-  std::unique_ptr<controller::controller> controller_one_;
-
-  std::unique_ptr<controller::controller> controller_two_;
+  std::unique_ptr<controller::controller> controller_two_{};
 };
 
 nes::nes() noexcept

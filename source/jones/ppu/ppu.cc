@@ -26,6 +26,7 @@
 #include <boost/static_assert.hpp>
 
 #include "control_register.hh"
+#include "cpu.hh"
 #include "mask_register.hh"
 #include "memory.hh"
 #include "name_table.hh"
@@ -89,8 +90,8 @@ using memory_mappable_component = jones::memory_mappable_component<T>;
 
 class ppu::impl final {
 public:
-  impl(memory &cpu_memory, memory &ppu_memory)
-      : cpu_memory_(cpu_memory), ppu_memory_(ppu_memory) {
+  impl(memory &cpu_memory, memory &ppu_memory, cpu &cpu, screen::screen *screen)
+      : cpu_memory_(cpu_memory), ppu_memory_(ppu_memory), cpu_(cpu), screen_(screen) {
     ppu_memory_.map(std::make_unique<memory_mappable_component<pattern_table>>(&pattern_table_, pattern_table_memory_begin, pattern_table_memory_end));
     ppu_memory_.map(std::make_unique<memory_mappable_component<name_table>>(&name_table_, name_table_memory_begin, name_table_memory_end));
     ppu_memory_.map(std::make_unique<memory_mappable_component<palette>>(&palette_, palette_memory_begin, palette_memory_end));
@@ -141,13 +142,7 @@ public:
     return ppu_state{
         .cycle = frame_current_cycle_,
         .scanline = frame_current_scanline_,
-        .frame = frame_current_frame_,
-        .is_vblank_set = status_register_.is_set(status_flag::VERTICAL_BLANK_STARTED),
-        .is_nmi_set = control_register_.is_set(control_flag::NMI)};
-  }
-
-  auto get_buffer() const -> auto {
-    return frame_buffer_;
+        .frame = frame_current_frame_};
   }
 
 private:
@@ -342,6 +337,9 @@ private:
 
   auto process_state_flag_vblank_set() -> void {
     status_register_.set(status_flag::VERTICAL_BLANK_STARTED);
+    if (control_register_.is_set(control_flag::NMI)) {
+      cpu_.interrupt(interrupt_type::NMI);
+    }
   }
 
   auto process_state_flag_vblank_clear() -> void {
@@ -591,6 +589,10 @@ private:
 
   memory &ppu_memory_;
 
+  cpu &cpu_;
+
+  screen::screen *const screen_;
+
   control_register control_register_{};
 
   mask_register mask_register_{};
@@ -620,8 +622,8 @@ private:
   ppu_render_context render_context_{};
 };
 
-ppu::ppu(jones::memory &cpu_memory, jones::memory &ppu_memory)
-    : impl_(new impl(cpu_memory, ppu_memory)) {
+ppu::ppu(jones::memory &cpu_memory, jones::memory &ppu_memory, cpu &cpu, screen::screen *screen)
+    : impl_(new impl(cpu_memory, ppu_memory, cpu, screen)) {
   //
   // nothing to do.
   //
@@ -651,8 +653,4 @@ auto ppu::step() -> uint8_t {
 
 auto ppu::get_state() const -> ppu_state {
   return impl_->get_state();
-}
-
-auto ppu::get_buffer() const -> std::vector<std::vector<uint32_t>> {
-  return impl_->get_buffer();
 }

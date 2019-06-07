@@ -33,7 +33,7 @@ namespace jones {
 
 class interrupts {
 public:
-  bool get_state(interrupt_type type) {
+  auto get_state(interrupt_type type) const -> auto {
     switch (type) {
     case interrupt_type::RESET:
       return interrupts_.at(0);
@@ -48,7 +48,7 @@ public:
     }
   }
 
-  void set_state(interrupt_type type, bool value) {
+  auto set_state(interrupt_type type, bool value) -> auto {
     switch (type) {
     case interrupt_type::RESET:
       interrupts_.at(0) = value;
@@ -66,7 +66,7 @@ public:
     }
   }
 
-  uint16_t get_vector(interrupt_type type) {
+  auto get_vector(interrupt_type type) -> auto {
     switch (type) {
     case interrupt_type::RESET:
       return 0xFFFC;
@@ -81,8 +81,24 @@ public:
     }
   }
 
+  auto get_triggered() -> auto {
+    if (get_state(interrupt_type::NMI)) {
+      return interrupt_type::NMI;
+    }
+    if (get_state(interrupt_type::IRQ)) {
+      return interrupt_type::IRQ;
+    }
+    if (get_state(interrupt_type::BRK)) {
+      return interrupt_type::BRK;
+    }
+    if (get_state(interrupt_type::RESET)) {
+      return interrupt_type::RESET;
+    }
+    return interrupt_type::INVALID;
+  }
+
 private:
-  static constexpr size_t interrupt_count = static_cast<size_t>(interrupt_type::COUNT);
+  static constexpr auto interrupt_count = static_cast<size_t>(interrupt_type::COUNT);
 
   std::array<bool, interrupt_count> interrupts_;
 };
