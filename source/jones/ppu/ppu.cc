@@ -35,6 +35,7 @@
 #include "ppu.hh"
 #include "ppu_frame_state.hh"
 #include "ppu_render_context.hh"
+#include "screen.hh"
 #include "status_register.hh"
 
 //
@@ -46,6 +47,7 @@
 //
 
 using namespace jones::ppu;
+using namespace jones::screen;
 
 using ppu_frame_cycles = std::vector<ppu_frame_state_mask>;
 
@@ -56,10 +58,6 @@ using ppu_frame_buffer = std::vector<std::vector<uint32_t>>;
 namespace {
 
 constexpr auto ppu_max_cycles = 340;
-
-constexpr auto ppu_screen_width = 256;
-
-constexpr auto ppu_screen_height = 240;
 
 constexpr auto ppu_num_scanlines = 262;
 
@@ -391,9 +389,9 @@ private:
     const auto scanline_cycles = std::vector<ppu_frame_state_mask>(ppu_num_cycles, 0);
     frame_scanlines_ = std::vector<ppu_frame_cycles>(ppu_num_scanlines, scanline_cycles);
 
-    frame_buffer_.resize(ppu_screen_height);
+    frame_buffer_.resize(screen_height);
     for (auto &height : frame_buffer_) {
-      height.resize(ppu_screen_width);
+      height.resize(screen_width);
     }
   }
 

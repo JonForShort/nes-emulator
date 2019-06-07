@@ -52,9 +52,7 @@ public:
 
   auto set_pixel(uint16_t x_position, uint16_t y_position, uint32_t pixel) -> void override;
 
-  auto set_scale(uint8_t scale) -> void override;
-
-  auto update() -> void override;
+  auto render() -> void override;
 
   auto on_event(SDL_Event event) -> void override;
 
@@ -66,15 +64,11 @@ private:
   auto fill_with_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) -> void;
 
 private:
-  uint8_t scale_ = 1;
-
   SDL_Window *window_ = nullptr;
 
   SDL_Renderer *renderer_ = nullptr;
 
   std::atomic<bool> is_running_ = false;
-
-  std::unique_ptr<std::thread> running_thread_ = nullptr;
 
   std::unique_ptr<sdl_screen_listener> listener_ = nullptr;
 };

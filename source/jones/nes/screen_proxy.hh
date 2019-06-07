@@ -36,15 +36,9 @@ public:
     }
   }
 
-  auto set_scale(uint8_t scale) -> void override {
+  auto render() -> void override {
     if (screen_) {
-      screen_->set_scale(scale);
-    }
-  }
-
-  auto update() -> void override {
-    if (screen_) {
-      screen_->update();
+      screen_->render();
     }
   }
 

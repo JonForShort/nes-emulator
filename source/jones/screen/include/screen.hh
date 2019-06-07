@@ -24,9 +24,11 @@
 #ifndef JONES_SCREEN_SCREEN_HH
 #define JONES_SCREEN_SCREEN_HH
 
-#include <memory>
-
 namespace jones::screen {
+
+constexpr auto screen_width = 256;
+
+constexpr auto screen_height = 240;
 
 class screen {
 public:
@@ -34,9 +36,7 @@ public:
 
   virtual auto set_pixel(uint16_t x_position, uint16_t y_position, uint32_t pixel) -> void = 0;
 
-  virtual auto set_scale(uint8_t scale) -> void = 0;
-
-  virtual auto update() -> void = 0;
+  virtual auto render() -> void = 0;
 };
 
 } // namespace jones::screen

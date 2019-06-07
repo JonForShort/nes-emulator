@@ -51,7 +51,7 @@ void sdl_screen::show() {
     return;
   }
   SDL_Init(SDL_INIT_HAPTIC);
-  window_ = SDL_CreateWindow("Jones NES Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 256, 240, SDL_WINDOW_OPENGL);
+  window_ = SDL_CreateWindow("Jones NES Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, jones::screen::screen_width, jones::screen::screen_height, SDL_WINDOW_OPENGL);
   if (window_ == nullptr) {
     LOG_ERROR << "unable to create window";
     return;
@@ -98,11 +98,7 @@ void sdl_screen::set_pixel(const uint16_t x_position, const uint16_t y_position,
   }
 }
 
-void sdl_screen::set_scale(const uint8_t scale) {
-  scale_ = scale;
-}
-
-auto sdl_screen::update() -> void {
+auto sdl_screen::render() -> void {
   SDL_RenderPresent(renderer_);
 }
 
