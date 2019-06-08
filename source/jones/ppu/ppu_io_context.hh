@@ -82,6 +82,8 @@ union ppu_attribute {
 
 struct ppu_io_context {
 
+  uint8_t vram_buffer{};
+
   bool vram_address_latch{};
 
   ppu_vram_address vram_address{};

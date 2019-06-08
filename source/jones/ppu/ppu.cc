@@ -282,8 +282,14 @@ private:
     return 0;
   }
 
-  auto read_data() const -> uint8_t {
-    return 0;
+  auto read_data() -> uint8_t {
+    auto data = io_context_.vram_buffer;
+    io_context_.vram_buffer = ppu_memory_.read(io_context_.vram_address.value);
+    io_context_.vram_address.value += control_register_.is_set(control_flag::VRAM_INCREMENT) ? 32 : 1;
+    if (io_context_.vram_address.value >= palette_background_begin) {
+      data = io_context_.vram_buffer;
+    }
+    return data;
   }
 
   auto read_object_attribute_memory_dma() const -> uint8_t {
