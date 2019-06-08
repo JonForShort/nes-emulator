@@ -34,6 +34,7 @@
 #include "pattern_table.hh"
 #include "ppu.hh"
 #include "ppu_frame_state.hh"
+#include "ppu_io_context.hh"
 #include "ppu_render_context.hh"
 #include "screen.hh"
 #include "status_register.hh"
@@ -81,6 +82,10 @@ constexpr auto ppu_scanline_postrender = 240;
 
 constexpr auto ppu_scanline_vblank = 241;
 
+constexpr inline uint8_t bit_shift_and(const uint16_t data, const uint16_t shift, const uint8_t bits) {
+  return static_cast<uint8_t>((data >> shift) & ((1U << bits) - 1));
+}
+
 } // namespace
 
 template <typename T>
@@ -109,7 +114,7 @@ public:
     //
   }
 
-  auto read(const uint16_t address) const -> uint8_t {
+  auto read(const uint16_t address) -> uint8_t {
     if (address >= 0x2000 && address <= 0x3FFF) {
       return read_registers(address);
     } else if (address == 0x4014) {
@@ -199,7 +204,14 @@ private:
   }
 
   auto write_scroll(const uint8_t data) -> void {
-    boost::ignore_unused(data);
+    if (!io_context_.vram_address_latch) {
+      io_context_.vram_address_temporary.coarse_x_scroll = bit_shift_and(data, 3, 5);
+      io_context_.fine_x_scroll = bit_shift_and(data, 0, 3);
+    } else {
+      io_context_.vram_address_temporary.coarse_y_scroll = bit_shift_and(data, 3, 5);
+      io_context_.vram_address_temporary.fine_y_scroll = bit_shift_and(data, 0, 3);
+    }
+    io_context_.vram_address_latch = !io_context_.vram_address_latch;
   }
 
   auto write_address(const uint8_t data) -> void {
@@ -214,7 +226,7 @@ private:
     boost::ignore_unused(data);
   }
 
-  auto read_registers(const uint16_t address) const -> uint8_t {
+  auto read_registers(const uint16_t address) -> uint8_t {
     BOOST_ASSERT_MSG(address >= 0x2000 && address <= 0x3FFF, "read unexpected address for ppu");
     const auto address_offset = (address - 0x2000);
     switch (address_offset % 8) {
@@ -248,7 +260,8 @@ private:
     return mask_register_.get();
   }
 
-  auto read_status() const -> uint8_t {
+  auto read_status() -> uint8_t {
+    io_context_.vram_address_latch = false;
     return status_register_.get();
   }
 
@@ -292,6 +305,7 @@ private:
       process_state_vram_fetch_nt_byte();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_AT_BYTE)) {
+      process_state_vram_fetch_at_byte();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_BG_LOW_BYTE)) {
     }
@@ -304,6 +318,7 @@ private:
       process_state_flag_vblank_clear();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_LOOPY_INC_HORI_V)) {
+      process_state_loopy_inc_hori_v();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_LOOPY_INC_VERT_V)) {
     }
@@ -326,11 +341,44 @@ private:
     }
   }
 
+  auto process_state_loopy_inc_hori_v() -> void {
+  }
+
   auto process_state_vram_fetch_nt_byte() -> void {
-    const auto is_background_enabled = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
-    if (!is_background_enabled) {
+    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    if (!is_background_visible) {
       return;
     }
+    ppu_vram_address name_table_address = io_context_.vram_address;
+    name_table_address.fine_y_scroll = 0;
+    const uint16_t address = name_table_memory_begin | name_table_address.value;
+
+    render_context_.name_table = ppu_memory_.read(address);
+  }
+
+  auto process_state_vram_fetch_at_byte() -> void {
+    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    if (!is_background_visible) {
+      return;
+    }
+    const uint16_t x_scroll = io_context_.vram_address.coarse_x_scroll;
+    const uint16_t y_scroll = io_context_.vram_address.coarse_y_scroll;
+    const uint16_t high_coarse_x = (x_scroll >> 2U) & ((1U << 3U) - 1);
+    const uint16_t high_coarse_y = (y_scroll >> 2U) & ((1U << 3U) - 1);
+
+    ppu_attribute_address attribute_address{};
+    attribute_address.high_coarse_x = high_coarse_x;
+    attribute_address.high_coarse_y = high_coarse_y;
+    attribute_address.h_name_table = io_context_.vram_address.h_nametable;
+    attribute_address.v_name_table = io_context_.vram_address.v_nametable;
+
+    const uint16_t address = attribute_table_memory_begin | attribute_address.value;
+    const ppu_attribute attribute{.value = ppu_memory_.read(address)};
+
+    const auto is_right = io_context_.vram_address.coarse_x_scroll & (1U << 1U);
+    const auto is_bottom = io_context_.vram_address.coarse_y_scroll & (1U << 1U);
+
+    render_context_.attribute_table = is_right ? is_bottom ? attribute.bottom_right : attribute.top_right : is_bottom ? attribute.bottom_left : attribute.top_left;
   }
 
   auto process_state_flag_vblank_set() -> void {
@@ -338,6 +386,7 @@ private:
     if (control_register_.is_set(control_flag::NMI)) {
       cpu_.interrupt(interrupt_type::NMI);
     }
+    screen_->render();
   }
 
   auto process_state_flag_vblank_clear() -> void {
@@ -360,7 +409,7 @@ private:
     if (is_sprite_visible && !is_sprite_clipped) {
     }
 
-    frame_buffer_[screen_y_position][screen_x_position] = 0xFF000000U;
+    screen_->set_pixel(screen_x_position, screen_y_position, 0xFF000000U);
   }
 
   auto update_frame_counters() -> void {
@@ -388,11 +437,6 @@ private:
   auto initialize_frame_scanlines() -> void {
     const auto scanline_cycles = std::vector<ppu_frame_state_mask>(ppu_num_cycles, 0);
     frame_scanlines_ = std::vector<ppu_frame_cycles>(ppu_num_scanlines, scanline_cycles);
-
-    frame_buffer_.resize(screen_height);
-    for (auto &height : frame_buffer_) {
-      height.resize(screen_width);
-    }
   }
 
   auto initialize_prerender_scanline() -> void {
@@ -615,9 +659,9 @@ private:
 
   ppu_frame_scanlines frame_scanlines_{};
 
-  ppu_frame_buffer frame_buffer_{};
-
   ppu_render_context render_context_{};
+
+  ppu_io_context io_context_{};
 };
 
 ppu::ppu(jones::memory &cpu_memory, jones::memory &ppu_memory, cpu &cpu, screen::screen *screen)
