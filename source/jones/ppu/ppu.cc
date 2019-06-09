@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <array>
 #include <boost/assert.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/static_assert.hpp>
@@ -64,13 +65,19 @@ constexpr auto ppu_num_scanlines = 262;
 
 constexpr auto ppu_num_cycles = 341;
 
-constexpr auto ppu_oam_size = 32;
+constexpr auto ppu_oam_size = 256;
+
+constexpr auto ppu_oam_secondary_size = 32;
 
 constexpr auto ppu_palette_size = 32;
 
 constexpr auto ppu_tile_width = 8;
 
 constexpr auto ppu_tile_height = 8;
+
+constexpr auto ppu_tile_size = 16;
+
+constexpr auto ppu_sprites_per_line = 8;
 
 constexpr auto ppu_scanline_prerender = 261;
 
@@ -82,8 +89,19 @@ constexpr auto ppu_scanline_postrender = 240;
 
 constexpr auto ppu_scanline_vblank = 241;
 
-constexpr inline uint8_t bit_shift_and(const uint16_t data, const uint16_t shift, const uint8_t bits) {
-  return static_cast<uint8_t>((data >> shift) & ((1U << bits) - 1));
+template <typename T>
+constexpr inline T bit_shift_and(const T data, const T shift, const T bits) {
+  return static_cast<T>(data >> shift) & ((1U << bits) - 1);
+}
+
+template <typename T>
+constexpr inline void bit_shift_set(T &data, const T shift, const T bits, const T value) {
+  data &= ~(((1U << bits) - 1) << shift);
+  data |= static_cast<T>(value << shift);
+}
+
+constexpr inline bool is_color_transparent(const uint32_t color) {
+  return color == 0;
 }
 
 } // namespace
@@ -182,6 +200,9 @@ private:
   }
 
   auto write_control(const uint8_t data) -> void {
+    io_context_.vram_address_temporary.h_nametable = bit_shift_and<uint8_t>(data, 0, 1);
+    io_context_.vram_address_temporary.v_nametable = bit_shift_and<uint8_t>(data, 1, 1);
+
     control_register_.set(data);
   }
 
@@ -205,21 +226,33 @@ private:
 
   auto write_scroll(const uint8_t data) -> void {
     if (!io_context_.vram_address_latch) {
-      io_context_.vram_address_temporary.coarse_x_scroll = bit_shift_and(data, 3, 5);
-      io_context_.fine_x_scroll = bit_shift_and(data, 0, 3);
+      io_context_.vram_address_temporary.coarse_x_scroll = bit_shift_and<uint8_t>(data, 3, 5);
+      io_context_.fine_x_scroll = bit_shift_and<uint8_t>(data, 0, 3);
     } else {
-      io_context_.vram_address_temporary.coarse_y_scroll = bit_shift_and(data, 3, 5);
-      io_context_.vram_address_temporary.fine_y_scroll = bit_shift_and(data, 0, 3);
+      io_context_.vram_address_temporary.coarse_y_scroll = bit_shift_and<uint8_t>(data, 3, 5);
+      io_context_.vram_address_temporary.fine_y_scroll = bit_shift_and<uint8_t>(data, 0, 3);
     }
     io_context_.vram_address_latch = !io_context_.vram_address_latch;
   }
 
   auto write_address(const uint8_t data) -> void {
-    boost::ignore_unused(data);
+    if (!io_context_.vram_address_latch) {
+      auto temp_data = io_context_.vram_address_temporary.value;
+      auto data_bits = bit_shift_and<uint8_t>(data, 0, 6);
+      bit_shift_set<uint16_t>(temp_data, 8, 7, data_bits);
+      io_context_.vram_address_temporary.value = temp_data;
+    } else {
+      auto temp_data = io_context_.vram_address_temporary.value;
+      bit_shift_set<uint16_t>(temp_data, 0, 8, data);
+      io_context_.vram_address_temporary.value = temp_data;
+      io_context_.vram_address.value = io_context_.vram_address_temporary.value;
+    }
+    io_context_.vram_address_latch = !io_context_.vram_address_latch;
   }
 
   auto write_data(const uint8_t data) -> void {
-    boost::ignore_unused(data);
+    ppu_memory_.write(io_context_.vram_address.value, data);
+    io_context_.vram_address.value += control_register_.is_set(control_flag::VRAM_INCREMENT) ? 32 : 1;
   }
 
   auto write_object_attribute_memory_dma(const uint8_t data) -> void {
@@ -302,10 +335,13 @@ private:
       process_state_flag_visible();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_REG_BG_SHIFT)) {
+      process_state_reg_bg_shift();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_REG_SPRITE_SHIFT)) {
+      process_state_reg_sprite_shift();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_REG_BG_RELOAD)) {
+      process_state_reg_bg_reload();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_NT_BYTE)) {
       process_state_vram_fetch_nt_byte();
@@ -314,8 +350,10 @@ private:
       process_state_vram_fetch_at_byte();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_BG_LOW_BYTE)) {
+      process_state_vram_fetch_bg_low_byte();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_BG_HIGH_BYTE)) {
+      process_state_vram_fetch_bg_high_byte();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_FLAG_VBLANK_SET)) {
       process_state_flag_vblank_set();
@@ -327,12 +365,16 @@ private:
       process_state_loopy_inc_hori_v();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_LOOPY_INC_VERT_V)) {
+      process_state_loopy_inc_vert_v();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_LOOPY_SET_HORI_V)) {
+      process_state_loopy_set_hori_v();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_LOOPY_SET_VERT_V)) {
+      process_state_loopy_set_vert_v();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_SECONDARY_OAM_CLEAR)) {
+      process_state_secondary_oam_clear();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_EVALUATE_SPRITE)) {
     }
@@ -347,7 +389,121 @@ private:
     }
   }
 
+  auto process_state_secondary_oam_clear() -> void {
+    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    if (!is_background_visible) {
+      return;
+    }
+    oam_secondary_data_.fill(0xFF);
+  }
+
+  auto process_state_loopy_set_vert_v() -> void {
+    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    if (!is_background_visible) {
+      return;
+    }
+    io_context_.vram_address.coarse_y_scroll = io_context_.vram_address_temporary.coarse_y_scroll;
+    io_context_.vram_address.v_nametable = io_context_.vram_address_temporary.v_nametable;
+    io_context_.vram_address.fine_y_scroll = io_context_.vram_address_temporary.fine_y_scroll;
+  }
+
+  auto process_state_loopy_set_hori_v() -> void {
+    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    if (!is_background_visible) {
+      return;
+    }
+    io_context_.vram_address.coarse_x_scroll = io_context_.vram_address_temporary.coarse_x_scroll;
+    io_context_.vram_address.h_nametable = io_context_.vram_address_temporary.h_nametable;
+  }
+
+  auto process_state_vram_fetch_bg_high_byte() -> void {
+    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    if (!is_background_visible) {
+      return;
+    }
+    uint16_t address = control_register_.is_set(control_flag::BACKGROUND_TABLE) ? pattern_table_zero_memory_begin : pattern_table_one_memory_begin;
+    address += (render_context_.name_table * ppu_tile_size) + io_context_.vram_address.fine_y_scroll + 8;
+    render_context_.background_high = ppu_memory_.read(address);
+  }
+
+  auto process_state_vram_fetch_bg_low_byte() -> void {
+    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    if (!is_background_visible) {
+      return;
+    }
+    uint16_t address = control_register_.is_set(control_flag::BACKGROUND_TABLE) ? pattern_table_zero_memory_begin : pattern_table_one_memory_begin;
+    address += (render_context_.name_table * ppu_tile_size) + io_context_.vram_address.fine_y_scroll;
+    render_context_.background_low = ppu_memory_.read(address);
+  }
+
+  auto process_state_reg_bg_reload() -> void {
+    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    if (!is_background_visible) {
+      return;
+    }
+    bit_shift_set<uint16_t>(render_context_.background_shift_low, 0, 8, render_context_.background_low);
+    bit_shift_set<uint16_t>(render_context_.background_shift_high, 0, 8, render_context_.background_high);
+    render_context_.attribute_table_latch = render_context_.attribute_table;
+  }
+
+  auto process_state_reg_sprite_shift() -> void {
+    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    if (!is_background_visible) {
+      return;
+    }
+    for (auto i = 0; i < ppu_sprites_per_line; i++) {
+      if (render_context_.sprite_x_position_counters[i] == 0) {
+        render_context_.sprite_shift_low[i] <<= 1U;
+        render_context_.sprite_shift_high[i] <<= 1U;
+      }
+    }
+    for (auto i = 0; i < ppu_sprites_per_line; i++) {
+      if (render_context_.sprite_x_position_counters[i] > 0) {
+        render_context_.sprite_x_position_counters[i]--;
+      }
+    }
+  }
+
+  auto process_state_reg_bg_shift() -> void {
+    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    if (!is_background_visible) {
+      return;
+    }
+    render_context_.background_shift_low <<= 1U;
+    render_context_.background_shift_high <<= 1U;
+    render_context_.attribute_table_shift_low <<= 1U;
+    render_context_.attribute_table_shift_high <<= 1U;
+
+    const auto attribute_latch = render_context_.attribute_table_latch;
+    render_context_.attribute_table_shift_low |= bit_shift_and<uint8_t>(attribute_latch, 0, 1);
+    render_context_.attribute_table_shift_high |= bit_shift_and<uint8_t>(attribute_latch, 1, 1);
+  }
+
   auto process_state_loopy_inc_hori_v() -> void {
+    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    if (!is_background_visible) {
+      return;
+    }
+    io_context_.vram_address.coarse_x_scroll++;
+    if (io_context_.vram_address.coarse_x_scroll == 0) {
+      io_context_.vram_address.h_nametable ^= 1U;
+    }
+  }
+
+  auto process_state_loopy_inc_vert_v() -> void {
+    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    if (!is_background_visible) {
+      return;
+    }
+    io_context_.vram_address.fine_y_scroll++;
+    if (io_context_.vram_address.fine_y_scroll != 0) {
+      return;
+    }
+    io_context_.vram_address.coarse_y_scroll++;
+    if (io_context_.vram_address.coarse_y_scroll == (screen_height / ppu_tile_height)) {
+      io_context_.vram_address.coarse_y_scroll = 0;
+      io_context_.vram_address.v_nametable ^= 1U;
+    }
   }
 
   auto process_state_vram_fetch_nt_byte() -> void {
@@ -405,17 +561,74 @@ private:
     const auto screen_x_position = frame_current_cycle_ - 2;
     const auto screen_y_position = frame_current_scanline_;
 
+    uint8_t background_palette = 0x00;
+    uint16_t background_color = 0x0000;
+
     const auto is_background_clipped = mask_register_.is_set(mask_flag::SHOW_LEFT_BACKGROUND) && screen_x_position < ppu_tile_width;
     const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
     if (is_background_visible && !is_background_clipped) {
+      const auto background_palette_low = bit_shift_and<uint8_t>(render_context_.attribute_table_shift_low, 7 - io_context_.fine_x_scroll, 1);
+      const auto background_palette_high = bit_shift_and<uint8_t>(render_context_.attribute_table_shift_high, 7 - io_context_.fine_x_scroll, 1);
+      background_palette = background_palette_low | (background_palette_high << 1);
+
+      const auto background_color_low = bit_shift_and<uint16_t>(render_context_.background_shift_low, 15 - io_context_.fine_x_scroll, 1);
+      const auto background_color_high = bit_shift_and<uint16_t>(render_context_.background_shift_high, 15 - io_context_.fine_x_scroll, 1);
+      background_color = background_color_low | (background_color_high << 1);
     }
+
+    ppu_sprite_attributes sprite_attributes{};
+
+    uint16_t sprite_color = 0x0000;
 
     const auto is_sprite_clipped = mask_register_.is_set(mask_flag::SHOW_LEFT_SPRITES) && screen_x_position < ppu_tile_width;
     const auto is_sprite_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
     if (is_sprite_visible && !is_sprite_clipped) {
+      for (auto i = 0; i < ppu_sprites_per_line; i++) {
+        if (render_context_.sprite_x_position_counters[i] > 0) {
+          continue;
+        }
+        const auto sprite_color_low = bit_shift_and<uint8_t>(render_context_.sprite_shift_low[i], 7, 1);
+        const auto sprite_color_high = bit_shift_and<uint8_t>(render_context_.sprite_shift_high[i], 7, 1);
+        const auto possible_sprite_color = sprite_color_low | (sprite_color_high << 1);
+        const auto is_sprite_transparent = possible_sprite_color == 0;
+        if (is_sprite_transparent) {
+          continue;
+        }
+        auto sprite_zero_hit = (i == 0);
+        sprite_zero_hit &= (render_context_.sprite_zero_fetched);
+        sprite_zero_hit &= (screen_x_position != 255);
+        sprite_zero_hit &= (background_color != 0);
+        sprite_zero_hit &= (!status_register_.is_set(status_flag::SPRITE_ZERO_HIT));
+        if (sprite_zero_hit) {
+          status_register_.set(status_flag::SPRITE_ZERO_HIT);
+        }
+        sprite_color = possible_sprite_color;
+        sprite_attributes.value = render_context_.sprite_attribute_latches[i];
+        break;
+      }
     }
 
-    screen_->set_pixel(screen_x_position, screen_y_position, 0xFF000000U);
+    auto background_has_priority = true;
+    if (is_color_transparent(background_color) && !is_color_transparent(sprite_color)) {
+      background_has_priority = false;
+    }
+    if (!is_color_transparent(background_color) && !is_color_transparent(sprite_color) && !sprite_attributes.priority) {
+      background_has_priority = false;
+    }
+
+    const auto pixel_color = background_has_priority ? background_color : sprite_color;
+    const auto pixel_palette = background_has_priority ? background_palette : sprite_attributes.palette;
+
+    auto palette_address = background_has_priority ? palette_background_begin : palette_sprite_begin;
+    if (!is_color_transparent(pixel_color)) {
+      palette_address += (palette_entries * pixel_palette) + pixel_color;
+    }
+
+    palette_entry palette_entry{};
+    palette_entry.value = ppu_memory_.read(palette_address);
+
+    const auto pixel_rgba = palette::palette_to_rgba(palette_entry);
+    screen_->set_pixel(screen_x_position, screen_y_position, pixel_rgba);
   }
 
   auto update_frame_counters() -> void {
@@ -649,7 +862,9 @@ private:
 
   uint8_t oam_address_{};
 
-  uint8_t oam_data_[0xFF] = {0};
+  std::array<uint8_t, ppu_oam_size> oam_data_ = {0};
+
+  std::array<uint8_t, ppu_oam_secondary_size> oam_secondary_data_ = {0};
 
   palette palette_{};
 

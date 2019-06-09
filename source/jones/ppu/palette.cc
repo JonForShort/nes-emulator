@@ -32,7 +32,7 @@ namespace {
 //
 // https://wiki.nesdev.com/w/index.php/PPU_palettes
 //
-constexpr std::uint32_t palette[] = {
+constexpr std::uint32_t ppu_palette[] = {
     0x666666ff,
     0x002a88ff,
     0x1412a7ff,
@@ -108,4 +108,8 @@ auto palette::read(const uint16_t address) const -> uint8_t {
 
 auto palette::write(const uint16_t address, const uint8_t data) -> void {
   boost::ignore_unused(address, data);
+}
+
+auto palette::palette_to_rgba(const palette_entry &palette_entry) -> uint32_t {
+  return ppu_palette[palette_entry.value];
 }

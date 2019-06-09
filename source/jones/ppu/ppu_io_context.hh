@@ -80,6 +80,24 @@ union ppu_attribute {
   };
 };
 
+union ppu_sprite_attributes {
+
+  uint8_t value;
+
+  struct {
+
+    uint8_t palette : 2;
+
+    uint8_t unimplemented : 3;
+
+    uint8_t priority : 1;
+
+    uint8_t h_flip : 1;
+
+    uint8_t v_flip : 1;
+  };
+};
+
 struct ppu_io_context {
 
   uint8_t vram_buffer{};

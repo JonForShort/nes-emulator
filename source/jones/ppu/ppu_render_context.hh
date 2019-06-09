@@ -58,6 +58,8 @@ struct ppu_render_context {
   uint8_t sprite_attribute_latches[8]{};
 
   uint8_t sprite_x_position_counters[8]{};
+
+  bool sprite_zero_fetched{};
 };
 
 } // namespace jones::ppu

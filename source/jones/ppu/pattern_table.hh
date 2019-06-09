@@ -32,6 +32,10 @@ constexpr auto pattern_table_memory_begin = 0x0000;
 
 constexpr auto pattern_table_memory_end = 0x1FFF;
 
+constexpr auto pattern_table_zero_memory_begin = 0x0000;
+
+constexpr auto pattern_table_one_memory_begin = 0x1000;
+
 class pattern_table {
 public:
   auto read(uint16_t address) const -> uint8_t;

@@ -53,6 +53,8 @@ namespace jones::ppu {
 
 constexpr auto palette_size_bytes = 0x20;
 
+constexpr auto palette_entries = 4;
+
 constexpr auto palette_background_begin = 0x3F00;
 
 constexpr auto palette_background_end = 0x3F0F;
@@ -65,11 +67,25 @@ constexpr auto palette_memory_begin = 0x3F00;
 
 constexpr auto palette_memory_end = 0x3FFF;
 
+union palette_entry {
+
+  uint8_t value : 6;
+
+  struct {
+
+    uint8_t chroma : 4;
+
+    uint8_t luma : 2;
+  };
+};
+
 class palette {
 public:
   auto read(uint16_t address) const -> uint8_t;
 
   auto write(uint16_t address, uint8_t data) -> void;
+
+  static uint32_t palette_to_rgba(const palette_entry &palette_entry);
 };
 
 } // namespace jones::ppu
