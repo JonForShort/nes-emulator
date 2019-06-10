@@ -738,10 +738,7 @@ private:
       palette_address += (palette_entries * pixel_palette) + pixel_color;
     }
 
-    palette_entry palette_entry{};
-    palette_entry.value = ppu_memory_.read(palette_address);
-
-    const auto pixel_rgba = palette::palette_to_rgba(palette_entry);
+    const auto pixel_rgba = ppu_memory_.read(palette_address);
     screen_->set_pixel(screen_x_position, screen_y_position, pixel_rgba);
   }
 

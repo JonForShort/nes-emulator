@@ -24,6 +24,7 @@
 #include "palette.hh"
 
 #include <boost/core/ignore_unused.hpp>
+#include <boost/static_assert.hpp>
 
 using namespace jones::ppu;
 
@@ -102,14 +103,10 @@ constexpr std::uint32_t ppu_palette[] = {
 } // namespace
 
 auto palette::read(const uint16_t address) const -> uint8_t {
-  boost::ignore_unused(address);
-  return 0;
+  return ppu_palette[address - palette_memory_begin];
 }
 
 auto palette::write(const uint16_t address, const uint8_t data) -> void {
   boost::ignore_unused(address, data);
-}
-
-auto palette::palette_to_rgba(const palette_entry &palette_entry) -> uint32_t {
-  return ppu_palette[palette_entry.value];
+  BOOST_STATIC_ASSERT("unexpected write on palette");
 }
