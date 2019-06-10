@@ -471,8 +471,7 @@ private:
     render_context_.sprite_zero_evaluated = false;
 
     auto sprite_count = 0;
-    for (auto oam_index = 0, sprites_found = 0;
-         sprite_count < ppu_max_sprites; sprite_count++) {
+    for (auto oam_index = 0, sprites_found = 0; sprite_count < ppu_max_sprites; sprite_count++) {
       oam_secondary_data_[oam_index] = sprites[sprite_count].y;
 
       const auto y = sprites[sprite_count].y;
@@ -539,7 +538,7 @@ private:
     if (!is_background_visible) {
       return;
     }
-    uint16_t address = control_register_.is_set(control_flag::BACKGROUND_TABLE) ? pattern_table_zero_memory_begin : pattern_table_one_memory_begin;
+    uint16_t address = !control_register_.is_set(control_flag::BACKGROUND_TABLE) ? pattern_table_zero_memory_begin : pattern_table_one_memory_begin;
     address += (render_context_.name_table * ppu_tile_size) + io_context_.vram_address.fine_y_scroll + 8;
     render_context_.background_high = ppu_memory_.read(address);
   }
@@ -549,7 +548,7 @@ private:
     if (!is_background_visible) {
       return;
     }
-    uint16_t address = control_register_.is_set(control_flag::BACKGROUND_TABLE) ? pattern_table_zero_memory_begin : pattern_table_one_memory_begin;
+    uint16_t address = !control_register_.is_set(control_flag::BACKGROUND_TABLE) ? pattern_table_zero_memory_begin : pattern_table_one_memory_begin;
     address += (render_context_.name_table * ppu_tile_size) + io_context_.vram_address.fine_y_scroll;
     render_context_.background_low = ppu_memory_.read(address);
   }
@@ -565,8 +564,8 @@ private:
   }
 
   auto process_state_reg_sprite_shift() -> void {
-    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
-    if (!is_background_visible) {
+    const auto is_sprites_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
+    if (!is_sprites_visible) {
       return;
     }
     for (auto i = 0; i < ppu_sprites_per_line; i++) {
@@ -643,12 +642,10 @@ private:
     }
     const uint16_t x_scroll = io_context_.vram_address.coarse_x_scroll;
     const uint16_t y_scroll = io_context_.vram_address.coarse_y_scroll;
-    const uint16_t high_coarse_x = (x_scroll >> 2U) & ((1U << 3U) - 1);
-    const uint16_t high_coarse_y = (y_scroll >> 2U) & ((1U << 3U) - 1);
 
     ppu_attribute_address attribute_address{};
-    attribute_address.high_coarse_x = high_coarse_x;
-    attribute_address.high_coarse_y = high_coarse_y;
+    attribute_address.high_coarse_x = bit_shift_and<uint16_t>(x_scroll, 2, 3);
+    attribute_address.high_coarse_y = bit_shift_and<uint16_t>(y_scroll, 2, 3);
     attribute_address.h_name_table = io_context_.vram_address.h_nametable;
     attribute_address.v_name_table = io_context_.vram_address.v_nametable;
 
@@ -682,7 +679,7 @@ private:
     uint8_t background_palette = 0x00;
     uint16_t background_color = 0x0000;
 
-    const auto is_background_clipped = mask_register_.is_set(mask_flag::SHOW_LEFT_BACKGROUND) && screen_x_position < ppu_tile_width;
+    const auto is_background_clipped = !(mask_register_.is_set(mask_flag::SHOW_LEFT_BACKGROUND)) && (screen_x_position < ppu_tile_width);
     const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
     if (is_background_visible && !is_background_clipped) {
       const auto background_palette_low = bit_shift_and<uint8_t>(render_context_.attribute_table_shift_low, 7 - io_context_.fine_x_scroll, 1);
@@ -698,7 +695,7 @@ private:
 
     uint16_t sprite_color = 0x0000;
 
-    const auto is_sprite_clipped = mask_register_.is_set(mask_flag::SHOW_LEFT_SPRITES) && screen_x_position < ppu_tile_width;
+    const auto is_sprite_clipped = !(mask_register_.is_set(mask_flag::SHOW_LEFT_SPRITES)) && (screen_x_position < ppu_tile_width);
     const auto is_sprite_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
     if (is_sprite_visible && !is_sprite_clipped) {
       for (auto i = 0; i < ppu_sprites_per_line; i++) {
@@ -708,15 +705,14 @@ private:
         const auto sprite_color_low = bit_shift_and<uint8_t>(render_context_.sprite_shift_low[i], 7, 1);
         const auto sprite_color_high = bit_shift_and<uint8_t>(render_context_.sprite_shift_high[i], 7, 1);
         const auto possible_sprite_color = sprite_color_low | (sprite_color_high << 1);
-        const auto is_sprite_transparent = possible_sprite_color == 0;
-        if (is_sprite_transparent) {
+        if (is_color_transparent(possible_sprite_color)) {
           continue;
         }
         auto sprite_zero_hit = (i == 0);
         sprite_zero_hit &= (render_context_.sprite_zero_fetched);
         sprite_zero_hit &= (screen_x_position != 255);
-        sprite_zero_hit &= (background_color != 0);
-        sprite_zero_hit &= (!status_register_.is_set(status_flag::SPRITE_ZERO_HIT));
+        sprite_zero_hit &= (!is_color_transparent(background_color));
+        sprite_zero_hit &= (status_register_.is_set(status_flag::SPRITE_ZERO_HIT));
         if (sprite_zero_hit) {
           status_register_.set(status_flag::SPRITE_ZERO_HIT);
         }
