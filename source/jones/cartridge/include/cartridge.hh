@@ -24,6 +24,8 @@
 #ifndef JONES_CARTRIDGE_CARTRIDGE_HH
 #define JONES_CARTRIDGE_CARTRIDGE_HH
 
+#include "memory.hh"
+
 #include <fstream>
 #include <stdint.h>
 #include <string>
@@ -32,7 +34,7 @@ namespace jones {
 
 class cartridge final {
 public:
-  cartridge();
+  cartridge(memory &cpu_memory, memory &ppu_memory);
 
   ~cartridge();
 

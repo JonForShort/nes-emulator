@@ -59,7 +59,11 @@ struct ppu_render_context {
 
   uint8_t sprite_x_position_counters[8]{};
 
+  uint32_t sprite_counter{};
+
   bool sprite_zero_fetched{};
+
+  bool sprite_zero_evaluated{};
 };
 
 } // namespace jones::ppu

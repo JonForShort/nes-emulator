@@ -61,6 +61,8 @@ namespace {
 
 constexpr auto ppu_max_cycles = 340;
 
+constexpr auto ppu_max_sprites = 64;
+
 constexpr auto ppu_num_scanlines = 262;
 
 constexpr auto ppu_num_cycles = 341;
@@ -100,6 +102,17 @@ constexpr inline void bit_shift_set(T &data, const T shift, const T bits, const 
   data |= static_cast<T>(value << shift);
 }
 
+template <typename T>
+constexpr inline T bit_reverse(const T value) {
+  auto reversed = 0;
+  const auto length = sizeof(value) * 8;
+  for (size_t index = 0; index < length; index++) {
+    const auto b = (value >> (length - index - 1U)) & 0x01;
+    reversed |= b << index;
+  }
+  return reversed;
+}
+
 constexpr inline bool is_color_transparent(const uint32_t color) {
   return color == 0;
 }
@@ -113,7 +126,7 @@ class ppu::impl final {
 public:
   impl(memory &cpu_memory, memory &ppu_memory, cpu &cpu, screen::screen *screen)
       : cpu_memory_(cpu_memory), ppu_memory_(ppu_memory), cpu_(cpu), screen_(screen) {
-    ppu_memory_.map(std::make_unique<memory_mappable_component<pattern_table>>(&pattern_table_, pattern_table_memory_begin, pattern_table_memory_end));
+    //    ppu_memory_.map(std::make_unique<memory_mappable_component<pattern_table>>(&pattern_table_, pattern_table_memory_begin, pattern_table_memory_end));
     ppu_memory_.map(std::make_unique<memory_mappable_component<name_table>>(&name_table_, name_table_memory_begin, name_table_memory_end));
     ppu_memory_.map(std::make_unique<memory_mappable_component<palette>>(&palette_, palette_memory_begin, palette_memory_end));
   }
@@ -377,10 +390,10 @@ private:
       process_state_secondary_oam_clear();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_EVALUATE_SPRITE)) {
+      process_state_evaluate_sprite();
     }
-    if (is_frame_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_SPRITE_LOW_BYTE)) {
-    }
-    if (is_frame_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_SPRITE_HIGH_BYTE)) {
+    if (is_frame_state_set(state, ppu_frame_state::STATE_VRAM_FETCH_SPRITE_BYTE)) {
+      process_state_vram_fetch_sprite_byte();
     }
     if (is_frame_state_set(state, ppu_frame_state::STATE_IDLE)) {
       //
@@ -389,9 +402,114 @@ private:
     }
   }
 
+  auto process_state_vram_fetch_sprite_byte() -> void {
+    const auto is_sprites_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
+    if (!is_sprites_visible) {
+      return;
+    }
+    const auto current_counter = render_context_.sprite_counter;
+    const auto current_sprite = reinterpret_cast<ppu_sprite *>(&oam_data_[current_counter]);
+    render_context_.sprite_attribute_latches[current_counter] = current_sprite->attributes.value;
+    render_context_.sprite_x_position_counters[current_counter] = current_sprite->x;
+
+    render_context_.sprite_counter++;
+    if (render_context_.sprite_counter == ppu_sprites_per_line) {
+      render_context_.sprite_counter = 0;
+    }
+
+    if (current_counter == 0) {
+      render_context_.sprite_zero_fetched = render_context_.sprite_zero_evaluated;
+    }
+
+    const auto sprite_height = control_register_.is_set(control_flag::SPRITE_SIZE) ? (2 * ppu_tile_height) : ppu_tile_height;
+    const auto y = frame_current_scanline_ - current_sprite->y;
+
+    uint16_t sprite_address;
+    uint16_t sprite_tile;
+    if (!control_register_.is_set(control_flag::SPRITE_SIZE)) {
+      sprite_address = (!control_register_.is_set(control_flag::SPRITE_TABLE)) ? pattern_table_zero_memory_begin : pattern_table_one_memory_begin;
+      sprite_tile = current_sprite->tile_number;
+    } else {
+      sprite_address = !(current_sprite->tile_number & 1U) ? pattern_table_zero_memory_begin : pattern_table_one_memory_begin;
+      sprite_tile = current_sprite->tile_number & ~1U;
+      if ((y >= ppu_tile_height) != current_sprite->attributes.v_flip) {
+        sprite_tile++;
+      }
+    }
+
+    sprite_address += sprite_tile * ppu_tile_size;
+    sprite_address += !(current_sprite->attributes.v_flip) ? y % ppu_tile_height : (ppu_tile_height - (y % ppu_tile_height) - 1);
+
+    auto sprite_tile_low = ppu_memory_.read(sprite_address);
+    auto sprite_tile_high = ppu_memory_.read(sprite_address + 8);
+
+    if (current_sprite->attributes.h_flip) {
+      sprite_tile_low = bit_reverse(sprite_tile_low);
+      sprite_tile_high = bit_reverse(sprite_tile_high);
+    }
+
+    auto transparent = (current_sprite->y == 0xFF);
+    transparent |= (frame_current_scanline_ < current_sprite->y) || (frame_current_scanline_ >= current_sprite->y + sprite_height);
+    if (transparent) {
+      render_context_.sprite_shift_low[current_counter] = 0;
+      render_context_.sprite_shift_high[current_counter] = 0;
+      return;
+    }
+
+    render_context_.sprite_shift_low[current_counter] = sprite_tile_low;
+    render_context_.sprite_shift_high[current_counter] = sprite_tile_high;
+  }
+
+  auto process_state_evaluate_sprite() -> void {
+    const auto is_sprites_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
+    if (!is_sprites_visible) {
+      return;
+    }
+    const auto sprite_height = control_register_.is_set(control_flag::SPRITE_SIZE) ? (2 * ppu_tile_height) : ppu_tile_height;
+    const auto sprites = reinterpret_cast<ppu_sprite *>(oam_data_.data());
+
+    render_context_.sprite_zero_evaluated = false;
+
+    auto sprite_count = 0;
+    for (auto oam_index = 0, sprites_found = 0;
+         sprite_count < ppu_max_sprites; sprite_count++) {
+      oam_secondary_data_[oam_index] = sprites[sprite_count].y;
+
+      const auto y = sprites[sprite_count].y;
+      if (frame_current_scanline_ < y || frame_current_scanline_ >= y + sprite_height) {
+        continue;
+      }
+
+      oam_index++;
+      oam_secondary_data_[oam_index++] = sprites[sprite_count].values[1];
+      oam_secondary_data_[oam_index++] = sprites[sprite_count].values[2];
+      oam_secondary_data_[oam_index++] = sprites[sprite_count].values[3];
+
+      if (sprite_count == 0) {
+        render_context_.sprite_zero_evaluated = true;
+      }
+
+      if (++sprites_found == ppu_sprites_per_line) {
+        break;
+      }
+    }
+
+    auto sprite_overflow = 0;
+    while (sprite_count++ < ppu_max_sprites) {
+      const auto y = sprites[sprite_count].values[sprite_overflow];
+      if ((frame_current_scanline_ >= y) && (frame_current_scanline_ < y + sprite_height)) {
+        status_register_.set(status_flag::SPRITE_OVER_FLOW);
+        sprite_overflow += 3;
+      }
+      if (++sprite_overflow >= 4) {
+        sprite_overflow -= 4;
+      }
+    }
+  }
+
   auto process_state_secondary_oam_clear() -> void {
-    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
-    if (!is_background_visible) {
+    const auto is_sprites_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
+    if (!is_sprites_visible) {
       return;
     }
     oam_secondary_data_.fill(0xFF);
@@ -701,13 +819,8 @@ private:
     scanline[256] |= static_cast<uint32_t>(ppu_frame_state::STATE_LOOPY_INC_VERT_V);
     scanline[257] |= static_cast<uint32_t>(ppu_frame_state::STATE_LOOPY_SET_HORI_V);
 
-    for (auto i = 257; i < 320; i++) {
-      if (i % 8 == 5) {
-        scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_SPRITE_LOW_BYTE);
-      }
-      if (i % 8 == 7) {
-        scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_SPRITE_HIGH_BYTE);
-      }
+    for (auto i = 257; i < 320; i += 8) {
+      scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_SPRITE_BYTE);
     }
 
     for (auto i = 280; i <= 304; i++) {
@@ -798,13 +911,8 @@ private:
       scanline[256] |= static_cast<uint32_t>(ppu_frame_state::STATE_LOOPY_INC_VERT_V);
       scanline[257] |= static_cast<uint32_t>(ppu_frame_state::STATE_LOOPY_SET_HORI_V);
 
-      for (auto i = 257; i < 320; i++) {
-        if (i % 8 == 5) {
-          scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_SPRITE_LOW_BYTE);
-        }
-        if (i % 8 == 7) {
-          scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_SPRITE_HIGH_BYTE);
-        }
+      for (auto i = 257; i < 320; i += 8) {
+        scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_SPRITE_BYTE);
       }
 
       for (auto i = 321; i <= 336; i += 8) {
@@ -869,8 +977,6 @@ private:
   palette palette_{};
 
   name_table name_table_{};
-
-  pattern_table pattern_table_{};
 
   uint16_t frame_current_cycle_{};
 

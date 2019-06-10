@@ -98,6 +98,22 @@ union ppu_sprite_attributes {
   };
 };
 
+union ppu_sprite {
+
+  uint8_t values[4];
+
+  struct {
+
+    uint8_t y;
+
+    uint8_t tile_number;
+
+    union ppu_sprite_attributes attributes;
+
+    uint8_t x;
+  };
+};
+
 struct ppu_io_context {
 
   uint8_t vram_buffer{};

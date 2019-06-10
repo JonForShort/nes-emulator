@@ -21,16 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include "cartridge.hh"
+#include "cartridge_header.hh"
+#include "mapper/mapper.hh"
+#include "memory.hh"
+
 #include <boost/core/ignore_unused.hpp>
 #include <boost/interprocess/file_mapping.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include <iomanip>
 #include <iostream>
-
-#include "cartridge.hh"
-#include "cartridge_header.hh"
-#include "mapper/mapper.hh"
-#include "memory.hh"
 
 using namespace jones;
 
@@ -76,9 +76,35 @@ private:
   const ip::mapped_region mapped_region_;
 };
 
+class memory_mapped_chrom : public memory_mappable {
+public:
+  explicit memory_mapped_chrom(mapper *mapper) : mapper_(mapper) {}
+
+  ~memory_mapped_chrom() override = default;
+
+  auto start_address() -> uint16_t override {
+    return 0x0000;
+  }
+
+  auto end_address() -> uint16_t override {
+    return 0x1FFF;
+  }
+
+  auto read(const uint16_t address) -> uint8_t override {
+    return mapper_->read_chr(address);
+  }
+
+  auto write(const uint16_t address, const uint8_t data) -> void override {
+    mapper_->write_chr(address, data);
+  }
+
+private:
+  mapper *const mapper_;
+};
+
 class cartridge::impl {
 public:
-  explicit impl() : cartridge_(), cartridge_mapper_() {}
+  impl(memory &cpu_memory, memory &ppu_memory) : cpu_memory_(cpu_memory), ppu_memory_(ppu_memory) {}
 
   ~impl() = default;
 
@@ -86,6 +112,7 @@ public:
     cartridge_ = std::make_unique<file_mapped_cartridge>(file_path);
     if (cartridge_->valid()) {
       cartridge_mapper_ = mappers::get(*cartridge_);
+      ppu_memory_.map(std::make_unique<memory_mapped_chrom>(cartridge_mapper_.get()));
       return true;
     }
     return false;
@@ -154,12 +181,16 @@ private:
   }
 
 private:
-  std::unique_ptr<file_mapped_cartridge> cartridge_;
+  memory &cpu_memory_;
 
-  std::unique_ptr<mapper> cartridge_mapper_;
+  memory &ppu_memory_;
+
+  std::unique_ptr<file_mapped_cartridge> cartridge_{};
+
+  std::unique_ptr<mapper> cartridge_mapper_{};
 };
 
-cartridge::cartridge() : impl_(new impl()) {}
+cartridge::cartridge(memory &cpu_memory, memory &ppu_memory) : impl_(new impl(cpu_memory, ppu_memory)) {}
 
 cartridge::~cartridge() = default;
 

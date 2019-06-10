@@ -59,27 +59,25 @@ enum class ppu_frame_state : ppu_frame_state_mask {
 
   STATE_VRAM_FETCH_BG_HIGH_BYTE = bit_value(7),
 
-  STATE_VRAM_FETCH_SPRITE_LOW_BYTE = bit_value(8),
+  STATE_VRAM_FETCH_SPRITE_BYTE = bit_value(8),
 
-  STATE_VRAM_FETCH_SPRITE_HIGH_BYTE = bit_value(9),
+  STATE_LOOPY_INC_HORI_V = bit_value(9),
 
-  STATE_LOOPY_INC_HORI_V = bit_value(10),
+  STATE_LOOPY_INC_VERT_V = bit_value(10),
 
-  STATE_LOOPY_INC_VERT_V = bit_value(11),
+  STATE_LOOPY_SET_HORI_V = bit_value(11),
 
-  STATE_LOOPY_SET_HORI_V = bit_value(12),
+  STATE_LOOPY_SET_VERT_V = bit_value(12),
 
-  STATE_LOOPY_SET_VERT_V = bit_value(13),
+  STATE_SECONDARY_OAM_CLEAR = bit_value(13),
 
-  STATE_SECONDARY_OAM_CLEAR = bit_value(14),
+  STATE_EVALUATE_SPRITE = bit_value(14),
 
-  STATE_EVALUATE_SPRITE = bit_value(15),
+  STATE_REG_BG_SHIFT = bit_value(15),
 
-  STATE_REG_BG_SHIFT = bit_value(16),
+  STATE_REG_BG_RELOAD = bit_value(16),
 
-  STATE_REG_BG_RELOAD = bit_value(17),
-
-  STATE_REG_SPRITE_SHIFT = bit_value(18),
+  STATE_REG_SPRITE_SHIFT = bit_value(17),
 };
 
 constexpr inline auto is_frame_state_set(const ppu_frame_state_mask state, const ppu_frame_state frame_state) {

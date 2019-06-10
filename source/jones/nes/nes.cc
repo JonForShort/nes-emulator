@@ -45,6 +45,7 @@ public:
            apu_(cpu_memory_),
            cpu_(cpu_memory_),
            ppu_(cpu_memory_, ppu_memory_, cpu_, screen_.get()),
+           cartridge_(cpu_memory_, ppu_memory_),
            controller_one_(std::make_unique<controller::controller>(cpu_memory_)),
            controller_two_(std::make_unique<controller::controller>(cpu_memory_)) {
     cpu_memory_.map(std::make_unique<memory_mappable_component<memory_ram>>(&ram_, 0x0000, 0x1FFF));
@@ -188,7 +189,7 @@ private:
 
   ppu::ppu ppu_;
 
-  cartridge cartridge_{};
+  cartridge cartridge_;
 
   memory_sram sram_{};
 
