@@ -94,7 +94,7 @@ public:
     if (get_state(interrupt_type::RESET)) {
       return interrupt_type::RESET;
     }
-    return interrupt_type::INVALID;
+    return interrupt_type::NONE;
   }
 
 private:

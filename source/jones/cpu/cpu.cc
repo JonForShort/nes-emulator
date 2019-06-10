@@ -50,11 +50,8 @@ public:
 
   uint8_t step() {
     const auto initial_cycles = cycles_;
-    //    if (const auto triggered = interrupts_.get_triggered(); triggered != interrupt_type::INVALID) {
-    //      handle_interrupt(triggered);
-    //    } else {
+    step_interrupt();
     step_execute();
-    //    }
     return cycles_ - initial_cycles;
   }
 
@@ -68,23 +65,18 @@ public:
     registers_.set(register_type::SP, 0xFD);
     registers_.set(register_type::SR, status_register_.get());
 
-    interrupts_.set_state(interrupt_type::RESET, true);
+    interrupts_.set_state(interrupt_type::RESET, false);
     interrupts_.set_state(interrupt_type::BRK, false);
     interrupts_.set_state(interrupt_type::IRQ, false);
     interrupts_.set_state(interrupt_type::NMI, false);
 
-    // frame irq is enabled
     memory_.write(0x4017, 0x00);
-
-    // all channels disabled
     memory_.write(0x4015, 0x00);
 
-    // setting to initial pc address
-    const auto reset_vector = interrupts_.get_vector(interrupt_type::RESET);
-    const auto reset_routine = memory_.read_word(reset_vector) - 4;
-    registers_.set(register_type::PC, reset_routine);
+    const auto interrupt_vector = interrupts_.get_vector(interrupt_type::RESET);
+    const auto interrupt_routine = memory_.read_word(interrupt_vector) - 4;
+    registers_.set(register_type::PC, interrupt_routine);
 
-    // cycles for the cost of reset interrupt
     cycles_ += 7;
   }
 
@@ -140,7 +132,20 @@ public:
   }
 
   void interrupt(const interrupt_type type) {
-    interrupts_.set_state(type, true);
+    switch (type) {
+    case interrupt_type::RESET:
+    case interrupt_type::NMI:
+      interrupts_.set_state(type, true);
+      break;
+    case interrupt_type::BRK:
+    case interrupt_type::IRQ:
+      if (!status_register_.is_set(status_flag::I)) {
+        interrupts_.set_state(type, true);
+      }
+      break;
+    default:
+      break;
+    }
   }
 
 private:
@@ -156,14 +161,23 @@ private:
     }
   }
 
-  void handle_interrupt(const interrupt_type type) {
+  void step_interrupt() {
+    const auto triggered_interrupt = interrupts_.get_triggered();
+    if (triggered_interrupt == interrupt_type::NONE) {
+      return;
+    }
+
     push_pc();
     push_flags();
 
-    const auto interrupt_vector = interrupts_.get_vector(type);
-    registers_.set(register_type::PC, interrupt_vector);
+    const auto interrupt_vector = interrupts_.get_vector(triggered_interrupt);
+    const auto interrupt_routine = memory_.read_word(interrupt_vector) - 4;
+    registers_.set(register_type::PC, interrupt_routine);
 
     status_register_.set(status_flag::I);
+    registers_.set(register_type::SR, status_register_.get());
+
+    interrupts_.set_state(triggered_interrupt, false);
 
     cycles_ += 7;
   }

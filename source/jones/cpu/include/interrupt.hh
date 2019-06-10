@@ -42,8 +42,8 @@ enum class interrupt_type : uint8_t {
   // Break
   BRK,
 
-  // Invalid
-  INVALID,
+  // None
+  NONE,
 
   // Number of Interrupts
   COUNT
