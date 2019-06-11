@@ -24,6 +24,7 @@
 #ifndef JONES_PPU_NAME_TABLE_HH
 #define JONES_PPU_NAME_TABLE_HH
 
+#include <array>
 #include <cstdint>
 
 namespace jones::ppu {
@@ -32,6 +33,8 @@ constexpr uint16_t name_table_memory_begin = 0x2000;
 
 constexpr uint16_t name_table_memory_end = 0x3EFF;
 
+constexpr uint16_t name_table_size = 0x800;
+
 constexpr uint16_t attribute_table_memory_begin = 0x23C0;
 
 class name_table {
@@ -39,6 +42,9 @@ public:
   auto read(uint16_t address) const -> uint8_t;
 
   auto write(uint16_t address, uint8_t data) -> void;
+
+private:
+  std::array<uint8_t, name_table_size> name_table_{};
 };
 
 } // namespace jones::ppu

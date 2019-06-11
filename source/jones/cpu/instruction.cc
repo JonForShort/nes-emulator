@@ -33,7 +33,7 @@ using am = addressing_mode_type;
 //
 struct instruction instruction_set[256]{
 
-    {0x00, op::BRK, "BRK", 1, am::IMPLICIT},
+    {0x00, op::BRK, "BRK", 2, am::IMMEDIATE},
     {0x01, op::ORA, "ORA", 2, am::INDEXED_INDIRECT},
     {0x02, op::STP, "STP", 1, am::IMPLICIT},
     {0x03, op::SLO, "SLO", 2, am::INDEXED_INDIRECT},

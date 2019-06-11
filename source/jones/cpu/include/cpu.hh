@@ -78,6 +78,8 @@ public:
 
   auto interrupt(interrupt_type interrupt) -> void;
 
+  auto idle(uint16_t cycles) -> void;
+
 private:
   class impl;
 

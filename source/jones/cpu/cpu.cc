@@ -50,8 +50,13 @@ public:
 
   uint8_t step() {
     const auto initial_cycles = cycles_;
-    step_interrupt();
-    step_execute();
+    if (idle_cycles_ > 0) {
+      idle_cycles_ -= 1;
+      cycles_ += 1;
+    } else {
+      step_interrupt();
+      step_execute();
+    }
     return cycles_ - initial_cycles;
   }
 
@@ -146,6 +151,10 @@ public:
     default:
       break;
     }
+  }
+
+  void idle(const uint16_t cycles) {
+    idle_cycles_ += cycles;
   }
 
 private:
@@ -2673,6 +2682,8 @@ private:
   interrupts interrupts_{};
 
   uint64_t cycles_{};
+
+  uint16_t idle_cycles_{};
 };
 
 cpu::cpu(const memory &memory) : impl_(new impl(memory)) {}
@@ -2709,4 +2720,8 @@ auto cpu::get_state() -> cpu_state {
 
 auto cpu::interrupt(const interrupt_type interrupt) -> void {
   return impl_->interrupt(interrupt);
+}
+
+auto cpu::idle(const uint16_t cycles) -> void {
+  return impl_->idle(cycles);
 }

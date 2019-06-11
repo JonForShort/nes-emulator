@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE(cpu_test) { BOOST_CHECK(true); }
 // Test: Disassembles opcode 0x00.
 //
 BOOST_AUTO_TEST_CASE(disassemble_0x00_instruction_valid) {
-  uint8_t binary_instruction[] = {0x00};
-  check_disassemble(binary_instruction, sizeof(binary_instruction), "BRK");
+  uint8_t binary_instruction[] = {0x00, 0x00};
+  check_disassemble(binary_instruction, sizeof(binary_instruction), "BRK #$00");
 }
 
 //
@@ -553,11 +553,12 @@ BOOST_AUTO_TEST_CASE(decode_invalid_instruction_too_small) {
 // Test: Decodes opcode value 0x00.
 //
 BOOST_AUTO_TEST_CASE(decode_0x00_brk_instruction_valid) {
-  uint8_t brk_instruction[] = {0x00};
+  uint8_t brk_instruction[] = {0x00, 0xFF};
   const auto instruction = jde::decode(brk_instruction, sizeof(brk_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::BRK);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x00);
-  check_instruction_no_operand(instruction);
+  BOOST_CHECK(instruction.decoded_operand.type == operand_type::IMMEDIATE);
+  BOOST_CHECK(std::get<uint8_t>(instruction.decoded_operand.value) == static_cast<uint8_t>(0xFF));
 }
 
 //

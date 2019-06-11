@@ -61,6 +61,8 @@ namespace {
 
 constexpr auto ppu_max_cycles = 340;
 
+constexpr auto ppu_dma_cycles = 513;
+
 constexpr auto ppu_max_sprites = 64;
 
 constexpr auto ppu_num_scanlines = 262;
@@ -269,7 +271,17 @@ private:
   }
 
   auto write_object_attribute_memory_dma(const uint8_t data) -> void {
-    boost::ignore_unused(data);
+    uint16_t address = static_cast<uint16_t>(data) << 8U;
+    for (auto i = 0; i < 256; i++) {
+      oam_data_[oam_address_] = cpu_memory_.read(address);
+      oam_address_++;
+      address++;
+    }
+    cpu_.idle(ppu_dma_cycles);
+    const auto cpu_cycles = cpu_.get_state().cycles;
+    if (cpu_cycles % 2 == 1) {
+      cpu_.idle(1);
+    }
   }
 
   auto read_registers(const uint16_t address) -> uint8_t {

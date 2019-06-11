@@ -28,10 +28,9 @@
 using namespace jones::ppu;
 
 auto name_table::read(const uint16_t address) const -> uint8_t {
-  boost::ignore_unused(address);
-  return 0;
+  return name_table_[address - name_table_memory_begin];
 }
 
 auto name_table::write(const uint16_t address, const uint8_t data) -> void {
-  boost::ignore_unused(address, data);
+  name_table_[address % name_table_memory_begin] = data;
 }
