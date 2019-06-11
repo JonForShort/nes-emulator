@@ -32,5 +32,5 @@ auto name_table::read(const uint16_t address) const -> uint8_t {
 }
 
 auto name_table::write(const uint16_t address, const uint8_t data) -> void {
-  name_table_[address % name_table_memory_begin] = data;
+  name_table_[address - name_table_memory_begin] = data;
 }
