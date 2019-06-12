@@ -30,6 +30,7 @@
 #include <vector>
 
 #include "cartridge.hh"
+#include "debugger.hh"
 #include "log.hh"
 #include "nes.hh"
 
@@ -128,8 +129,11 @@ BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
             << "trace [" << trace_path << "]";
 
   jones::nes nes;
+
+  jones::debugger debugger(nes);
+  debugger.trace(trace_path.string().c_str());
+
   nes.load(file_path);
-  nes.trace(trace_path.string().c_str());
   nes.run(8992);
 
   check_trace_files(trace_path.string(), result_path);

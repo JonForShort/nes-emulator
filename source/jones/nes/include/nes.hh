@@ -45,8 +45,6 @@ public:
 
   void reset();
 
-  void trace(const char *trace_file);
-
   controller::controller_ptr controller_one();
 
   controller::controller_ptr controller_two();
@@ -54,6 +52,8 @@ public:
   void attach_screen(std::unique_ptr<screen::screen> screen);
 
 private:
+  friend class debugger;
+
   class impl;
 
   std::unique_ptr<impl> pimpl_;

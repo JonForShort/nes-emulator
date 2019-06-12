@@ -21,20 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_DEBUGGER_DEBUGGER_HH
-#define JONES_DEBUGGER_DEBUGGER_HH
+#ifndef JONES_NES_DEBUGGER_HH
+#define JONES_NES_DEBUGGER_HH
 
+#include <cstdint>
 #include <memory>
-
-#include "memory.hh"
 
 namespace jones {
 
+class nes;
+
 class debugger final {
 public:
-  debugger();
+  explicit debugger(const nes &nes);
 
   ~debugger();
+
+  auto read(uint16_t address) -> uint8_t;
+
+  auto write(uint16_t address, uint8_t data) -> void;
+
+  auto trace(const char *trace_file) -> void;
 
 private:
   class impl;
@@ -44,4 +51,4 @@ private:
 
 } // namespace jones
 
-#endif // JONES_DEBUGGER_DEBUGGER_HH
+#endif // JONES_NES_DEBUGGER_HH

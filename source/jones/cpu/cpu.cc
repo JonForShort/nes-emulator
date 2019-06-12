@@ -86,12 +86,11 @@ public:
   }
 
   uint8_t read(const uint16_t address) const {
-    boost::ignore_unused(address);
-    return 0;
+    return memory_.read(address);
   }
 
   void write(const uint16_t address, const uint8_t data) {
-    boost::ignore_unused(address, data);
+    memory_.write(address, data);
   }
 
   cpu_state get_state() const {

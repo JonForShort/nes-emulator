@@ -30,6 +30,7 @@
 #include "apu.hh"
 #include "cartridge.hh"
 #include "cpu.hh"
+#include "debugger.hh"
 #include "memory.hh"
 #include "nes.hh"
 #include "nes_components.hh"
@@ -60,16 +61,14 @@ public:
     cpu_memory_.map(std::make_unique<memory_mappable_component<cartridge>>(&cartridge_, 0x8000, 0xFFFF));
   }
 
-  ~impl() = default;
-
-  bool load(const char *rom_path) {
+  auto load(const char *rom_path) -> bool {
     if (boost::filesystem::exists(rom_path)) {
       return cartridge_.attach(rom_path);
     }
     return false;
   }
 
-  void run(const size_t step_limit) {
+  auto run(const size_t step_limit) -> void {
     initialize_components();
     is_running_ = true;
     trace_step();
@@ -89,44 +88,52 @@ public:
     uninitialize_components();
   }
 
-  void stop() {
+  auto stop() -> void {
     is_running_ = false;
   }
 
-  void reset() {
+  auto reset() -> void {
     initialize_components();
   }
 
-  void trace(const char *trace_file) {
-    trace_file_ = std::ofstream{trace_file};
-  }
-
-  controller::controller_ptr controller_one() {
+  auto controller_one() const -> controller::controller_ptr {
     return controller_one_.get();
   }
 
-  controller::controller_ptr controller_two() {
+  auto controller_two() const -> controller::controller_ptr {
     return controller_two_.get();
   }
 
-  void attach_screen(std::unique_ptr<screen::screen> screen) {
+  auto attach_screen(std::unique_ptr<screen::screen> screen) -> void {
     screen_->attach_screen(std::move(screen));
   }
 
+  auto trace(const char *trace_file) -> void {
+    trace_file_ = std::ofstream{trace_file};
+  }
+
+  auto read(const uint16_t address) -> uint8_t {
+    return cpu_.read(address);
+  }
+
+  auto write(const uint16_t address, const uint8_t data) -> void {
+    cpu_.write(address, data);
+  }
+
 private:
-  void initialize_components() {
+  auto initialize_components() -> void {
     ppu_.initialize();
     cpu_.initialize();
     apu_.initialize();
   }
 
-  void uninitialize_components() {
+  auto uninitialize_components() -> void {
     ppu_.uninitialize();
     cpu_.uninitialize();
     apu_.uninitialize();
   }
 
-  void trace_step() {
+  auto trace_step() -> void {
     if (trace_file_.is_open()) {
       const auto cpu_state = cpu_.get_state();
 
@@ -168,7 +175,7 @@ private:
     }
   }
 
-  void trace_done() {
+  auto trace_done() -> void {
     if (trace_file_.is_open()) {
       trace_file_.close();
     }
@@ -224,10 +231,6 @@ void nes::reset() {
   pimpl_->reset();
 }
 
-void nes::trace(const char *trace_file) {
-  pimpl_->trace(trace_file);
-}
-
 controller::controller_ptr nes::controller_one() {
   return pimpl_->controller_one();
 }
@@ -238,4 +241,41 @@ controller::controller_ptr nes::controller_two() {
 
 void nes::attach_screen(std::unique_ptr<screen::screen> screen) {
   pimpl_->attach_screen(std::move(screen));
+}
+
+class debugger::impl final {
+public:
+  explicit impl(const nes &nes) : nes_(nes) {}
+
+  auto read(const uint16_t address) -> uint8_t {
+    return nes_.pimpl_->read(address);
+  }
+
+  auto write(uint16_t address, uint8_t data) -> void {
+    nes_.pimpl_->write(address, data);
+  }
+
+  auto trace(const char *trace_file) -> void {
+    nes_.pimpl_->trace(trace_file);
+  }
+
+private:
+  const nes &nes_;
+};
+
+debugger::debugger(const nes &nes) : impl_(new debugger::impl(nes)) {
+}
+
+debugger::~debugger() = default;
+
+auto debugger::read(const uint16_t address) -> uint8_t {
+  return impl_->read(address);
+}
+
+auto debugger::write(uint16_t address, uint8_t data) -> void {
+  impl_->write(address, data);
+}
+
+auto debugger::trace(const char *trace_file) -> void {
+  impl_->trace(trace_file);
 }
