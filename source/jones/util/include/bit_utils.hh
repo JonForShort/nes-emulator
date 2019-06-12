@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2017-2018
+// Copyright 2019
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_NES_UTILS_HH
-#define JONES_NES_UTILS_HH
+#ifndef JONES_UTIL_BIT_UTILS_HH
+#define JONES_UTIL_BIT_UTILS_HH
 
 #include <cstdint>
 
@@ -40,4 +40,5 @@ typedef int32_t s32;
 typedef uint64_t u64;
 typedef int64_t s64;
 
-#endif // JONES_NES_UTILS_HH
+#endif // JONES_UTIL_BIT_UTILS_HH
+

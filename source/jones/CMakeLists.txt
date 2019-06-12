@@ -9,4 +9,5 @@ add_subdirectory (cpu)
 add_subdirectory (log)
 add_subdirectory (ppu)
 add_subdirectory (screen)
+add_subdirectory (util)
 
