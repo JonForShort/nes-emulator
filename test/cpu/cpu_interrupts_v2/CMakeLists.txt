@@ -7,7 +7,7 @@ set (boost-lib     ${DIR_ROOT_OUT}/boost/lib)
 
 # nes_test
 
-set (sources cpu_interrupts_v2.cc)
+set (sources cpu_interrupts.cc)
 
 add_executable (test_suite_cpu_interrupts_v2 ${sources})
 
