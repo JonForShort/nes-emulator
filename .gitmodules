@@ -30,3 +30,8 @@
 	path = external/zlib/source
 	url = https://github.com/thejunkjon/external-zlib.git
         ignore = dirty
+
+[submodule "external/gzip/source"]
+	path = external/gzip/source
+	url = https://github.com/thejunkjon/external-gzip.git
+        ignore = dirty
