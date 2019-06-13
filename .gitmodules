@@ -1,37 +1,37 @@
 [submodule "external/sdl/source"]
-	path = external/sdl/source
-	url = https://github.com/thejunkjon/external-sdl.git
+        path = external/sdl/source
+        url = https://github.com/thejunkjon/external-sdl.git
 
 [submodule "external/ncurses/source"]
-	path = external/ncurses/source
-	url = https://github.com/thejunkjon/external-ncurses.git
+        path = external/ncurses/source
+        url = https://github.com/thejunkjon/external-ncurses.git
 
 [submodule "external/capstone/source"]
-	path = external/capstone/source
-	url = https://github.com/thejunkjon/external-capstone.git
+        path = external/capstone/source
+        url = https://github.com/thejunkjon/external-capstone.git
 
 [submodule "external/sndio/source"]
-	path = external/sndio/source
-	url = https://github.com/thejunkjon/external-sndio.git
+        path = external/sndio/source
+        url = https://github.com/thejunkjon/external-sndio.git
 
 [submodule "external/boost/source"]
-	path = external/boost/source
-	url = https://github.com/thejunkjon/external-boost.git
+        path = external/boost/source
+        url = https://github.com/thejunkjon/external-boost.git
 
 [submodule "external/png/source"]
-	path = external/png/source
-	url = https://github.com/thejunkjon/external-libpng.git
+        path = external/png/source
+        url = https://github.com/thejunkjon/external-libpng.git
 
 [submodule "external/gsl/source"]
-	path = external/gsl/source
-	url = https://github.com/Microsoft/GSL.git
+        path = external/gsl/source
+        url = https://github.com/Microsoft/GSL.git
 
 [submodule "external/zlib/source"]
-	path = external/zlib/source
-	url = https://github.com/thejunkjon/external-zlib.git
+        path = external/zlib/source
+        url = https://github.com/thejunkjon/external-zlib.git
         ignore = dirty
 
 [submodule "external/gzip/source"]
-	path = external/gzip/source
-	url = https://github.com/thejunkjon/external-gzip.git
+        path = external/gzip/source
+        url = https://github.com/thejunkjon/external-gzip.git
         ignore = dirty
