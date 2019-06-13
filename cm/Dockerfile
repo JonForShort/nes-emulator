@@ -3,7 +3,7 @@ FROM ubuntu:18.10
 RUN apt update && \
     apt -y upgrade && \
     apt -y dist-upgrade && \
-    apt install -y build-essential gcc cmake libasound2-dev && \
+    apt install -y build-essential gcc cmake libasound2-dev texinfo && \
     apt autoclean -y && \
     apt remove -y && \
     apt autoremove -y

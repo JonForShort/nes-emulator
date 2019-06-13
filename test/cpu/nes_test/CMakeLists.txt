@@ -11,6 +11,8 @@ set (sources nes_test.cc)
 
 add_executable (test_suite_nes_test ${sources})
 
+add_dependencies (test_suite_nes_test gzip)
+
 target_link_libraries (test_suite_nes_test log)
 target_link_libraries (test_suite_nes_test jones-lib)
 target_link_libraries (test_suite_nes_test ${boost-lib}/libboost_unit_test_framework.a)
