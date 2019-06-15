@@ -1,5 +1,11 @@
 cmake_minimum_required (VERSION 3.7)
 
-option (SKIP_EXAMPLE_FILES "" ON)
+include (ExternalProject)
 
-add_subdirectory (source)
+ExternalProject_Add (
+  zlib
+  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source
+  BUILD_IN_SOURCE 1
+  CONFIGURE_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/source/configure --prefix=${DIR_PROJECT_OUT}
+  BUILD_COMMAND ${MAKE}
+)
