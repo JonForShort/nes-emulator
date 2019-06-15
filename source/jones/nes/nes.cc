@@ -39,6 +39,7 @@
 #include "screen_proxy.hh"
 
 using namespace jones;
+using namespace boost::filesystem;
 
 class nes::impl {
 public:
@@ -62,29 +63,21 @@ public:
   }
 
   auto load(const char *rom_path) -> bool {
-    if (boost::filesystem::exists(rom_path)) {
+    if (exists(rom_path)) {
       return cartridge_.attach(rom_path);
     }
     return false;
   }
 
   auto run(const size_t step_limit) -> void {
-    initialize_components();
     is_running_ = true;
-    trace_step();
+    initialize_components();
+    notify_listener(nes_listener::event::ON_RUN_STARTED);
     for (size_t step_count = 0; is_running_ && (step_count < step_limit || step_limit == 0); step_count++) {
-      const auto cpu_cycles = cpu_.step();
-      const auto ppu_cycles = cpu_cycles * 3;
-      const auto apu_cycles = cpu_cycles;
-      for (auto i = 0; i < ppu_cycles; i++) {
-        ppu_.step();
-      }
-      for (auto i = 0; i < apu_cycles; i++) {
-        apu_.step();
-      }
-      trace_step();
+      step();
+      notify_listener(nes_listener::event::ON_RUN_STEP);
     }
-    trace_done();
+    notify_listener(nes_listener::event::ON_RUN_FINISHED);
     uninitialize_components();
   }
 
@@ -108,16 +101,16 @@ public:
     screen_->attach_screen(std::move(screen));
   }
 
-  auto trace(const char *trace_file) -> void {
-    trace_file_ = std::ofstream{trace_file};
-  }
-
   auto read(const uint16_t address) -> uint8_t {
     return cpu_.read(address);
   }
 
   auto write(const uint16_t address, const uint8_t data) -> void {
     cpu_.write(address, data);
+  }
+
+  auto set_listener(nes_listener *listener) -> void {
+    listener_ = listener;
   }
 
 private:
@@ -133,51 +126,45 @@ private:
     apu_.uninitialize();
   }
 
-  auto trace_step() -> void {
-    if (trace_file_.is_open()) {
-      const auto cpu_state = cpu_.get_state();
-
-      trace_file_ << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << cpu_state.registers.PC << "  ";
-
-      for (const auto &i : cpu_state.instruction_bytes) {
-        trace_file_ << std::right << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(i) << " ";
-      }
-
-      const size_t instruction_bytes_padding = 10 - (cpu_state.instruction_bytes.size() * 3);
-      for (size_t i = 0; i < instruction_bytes_padding; i++) {
-        trace_file_ << " ";
-      }
-
-      trace_file_ << cpu_state.instruction;
-
-      const size_t instruction_padding = 32 - cpu_state.instruction.length();
-      for (size_t i = 0; i < instruction_padding; i++) {
-        trace_file_ << " ";
-      }
-
-      trace_file_ << "A:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(cpu_state.registers.A) << " ";
-      trace_file_ << "X:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(cpu_state.registers.X) << " ";
-      trace_file_ << "Y:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(cpu_state.registers.Y) << " ";
-      trace_file_ << "P:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(cpu_state.registers.SR) << " ";
-      trace_file_ << "SP:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(cpu_state.registers.SP) << " ";
-
-      const auto ppu_state = ppu_.get_state();
-
-      trace_file_ << "PPU:";
-
-      trace_file_ << std::dec << std::right << std::setw(3) << std::setfill(' ') << ppu_state.cycle << ",";
-
-      trace_file_ << std::dec << std::right << std::setw(3) << std::setfill(' ') << ppu_state.scanline << " ";
-
-      trace_file_ << "CYC:" << std::dec << cpu_state.cycles;
-
-      trace_file_ << std::endl;
+  auto notify_listener(const nes_listener::event event) -> void {
+    if (listener_ != nullptr) {
+      listener_->on_event(event, get_state());
     }
   }
 
-  auto trace_done() -> void {
-    if (trace_file_.is_open()) {
-      trace_file_.close();
+  auto get_state() -> nes_state {
+    const auto ppu_state = ppu_.get_state();
+    const auto cpu_state = cpu_.get_state();
+
+    nes_state state{};
+
+    state.ppu_scanline = ppu_state.scanline;
+    state.ppu_cycle = ppu_state.cycle;
+    state.ppu_frame = ppu_state.frame;
+
+    state.registers.A = cpu_state.registers.A;
+    state.registers.X = cpu_state.registers.X;
+    state.registers.Y = cpu_state.registers.Y;
+    state.registers.SR = cpu_state.registers.SR;
+    state.registers.SP = cpu_state.registers.SP;
+    state.registers.PC = cpu_state.registers.PC;
+
+    state.cpu_cycle = cpu_state.cycles;
+    state.instruction = cpu_state.instruction;
+    state.instruction_bytes = cpu_state.instruction_bytes;
+
+    return state;
+  }
+
+  auto step() -> void {
+    const auto cpu_cycles = cpu_.step();
+    const auto ppu_cycles = cpu_cycles * 3;
+    const auto apu_cycles = cpu_cycles;
+    for (auto i = 0; i < ppu_cycles; i++) {
+      ppu_.step();
+    }
+    for (auto i = 0; i < apu_cycles; i++) {
+      apu_.step();
     }
   }
 
@@ -202,11 +189,11 @@ private:
 
   memory_ram ram_{};
 
-  std::ofstream trace_file_{};
-
   std::unique_ptr<controller::controller> controller_one_{};
 
   std::unique_ptr<controller::controller> controller_two_{};
+
+  nes_listener *listener_{};
 };
 
 nes::nes() noexcept
@@ -255,8 +242,8 @@ public:
     nes_.pimpl_->write(address, data);
   }
 
-  auto trace(const char *trace_file) -> void {
-    nes_.pimpl_->trace(trace_file);
+  auto set_listener(jones::nes_listener *listener) -> void {
+    nes_.pimpl_->set_listener(listener);
   }
 
 private:
@@ -276,6 +263,6 @@ auto debugger::write(uint16_t address, uint8_t data) -> void {
   impl_->write(address, data);
 }
 
-auto debugger::trace(const char *trace_file) -> void {
-  impl_->trace(trace_file);
+auto debugger::set_listener(jones::nes_listener *listener) -> void {
+  impl_->set_listener(listener);
 }

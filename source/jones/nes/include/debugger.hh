@@ -31,6 +31,58 @@ namespace jones {
 
 class nes;
 
+struct nes_state {
+
+  std::string instruction;
+
+  std::vector<uint8_t> instruction_bytes;
+
+  size_t cpu_cycle;
+
+  size_t ppu_cycle;
+
+  size_t ppu_scanline;
+
+  size_t ppu_frame;
+
+  size_t apu_cycle;
+
+  struct cpu_registers {
+
+    uint16_t PC;
+
+    uint8_t A;
+
+    uint8_t X;
+
+    uint8_t Y;
+
+    uint8_t SR;
+
+    uint8_t SP;
+
+  } registers;
+};
+
+class nes_listener {
+public:
+  enum class event {
+    ON_RUN_STARTED,
+
+    ON_RUN_PAUSED,
+
+    ON_RUN_FINISHED,
+
+    ON_RUN_STEP,
+
+    ON_RESET,
+  };
+
+  virtual ~nes_listener() = default;
+
+  virtual auto on_event(event event, nes_state state) -> void = 0;
+};
+
 class debugger final {
 public:
   explicit debugger(const nes &nes);
@@ -41,7 +93,7 @@ public:
 
   auto write(uint16_t address, uint8_t data) -> void;
 
-  auto trace(const char *trace_file) -> void;
+  auto set_listener(nes_listener *listener) -> void;
 
 private:
   class impl;
