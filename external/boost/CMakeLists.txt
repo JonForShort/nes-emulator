@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.7)
 
-set (boost-modules --with-log --with-program_options --with-filesystem --with-test --with-serialization)
+set (boost-modules --with-log --with-program_options --with-filesystem --with-test --with-serialization --with-iostreams)
 
 add_custom_target (boost
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/source
