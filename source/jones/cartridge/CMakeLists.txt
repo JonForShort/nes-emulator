@@ -12,7 +12,8 @@ set (sources
         cartridge_header.cc
         mapper/mapper.cc
         mapper/mapper_unsupported.cc
-        mapper/mapper_nrom.cc)
+        mapper/mapper_nrom.cc
+        mapper/mapper_mmc1.cc)
 
 add_library (cartridge STATIC ${sources})
 

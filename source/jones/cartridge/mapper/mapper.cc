@@ -24,6 +24,7 @@
 #include <memory>
 
 #include "mapper.hh"
+#include "mapper_mmc1.hh"
 #include "mapper_nrom.hh"
 #include "mapper_unsupported.hh"
 
@@ -34,6 +35,8 @@ std::unique_ptr<mapper> mapper_factory::get(const mapper_view &mapper_view) {
   switch (mapper_number) {
   case 0:
     return std::make_unique<mapper_nrom>(mapper_view);
+  case 1:
+    return std::make_unique<mapper_mmc1>(mapper_view);
   default:
     return std::make_unique<mapper_unsupported>(mapper_view);
   }
