@@ -50,6 +50,10 @@ private:
 
   auto write_chr(uint16_t address, uint8_t data) -> void;
 
+  auto read_sram(uint16_t address) const -> uint8_t;
+
+  auto write_sram(uint16_t address, uint8_t data) -> void;
+
   enum class nrom_type {
     NROM_128,
     NROM_256
@@ -70,13 +74,15 @@ private:
     return mirroring ? nrom_mirroring_type::NROM_VERTICAL : nrom_mirroring_type::NROM_HORIZONAL;
   }
 
-  const nrom_type type_;
+  const nrom_type type_{};
 
-  const nrom_mirroring_type mirroring_type_;
+  const nrom_mirroring_type mirroring_type_{};
 
-  const bool use_chrram;
+  const bool use_chrram{};
 
-  std::vector<uint8_t> chrram_;
+  std::vector<uint8_t> chrram_{};
+
+  std::vector<uint8_t> sram_{};
 };
 
 } // namespace jones

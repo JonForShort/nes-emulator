@@ -33,7 +33,7 @@ mapper_nrom::mapper_nrom(const mapper_view &mapper_view)
       type_(resolve_type(mapper_view.cartridge())),
       mirroring_type_(resolve_mirroring_type(mapper_view.cartridge())),
       use_chrram(mapper_view.cartridge().header()->chrrom_size() <= 0) {
-  mapper_view.cpu_memory().map(std::make_unique<memory_mappable_component<mapper_nrom>>(this, 0x8000, 0xFFFF));
+  mapper_view.cpu_memory().map(std::make_unique<memory_mappable_component<mapper_nrom>>(this, 0x6000, 0xFFFF));
   mapper_view.ppu_memory().map(std::make_unique<memory_mappable_component<mapper_nrom>>(this, 0x0000, 0x1FFF));
   if (use_chrram) {
     chrram_.resize(0x2000);
@@ -44,6 +44,8 @@ mapper_nrom::mapper_nrom(const mapper_view &mapper_view)
 auto mapper_nrom::read(const uint16_t address) -> uint8_t {
   if (address >= 0x8000) {
     return read_prg(address);
+  } else if (address >= 0x6000) {
+    return read_sram(address);
   } else {
     return read_chr(address);
   }
@@ -52,6 +54,8 @@ auto mapper_nrom::read(const uint16_t address) -> uint8_t {
 auto mapper_nrom::write(const uint16_t address, const uint8_t data) -> void {
   if (address >= 0x8000) {
     return write_prg(address, data);
+  } else if (address >= 0x6000) {
+    return write_sram(address, data);
   } else {
     return write_chr(address, data);
   }
@@ -95,4 +99,12 @@ void mapper_nrom::write_chr(const uint16_t address, const uint8_t data) {
   } else {
     BOOST_STATIC_ASSERT("unable to write to chr rom");
   }
+}
+
+auto mapper_nrom::read_sram(const uint16_t address) const -> uint8_t {
+  return sram_[address - 0x6000];
+}
+
+auto mapper_nrom::write_sram(const uint16_t address, const uint8_t data) -> void {
+  sram_[address - 0x6000] = data;
 }

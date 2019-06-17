@@ -58,7 +58,6 @@ public:
     cpu_memory_.map(std::make_unique<memory_mappable_component<controller::controller>>(controller_two_.get(), 0x4017, 0x4017));
     cpu_memory_.map(std::make_unique<memory_mappable_component<apu>>(&apu_, 0x4018, 0x401F));
     cpu_memory_.map(std::make_unique<memory_mappable_component<cpu>>(&cpu_, 0x4018, 0x401F));
-    cpu_memory_.map(std::make_unique<memory_mappable_component<memory_sram>>(&sram_, 0x6000, 0x7FFF));
   }
 
   auto load(const char *rom_path) -> bool {
@@ -183,8 +182,6 @@ private:
   ppu::ppu ppu_;
 
   cartridge cartridge_;
-
-  memory_sram sram_{};
 
   memory_ram ram_{};
 

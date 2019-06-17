@@ -28,26 +28,6 @@
 
 namespace jones {
 
-class memory_sram {
-public:
-  memory_sram() : sram_(sram_size, 0) {}
-
-  ~memory_sram() = default;
-
-  uint8_t read(const uint16_t address) {
-    return sram_[address];
-  }
-
-  void write(const uint16_t address, const uint8_t data) {
-    sram_[address] = data;
-  }
-
-private:
-  static constexpr size_t sram_size = 0x2000U;
-
-  std::vector<uint8_t> sram_;
-};
-
 class memory_ram {
 public:
   memory_ram() : ram_(ram_size, 0) {}
