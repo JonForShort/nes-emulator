@@ -21,26 +21,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef JONES_CARTRIDGE_MAPPER_MAPPER_UNSUPPORTED_HH
-#define JONES_CARTRIDGE_MAPPER_MAPPER_UNSUPPORTED_HH
+#ifndef JONES_CARTRIDGE_MAPPERS_MAPPER_VIEW_HH
+#define JONES_CARTRIDGE_MAPPERS_MAPPER_VIEW_HH
 
-#include <cstdint>
-
-#include "mapper.hh"
+#include <stdint.h>
+#include <string>
 
 namespace jones {
 
-class mapper_unsupported : public mapper {
+class cartridge;
+
+class memory;
+
+class mapper_view {
 public:
-  explicit mapper_unsupported(const mapper_view &mapper_view) : mapper(mapper_view) {}
+  mapper_view(const mapped_cartridge &cartridge, memory &cpu_memory, memory &ppu_memory)
+      : cartridge_(cartridge), cpu_memory_(cpu_memory), ppu_memory_(ppu_memory) {}
 
-  ~mapper_unsupported() override = default;
+  ~mapper_view() = default;
 
-  auto read(uint16_t address) -> uint8_t override;
+  auto cartridge() const -> auto & {
+    return cartridge_;
+  }
 
-  auto write(uint16_t address, uint8_t data) -> void override;
+  auto cpu_memory() const -> auto & {
+    return cpu_memory_;
+  }
+
+  auto ppu_memory() const -> auto & {
+    return ppu_memory_;
+  }
+
+private:
+  const mapped_cartridge &cartridge_;
+
+  memory &cpu_memory_;
+
+  memory &ppu_memory_;
 };
 
 } // namespace jones
 
-#endif // JONES_CARTRIDGE_MAPPER_MAPPER_UNSUPPORTED_HH
+#endif // JONES_CARTRIDGE_MAPPERS_MAPPER_VIEW_HH

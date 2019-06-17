@@ -33,19 +33,23 @@ namespace jones {
 
 class mapper_nrom : public mapper {
 public:
-  explicit mapper_nrom(const mapped_cartridge &cartridge);
+  mapper_nrom(const mapper_view &mapper_view);
 
   ~mapper_nrom() override = default;
 
-  uint8_t read_prg(uint16_t address) const override;
+  auto read(uint16_t address) -> uint8_t override;
 
-  void write_prg(uint16_t address, uint8_t data) override;
-
-  uint8_t read_chr(uint16_t address) const override;
-
-  void write_chr(uint16_t address, uint8_t data) override;
+  auto write(uint16_t address, uint8_t data) -> void override;
 
 private:
+  auto read_prg(uint16_t address) const -> uint8_t;
+
+  auto write_prg(uint16_t address, uint8_t data) -> void;
+
+  auto read_chr(uint16_t address) const -> uint8_t;
+
+  auto write_chr(uint16_t address, uint8_t data) -> void;
+
   enum class nrom_type {
     NROM_128,
     NROM_256

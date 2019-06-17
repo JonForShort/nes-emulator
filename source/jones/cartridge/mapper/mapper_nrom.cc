@@ -28,20 +28,32 @@
 
 using namespace jones;
 
-namespace {
-
-const size_t chrram_size = 0x2000;
-
+mapper_nrom::mapper_nrom(const mapper_view &mapper_view)
+    : mapper(mapper_view),
+      type_(resolve_type(mapper_view.cartridge())),
+      mirroring_type_(resolve_mirroring_type(mapper_view.cartridge())),
+      use_chrram(mapper_view.cartridge().header()->chrrom_size() <= 0) {
+  mapper_view.cpu_memory().map(std::make_unique<memory_mappable_component<mapper_nrom>>(this, 0x8000, 0xFFFF));
+  mapper_view.ppu_memory().map(std::make_unique<memory_mappable_component<mapper_nrom>>(this, 0x0000, 0x1FFF));
+  if (use_chrram) {
+    chrram_.resize(0x2000);
+    std::fill(chrram_.begin(), chrram_.end(), 0);
+  }
 }
 
-mapper_nrom::mapper_nrom(const jones::mapped_cartridge &cartridge)
-    : mapper(cartridge),
-      type_(resolve_type(cartridge)),
-      mirroring_type_(resolve_mirroring_type(cartridge)),
-      use_chrram(cartridge.header()->chrrom_size() <= 0) {
-  if (use_chrram) {
-    chrram_.resize(chrram_size);
-    std::fill(chrram_.begin(), chrram_.end(), 0);
+auto mapper_nrom::read(const uint16_t address) -> uint8_t {
+  if (address >= 0x8000) {
+    return read_prg(address);
+  } else {
+    return read_chr(address);
+  }
+}
+
+auto mapper_nrom::write(const uint16_t address, const uint8_t data) -> void {
+  if (address >= 0x8000) {
+    return write_prg(address, data);
+  } else {
+    return write_chr(address, data);
   }
 }
 

@@ -29,12 +29,12 @@
 
 using namespace jones;
 
-std::unique_ptr<mapper> mappers::get(const mapped_cartridge &cartridge) {
-  const auto mapper_number = cartridge.header()->mapper_number();
+std::unique_ptr<mapper> mapper_factory::get(const mapper_view &mapper_view) {
+  const auto mapper_number = mapper_view.cartridge().header()->mapper_number();
   switch (mapper_number) {
   case 0:
-    return std::make_unique<mapper_nrom>(cartridge);
+    return std::make_unique<mapper_nrom>(mapper_view);
   default:
-    return std::make_unique<mapper_unsupported>(cartridge);
+    return std::make_unique<mapper_unsupported>(mapper_view);
   }
 }

@@ -59,7 +59,6 @@ public:
     cpu_memory_.map(std::make_unique<memory_mappable_component<apu>>(&apu_, 0x4018, 0x401F));
     cpu_memory_.map(std::make_unique<memory_mappable_component<cpu>>(&cpu_, 0x4018, 0x401F));
     cpu_memory_.map(std::make_unique<memory_mappable_component<memory_sram>>(&sram_, 0x6000, 0x7FFF));
-    cpu_memory_.map(std::make_unique<memory_mappable_component<cartridge>>(&cartridge_, 0x8000, 0xFFFF));
   }
 
   auto load(const char *rom_path) -> bool {

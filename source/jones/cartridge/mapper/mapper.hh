@@ -28,35 +28,33 @@
 #include <memory>
 
 #include "mapped_cartridge.hh"
+#include "mapper_view.hh"
+#include "memory.hh"
 
 namespace jones {
 
 class mapper {
 public:
-  explicit mapper(const mapped_cartridge &cartridge) : cartridge_(cartridge) {}
+  explicit mapper(const mapper_view &mapper_view) : mapper_view_(mapper_view) {}
 
   virtual ~mapper() = default;
 
-  virtual uint8_t read_prg(uint16_t address) const = 0;
+  virtual auto read(uint16_t address) -> uint8_t = 0;
 
-  virtual void write_prg(uint16_t address, uint8_t data) = 0;
-
-  virtual uint8_t read_chr(uint16_t address) const = 0;
-
-  virtual void write_chr(uint16_t address, uint8_t data) = 0;
+  virtual auto write(uint16_t address, uint8_t data) -> void = 0;
 
 protected:
   const mapped_cartridge &get_cartridge() const {
-    return cartridge_;
+    return mapper_view_.cartridge();
   }
 
 private:
-  const mapped_cartridge &cartridge_;
+  mapper_view mapper_view_;
 };
 
-class mappers {
+class mapper_factory {
 public:
-  static std::unique_ptr<mapper> get(const mapped_cartridge &cartridge);
+  static std::unique_ptr<mapper> get(const mapper_view &mapper_view);
 };
 
 } // namespace jones
