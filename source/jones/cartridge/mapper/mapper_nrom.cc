@@ -32,7 +32,9 @@ mapper_nrom::mapper_nrom(const mapper_view &mapper_view)
     : mapper(mapper_view),
       type_(resolve_type(mapper_view.cartridge())),
       mirroring_type_(resolve_mirroring_type(mapper_view.cartridge())),
-      use_chrram(mapper_view.cartridge().header()->chrrom_size() <= 0) {
+      use_chrram(mapper_view.cartridge().header()->chrrom_size() <= 0),
+      prgrom_(get_cartridge().address() + get_cartridge().header()->prgrom_offset()),
+      prgrom_size_(get_cartridge().header()->prgrom_size()) {
   mapper_view.cpu_memory().map(std::make_unique<memory_mappable_component<mapper_nrom>>(this, 0x6000, 0xFFFF));
   mapper_view.ppu_memory().map(std::make_unique<memory_mappable_component<mapper_nrom>>(this, 0x0000, 0x1FFF));
   if (use_chrram) {
@@ -42,36 +44,40 @@ mapper_nrom::mapper_nrom(const mapper_view &mapper_view)
 }
 
 auto mapper_nrom::read(const uint16_t address) -> uint8_t {
-  if (address >= 0x8000) {
+  if (address < 0x2000) {
+    return read_chr(address);
+  } else if (address >= 0x8000) {
     return read_prg(address);
   } else if (address >= 0x6000) {
     return read_sram(address);
-  } else {
-    return read_chr(address);
   }
+  BOOST_STATIC_ASSERT("unexpected read for mapper nrom");
+  return 0;
 }
 
 auto mapper_nrom::write(const uint16_t address, const uint8_t data) -> void {
-  if (address >= 0x8000) {
+  if (address < 0x2000) {
+    return write_chr(address, data);
+  } else if (address >= 0x8000) {
     return write_prg(address, data);
   } else if (address >= 0x6000) {
     return write_sram(address, data);
-  } else {
-    return write_chr(address, data);
   }
+  BOOST_STATIC_ASSERT("unexpected write for mapper nrom");
 }
 
 uint8_t mapper_nrom::read_prg(const uint16_t address) const {
-  const auto base_prgrom_address = get_cartridge().address() + get_cartridge().header()->prgrom_offset();
-  const auto base_address = address - 0x8000;
   switch (type_) {
   case nrom_type::NROM_128: {
-    const auto prgrom_size = get_cartridge().header()->prgrom_size();
-    const auto address_offset = base_address >= prgrom_size ? base_address - prgrom_size : base_address;
-    return *(base_prgrom_address + address_offset);
+    const auto offset = address - 0x8000;
+    const auto index = offset >= prgrom_size_ ? offset - prgrom_size_ : offset;
+    const auto data = prgrom_[index];
+    return data;
   }
   case nrom_type::NROM_256: {
-    return *(base_prgrom_address + base_address);
+    const auto offset = address - 0x8000;
+    const auto data = prgrom_[offset];
+    return data;
   }
   default:
     break;

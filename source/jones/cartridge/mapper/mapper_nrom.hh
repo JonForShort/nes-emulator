@@ -80,6 +80,10 @@ private:
 
   const bool use_chrram{};
 
+  uint8_t *const prgrom_{};
+
+  const uint16_t prgrom_size_{};
+
   std::vector<uint8_t> chrram_{};
 
   std::vector<uint8_t> sram_{};

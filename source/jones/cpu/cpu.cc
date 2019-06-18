@@ -79,7 +79,7 @@ public:
     memory_.write(0x4015, 0x00);
 
     const auto interrupt_vector = interrupts_.get_vector(interrupt_type::RESET);
-    const auto interrupt_routine = memory_.read_word(interrupt_vector) - 4;
+    const auto interrupt_routine = memory_.read_word(interrupt_vector);
     registers_.set(register_type::PC, interrupt_routine);
 
     cycles_ += 7;
