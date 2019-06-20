@@ -1,0 +1,5 @@
+{
+  "rom": "blargg_power_up_palette.nes",
+  "trace": "blargg_power_up_palette.trace.gz",
+  "exclude": true
+}

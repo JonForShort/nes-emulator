@@ -70,12 +70,14 @@ public:
   auto run(const size_t step_limit) -> void {
     is_running_ = true;
     initialize_components();
+    notify_listener(nes_listener::event::ON_INITIALIZED);
     notify_listener(nes_listener::event::ON_RUN_STARTED);
     for (size_t step_count = 0; is_running_ && (step_count < step_limit || step_limit == 0); step_count++) {
       step();
       notify_listener(nes_listener::event::ON_RUN_STEP);
     }
     notify_listener(nes_listener::event::ON_RUN_FINISHED);
+    notify_listener(nes_listener::event::ON_UNINITIALIZED);
     uninitialize_components();
   }
 
@@ -126,7 +128,9 @@ private:
 
   auto notify_listener(const nes_listener::event event) -> void {
     if (listener_ != nullptr) {
-      listener_->on_event(event, get_state());
+      auto state = get_state();
+      listener_->on_event(event, state);
+      set_state(state);
     }
   }
 
@@ -152,6 +156,23 @@ private:
     state.instruction_bytes = cpu_state.instruction_bytes;
 
     return state;
+  }
+
+  auto set_state(const nes_state &state) -> void {
+    auto cpu_state = cpu_.get_state();
+    cpu_state.registers.PC = state.registers.PC;
+    cpu_state.registers.SP = state.registers.SP;
+    cpu_state.registers.SR = state.registers.SR;
+    cpu_state.registers.A = state.registers.A;
+    cpu_state.registers.X = state.registers.X;
+    cpu_state.registers.Y = state.registers.Y;
+    cpu_.set_state(cpu_state);
+
+    auto ppu_state = ppu_.get_state();
+    ppu_state.cycle = state.ppu_cycle;
+    ppu_state.scanline = state.ppu_scanline;
+    ppu_state.frame = state.ppu_frame;
+    ppu_.set_state(ppu_state);
   }
 
   auto step() -> void {

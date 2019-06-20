@@ -1,0 +1,5 @@
+{
+  "rom": "blargg_sprite_ram.nes",
+  "trace": "blargg_sprite_ram.trace.gz",
+  "exclude": true
+}

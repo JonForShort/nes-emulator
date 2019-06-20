@@ -59,6 +59,8 @@ public:
 
   auto get_state() const -> ppu_state;
 
+  auto set_state(const ppu_state &state) -> void;
+
 private:
   class impl;
 

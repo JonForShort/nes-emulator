@@ -76,11 +76,15 @@ public:
     ON_RUN_STEP,
 
     ON_RESET,
+
+    ON_INITIALIZED,
+
+    ON_UNINITIALIZED,
   };
 
   virtual ~nes_listener() = default;
 
-  virtual auto on_event(event event, nes_state state) -> void = 0;
+  virtual auto on_event(event event, nes_state &state) -> void = 0;
 };
 
 class debugger final {

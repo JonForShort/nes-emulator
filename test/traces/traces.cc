@@ -31,6 +31,8 @@
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <boost/test/unit_test.hpp>
 #include <iomanip>
@@ -46,6 +48,7 @@ namespace bt = boost::unit_test;
 namespace fs = boost::filesystem;
 namespace ba = boost::algorithm;
 namespace bs = boost::iostreams;
+namespace pt = boost::property_tree;
 
 using format = boost::format;
 
@@ -199,23 +202,37 @@ void add_trace_entry(const fs::path &trace_path, const jones::nes_state &nes_sta
 
 class trace_listener : public jones::nes_listener {
 public:
-  explicit trace_listener(std::string trace_path) : trace_path_(std::move(trace_path)) {}
+  explicit trace_listener(std::string trace_path, const uint16_t initial_pc)
+      : trace_path_(std::move(trace_path)), initial_pc_(initial_pc) {}
 
   ~trace_listener() override = default;
 
-  auto on_event(jones::nes_listener::event event, jones::nes_state state) -> void override {
+  auto on_event(jones::nes_listener::event event, jones::nes_state &state) -> void override {
     switch (event) {
     case event::ON_RESET:
     case event::ON_RUN_FINISHED:
     case event::ON_RUN_PAUSED:
+    case event::ON_UNINITIALIZED: {
+      //
+      // do nothing.
+      //
       break;
-    default:
+    }
+    case event::ON_INITIALIZED: {
+      state.registers.PC = initial_pc_;
+      break;
+    }
+    default: {
       add_trace_entry(trace_path_, state);
+      break;
+    }
     }
   }
 
 private:
   std::string trace_path_;
+
+  const uint16_t initial_pc_{};
 };
 
 } // namespace
@@ -233,6 +250,25 @@ BOOST_AUTO_TEST_CASE(test_suite_traces) {
   for (auto &trace_directory_entry : boost::make_iterator_range(root_trace_iterator, {})) {
     const auto trace_directory_path = fs::path(trace_directory_entry);
     if (is_directory(trace_directory_path)) {
+
+      const auto trace_file_path = trace_directory_path / fs::path("trace.json");
+      if (!fs::exists(trace_file_path)) {
+        LOG_DEBUG << "skipping trace test [" << trace_directory_path.string() << "]";
+        continue;
+      }
+
+      pt::ptree json;
+      pt::read_json(trace_file_path.string(), json);
+
+      const auto is_trace_excluded = json.get<bool>("exclude");
+      if (is_trace_excluded) {
+        LOG_DEBUG << "skipping trace test [" << trace_directory_path.string() << "]";
+        continue;
+      }
+
+      const auto &json_initial_state_tree = json.get_child("initial_state");
+      const auto initial_pc = json_initial_state_tree.get<int>("pc");
+
       jones::nes nes;
       jones::debugger debugger(nes);
 
@@ -240,7 +276,7 @@ BOOST_AUTO_TEST_CASE(test_suite_traces) {
       const auto trace_result_path = fs::temp_directory_path() / fs::unique_path();
       const auto trace_name = trace_directory_path.filename().string() + ".trace";
 
-      const auto nes_listener = std::make_unique<trace_listener>(trace_test_path.string());
+      const auto nes_listener = std::make_unique<trace_listener>(trace_test_path.string(), initial_pc);
       debugger.set_listener(nes_listener.get());
 
       const auto is_trace_file_built = build_trace_file(trace_result_path, trace_directory_path, trace_name);

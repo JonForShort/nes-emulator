@@ -1,0 +1,5 @@
+{
+  "rom": "blargg_vram_access.nes",
+  "trace": "blargg_vram_access.trace.gz",
+  "exclude": true
+}

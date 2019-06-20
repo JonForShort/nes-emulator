@@ -181,6 +181,12 @@ public:
         .frame = frame_current_frame_};
   }
 
+  auto set_state(const ppu_state &state) -> void {
+    frame_current_cycle_ = state.cycle;
+    frame_current_scanline_ = state.scanline;
+    frame_current_frame_ = state.frame;
+  }
+
 private:
   auto write_registers(const uint16_t address, const uint8_t data) -> void {
     BOOST_ASSERT_MSG(address >= 0x2000 && address <= 0x3FFF, "write unexpected address for ppu");
@@ -1027,4 +1033,8 @@ auto ppu::step() -> uint8_t {
 
 auto ppu::get_state() const -> ppu_state {
   return impl_->get_state();
+}
+
+auto ppu::set_state(const ppu_state &state) -> void {
+  return impl_->set_state(state);
 }

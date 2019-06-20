@@ -1,0 +1,8 @@
+{
+  "rom": "nes_test.nes",
+  "trace": "nes_test.trace.gz",
+  "exclude": false,
+  "initial_state": {
+    "pc": 49152
+  }
+}

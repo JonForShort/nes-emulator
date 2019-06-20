@@ -76,6 +76,8 @@ public:
 
   auto get_state() -> cpu_state;
 
+  auto set_state(const cpu_state &state) -> void;
+
   auto interrupt(interrupt_type interrupt) -> void;
 
   auto idle(uint16_t cycles) -> void;

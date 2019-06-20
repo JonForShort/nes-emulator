@@ -135,6 +135,15 @@ public:
     return current_cpu_state;
   }
 
+  auto set_state(const cpu_state &state) -> void {
+    registers_.set(register_type::PC, state.registers.PC);
+    registers_.set(register_type::SP, state.registers.SP);
+    registers_.set(register_type::AC, state.registers.A);
+    registers_.set(register_type::X, state.registers.X);
+    registers_.set(register_type::Y, state.registers.Y);
+    registers_.set(register_type::SR, state.registers.SR);
+  }
+
   void interrupt(const interrupt_type type) {
     switch (type) {
     case interrupt_type::RESET:
@@ -2715,6 +2724,10 @@ auto cpu::write(const uint16_t address, const uint8_t data) -> void {
 
 auto cpu::get_state() -> cpu_state {
   return impl_->get_state();
+}
+
+auto cpu::set_state(const cpu_state &state) -> void {
+  return impl_->set_state(state);
 }
 
 auto cpu::interrupt(const interrupt_type interrupt) -> void {
