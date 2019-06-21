@@ -1,5 +1,6 @@
 {
   "rom": "blargg_vbl_clear_time.nes",
   "trace": "blargg_vbl_clear_time.trace.gz",
-  "exclude": true
+  "exclude": false,
+  "steps": 100   
 }
