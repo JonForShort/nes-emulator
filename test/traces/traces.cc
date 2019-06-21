@@ -202,7 +202,7 @@ void add_trace_entry(const fs::path &trace_path, const jones::nes_state &nes_sta
 
 class trace_listener : public jones::nes_listener {
 public:
-  explicit trace_listener(std::string trace_path, const uint16_t initial_pc)
+  explicit trace_listener(std::string trace_path, const int initial_pc)
       : trace_path_(std::move(trace_path)), initial_pc_(initial_pc) {}
 
   ~trace_listener() override = default;
@@ -219,7 +219,9 @@ public:
       break;
     }
     case event::ON_INITIALIZED: {
-      state.registers.PC = initial_pc_;
+      if (initial_pc_ >= 0) {
+        state.registers.PC = initial_pc_;
+      }
       break;
     }
     default: {
@@ -232,7 +234,7 @@ public:
 private:
   std::string trace_path_;
 
-  const uint16_t initial_pc_{};
+  const int initial_pc_{};
 };
 
 } // namespace
@@ -266,8 +268,8 @@ BOOST_AUTO_TEST_CASE(test_suite_traces) {
         continue;
       }
 
-      const auto &json_initial_state_tree = json.get_child("initial_state");
-      const auto initial_pc = json_initial_state_tree.get<int>("pc");
+      const auto &json_initial_state_tree = json.get_child_optional("initial_state");
+      const auto initial_pc = json_initial_state_tree ? json_initial_state_tree.value().get<int>("pc") : -1;
 
       jones::nes nes;
       jones::debugger debugger(nes);
@@ -284,8 +286,10 @@ BOOST_AUTO_TEST_CASE(test_suite_traces) {
         const auto rom_path = trace_directory_path / (trace_directory_path.filename().string() + ".nes");
         const auto rom_loaded = nes.load(rom_path.c_str());
         if (rom_loaded) {
-          const auto step_count = get_line_count(trace_result_path.string());
-          nes.run(step_count);
+          const auto steps_count = json.get_optional<int>("steps");
+          const auto line_count = get_line_count(trace_result_path.string());
+          const auto run_count = steps_count ? steps_count.value() : line_count;
+          nes.run(run_count);
           check_trace_files(trace_test_path.string(), trace_result_path.string());
           continue;
         }
