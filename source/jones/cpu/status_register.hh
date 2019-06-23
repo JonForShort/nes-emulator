@@ -32,31 +32,31 @@ namespace jones {
 //
 // https://wiki.nesdev.com/w/index.php/Status_flags
 //
-enum class status_flag {
+enum class status_flag : uint8_t {
 
-  // Negative
-  N = 0,
-
-  // Overflow
-  V,
-
-  // Ignored
-  B1,
-
-  // Ignored
-  B2,
-
-  // Decimal
-  D,
-
-  // Interrupt Disable
-  I,
+  // Carry
+  C = 0,
 
   // Zero
   Z,
 
-  // Carry
-  C,
+  // Interrupt Disable
+  I,
+
+  // Decimal
+  D,
+
+  // Ignored
+  B2,
+
+  // Ignored
+  B1,
+
+  // Overflow
+  V,
+
+  // Negative
+  N,
 
   // Number of flags
   COUNT
