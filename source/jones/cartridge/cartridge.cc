@@ -27,12 +27,14 @@
 #include "mapper/mapper_view.hh"
 #include "memory.hh"
 
+#include <boost/filesystem.hpp>
 #include <boost/interprocess/file_mapping.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 
 using namespace jones;
 
 namespace ip = boost::interprocess;
+namespace fs = boost::filesystem;
 
 class file_mapped_cartridge final : public mapped_cartridge {
 public:
@@ -80,12 +82,21 @@ public:
 
   ~impl() = default;
 
-  bool attach(const char *file_path) {
-    cartridge_ = std::make_unique<file_mapped_cartridge>(file_path);
-    if (cartridge_->valid()) {
-      mapper_view_ = std::make_unique<mapper_view>(*cartridge_, cpu_memory_, ppu_memory_);
-      cartridge_mapper_ = mapper_factory::get(*mapper_view_);
+  bool attach(char const *const file_path) {
+    if (file_path == nullptr) {
+      cartridge_.reset();
+      mapper_view_.reset();
+      cartridge_mapper_.reset();
+      cartridge_.reset();
       return true;
+    }
+    if (fs::exists(file_path)) {
+      cartridge_ = std::make_unique<file_mapped_cartridge>(file_path);
+      if (cartridge_->valid()) {
+        mapper_view_ = std::make_unique<mapper_view>(*cartridge_, cpu_memory_, ppu_memory_);
+        cartridge_mapper_ = mapper_factory::get(*mapper_view_);
+        return true;
+      }
     }
     return false;
   }
@@ -112,14 +123,14 @@ public:
     }
   }
 
-  uint8_t read(const uint16_t address) const {
+  uint8_t read(uint16_t const address) const {
     if (cartridge_mapper_ != nullptr) {
       return cartridge_mapper_->read(address);
     }
     return 0;
   }
 
-  void write(const uint16_t address, const uint8_t data) const {
+  void write(uint16_t const address, const uint8_t data) const {
     if (cartridge_mapper_ != nullptr) {
       return cartridge_mapper_->write(address, data);
     }
@@ -141,26 +152,26 @@ cartridge::cartridge(memory &cpu_memory, memory &ppu_memory) : impl_(new impl(cp
 
 cartridge::~cartridge() = default;
 
-bool cartridge::attach(const char *path) {
+auto cartridge::attach(char const *const path) -> bool {
   return impl_->attach(path);
 }
 
-void cartridge::print(std::ostream &out) const {
-  impl_->print(out);
+auto cartridge::print(std::ostream &out) const -> void {
+  return impl_->print(out);
 }
 
-void cartridge::dump_prg(std::ostream &out) const {
+auto cartridge::dump_prg(std::ostream &out) const -> void {
   return impl_->dump_prg(out);
 }
 
-void cartridge::dump_chr(std::ostream &out) const {
+auto cartridge::dump_chr(std::ostream &out) const -> void {
   return impl_->dump_chr(out);
 }
 
-uint8_t cartridge::read(const uint16_t address) const {
+auto cartridge::read(uint16_t const address) const -> uint8_t {
   return impl_->read(address);
 }
 
-void cartridge::write(const uint16_t address, const uint8_t data) const {
+auto cartridge::write(uint16_t const address, const uint8_t data) const -> void {
   return impl_->write(address, data);
 }

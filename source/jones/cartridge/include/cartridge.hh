@@ -38,17 +38,17 @@ public:
 
   ~cartridge();
 
-  bool attach(const char *path);
+  auto attach(const char *path) -> bool;
 
-  void print(std::ostream &out) const;
+  auto print(std::ostream &out) const -> void;
 
-  void dump_prg(std::ostream &out) const;
+  auto dump_prg(std::ostream &out) const -> void;
 
-  void dump_chr(std::ostream &out) const;
+  auto dump_chr(std::ostream &out) const -> void;
 
-  uint8_t read(uint16_t address) const;
+  auto read(uint16_t address) const -> uint8_t;
 
-  void write(uint16_t address, uint8_t data) const;
+  auto write(uint16_t address, uint8_t data) const -> void;
 
 private:
   class impl;
