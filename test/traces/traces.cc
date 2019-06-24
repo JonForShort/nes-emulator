@@ -34,6 +34,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/range/iterator_range.hpp>
+#include <boost/test/results_collector.hpp>
 #include <boost/test/unit_test.hpp>
 #include <iomanip>
 #include <iostream>
@@ -64,15 +65,28 @@ void gunzip(const std::string &input_file, const std::string &output_file) {
   bs::copy(compressed_stream, decompressed);
 }
 
-std::string fix_instruction(std::string instruction) {
-  std::vector<std::string> instruction_pieces;
-  boost::split(instruction_pieces, instruction, boost::is_any_of("=@"));
-  const auto fixed_unofficial = boost::replace_all_copy(instruction_pieces[0], "*", "");
-  const auto fixed_opcodes = boost::replace_all_copy(fixed_unofficial, "ISB", "ISC");
-  return fixed_opcodes;
+std::map<std::string, std::string> build_trace_details_map(const std::string &trace) {
+  std::map<std::string, std::string> result;
+  std::vector<std::string> pieces;
+  boost::split(pieces, trace, boost::is_any_of(" "), boost::token_compress_on);
+  for (auto &i : pieces) {
+    std::vector<std::string> piece_section;
+    boost::split(piece_section, i, boost::is_any_of(":"));
+    if (piece_section.size() == 2) {
+      result[piece_section[0]] = piece_section[1];
+    }
+  }
+  return result;
+}
+
+void stop_test_if_failed() {
+  const auto test_id = bt::framework::current_test_case().p_id;
+  BOOST_REQUIRE(bt::results_collector.results(test_id).passed());
 }
 
 void check_trace_files(const std::string &trace_path, const std::string &result_path) {
+  BOOST_TEST_MESSAGE(format("check trace file : trace [%s] result [%s]") % trace_path % result_path);
+
   std::ifstream trace_file{trace_path};
   std::ifstream result_file{result_path};
   int line_count = 0;
@@ -80,55 +94,82 @@ void check_trace_files(const std::string &trace_path, const std::string &result_
        std::getline(trace_file, trace_line) && std::getline(result_file, result_line);
        line_count++) {
 
-    const auto trace_address = boost::trim_copy(trace_line.substr(0, 4));
-    const auto result_address = boost::trim_copy(result_line.substr(0, 4));
+    const auto trace_address = boost::trim_copy(trace_line.substr(0, 5));
+    const auto result_address = boost::trim_copy(result_line.substr(0, 5));
     BOOST_CHECK_MESSAGE(trace_address == result_address,
                         format("line [%d] : check [address] : expected [%s] found [%s]") % line_count % result_address % trace_address);
 
-    const auto trace_binary = boost::trim_copy(trace_line.substr(6, 10));
-    const auto result_binary = boost::trim_copy(boost::replace_all_copy(result_line.substr(6, 10), "*", ""));
+    const auto trace_binary = boost::trim_copy(trace_line.substr(5, 12));
+    const auto result_binary = boost::trim_copy(result_line.substr(5, 12));
     BOOST_CHECK_MESSAGE(trace_binary == result_binary,
                         format("line [%d] : check [binary] : expected [%s] found [%s]") % line_count % result_binary % trace_binary);
 
-    const auto trace_instruction = boost::trim_copy(trace_line.substr(15, 16));
-    const auto result_instruction = boost::trim_copy(fix_instruction(result_line.substr(15, 16)));
+    const auto trace_instruction = boost::trim_copy(trace_line.substr(17, 38));
+    const auto result_instruction = boost::trim_copy(result_line.substr(17, 38));
     BOOST_CHECK_MESSAGE(trace_instruction == result_instruction,
                         format("line [%d] : check [instruction] : expected [%s] found [%s]") % line_count % result_instruction % trace_instruction);
 
-    const auto trace_register_a = boost::trim_copy(trace_line.substr(50, 2));
-    const auto result_register_a = boost::trim_copy(result_line.substr(50, 2));
-    BOOST_CHECK_MESSAGE(trace_register_a == result_register_a,
-                        format("line [%d] : check [a] : expected [%s] found [%s]") % line_count % result_register_a % trace_register_a);
+    const auto trace_details = boost::trim_copy(trace_line.substr(55));
+    const auto result_details = boost::trim_copy(result_line.substr(55));
 
-    const auto trace_register_x = boost::trim_copy(trace_line.substr(55, 2));
-    const auto result_register_x = boost::trim_copy(result_line.substr(55, 2));
-    BOOST_CHECK_MESSAGE(trace_register_x == result_register_x,
-                        format("line [%d] : check [x] : expected [%s] found [%s]") % line_count % result_register_x % trace_register_x);
+    std::map<std::string, std::string> trace_details_map = build_trace_details_map(trace_details);
+    std::map<std::string, std::string> result_details_map = build_trace_details_map(result_details);
 
-    const auto trace_register_y = boost::trim_copy(trace_line.substr(60, 2));
-    const auto result_register_y = boost::trim_copy(result_line.substr(60, 2));
-    BOOST_CHECK_MESSAGE(trace_register_y == result_register_y,
-                        format("line [%d] : check [y] : expected [%s] found [%s]") % line_count % result_register_y % trace_register_y);
-
-    const auto trace_register_p = boost::trim_copy(trace_line.substr(65, 2));
-    const auto result_register_p = boost::trim_copy(result_line.substr(65, 2));
-    BOOST_CHECK_MESSAGE(trace_register_p == result_register_p,
-                        format("line [%d] : check [p] : expected [%s] found [%s]") % line_count % result_register_p % trace_register_p);
-
-    const auto trace_register_sp = boost::trim_copy(trace_line.substr(71, 2));
-    const auto result_register_sp = boost::trim_copy(result_line.substr(71, 2));
-    BOOST_CHECK_MESSAGE(trace_register_sp == result_register_sp,
-                        format("line [%d] : check [sp] : expected [%s] found [%s]") % line_count % result_register_sp % trace_register_sp);
-
-    const auto trace_ppu = boost::trim_copy(trace_line.substr(74, 12));
-    const auto result_ppu = boost::trim_copy(result_line.substr(74, 12));
-    BOOST_CHECK_MESSAGE(trace_ppu == result_ppu,
-                        format("line [%d] : check [ppu] : expected [%s] found [%s]") % line_count % result_ppu % trace_ppu);
-
-    const auto trace_cpu = boost::trim_copy(trace_line.substr(86));
-    const auto result_cpu = boost::trim_copy(result_line.substr(86));
-    BOOST_CHECK_MESSAGE(trace_cpu == result_cpu,
-                        format("line [%d] : check [cpu] : expected [%s] found [%s]") % line_count % result_cpu % trace_cpu);
+    {
+      const auto trace_register_a = trace_details_map["A"];
+      const auto result_register_a = result_details_map["A"];
+      BOOST_CHECK_MESSAGE(trace_register_a == result_register_a,
+                          format("line [%d] : check [a] : expected [%s] found [%s]") % line_count % result_register_a % trace_register_a);
+    }
+    {
+      const auto trace_register_x = trace_details_map["X"];
+      const auto result_register_x = result_details_map["X"];
+      BOOST_CHECK_MESSAGE(trace_register_x == result_register_x,
+                          format("line [%d] : check [x] : expected [%s] found [%s]") % line_count % result_register_x % trace_register_x);
+    }
+    {
+      const auto trace_register_y = trace_details_map["Y"];
+      const auto result_register_y = result_details_map["Y"];
+      BOOST_CHECK_MESSAGE(trace_register_y == result_register_y,
+                          format("line [%d] : check [y] : expected [%s] found [%s]") % line_count % result_register_y % trace_register_y);
+    }
+    {
+      const auto trace_register_p = trace_details_map["P"];
+      const auto result_register_p = result_details_map["P"];
+      BOOST_CHECK_MESSAGE(trace_register_p == result_register_p,
+                          format("line [%d] : check [p] : expected [%s] found [%s]") % line_count % result_register_p % trace_register_p);
+    }
+    {
+      const auto trace_register_sp = trace_details_map["SP"];
+      const auto result_register_sp = result_details_map["SP"];
+      BOOST_CHECK_MESSAGE(trace_register_sp == result_register_sp,
+                          format("line [%d] : check [sp] : expected [%s] found [%s]") % line_count % result_register_sp % trace_register_sp);
+    }
+    {
+      const auto trace_ppu_cycle = trace_details_map["CYC"];
+      const auto result_ppu_cycle = result_details_map["CYC"];
+      BOOST_CHECK_MESSAGE(trace_ppu_cycle == result_ppu_cycle,
+                          format("line [%d] : check [ppu_cycle] : expected [%s] found [%s]") % line_count % result_ppu_cycle % trace_ppu_cycle);
+    }
+    {
+      const auto trace_ppu_scanline = trace_details_map["SL"];
+      const auto result_ppu_scanline = result_details_map["SL"] == "-1" ? "261" : result_details_map["SL"];
+      BOOST_CHECK_MESSAGE(trace_ppu_scanline == result_ppu_scanline,
+                          format("line [%d] : check [ppu_scanline] : expected [%s] found [%s]") % line_count % result_ppu_scanline % trace_ppu_scanline);
+    }
+    {
+      const auto trace_ppu_frame = trace_details_map["FC"];
+      const auto result_ppu_frame = result_details_map["FC"];
+      BOOST_CHECK_MESSAGE(trace_ppu_frame == result_ppu_frame,
+                          format("line [%d] : check [ppu_frame] : expected [%s] found [%s]") % line_count % result_ppu_frame % trace_ppu_frame);
+    }
+    {
+      const auto trace_cpu_cycle = trace_details_map["Cycle"];
+      const auto result_cpu_cycle = result_details_map["Cycle"];
+      BOOST_CHECK_MESSAGE(trace_cpu_cycle == result_cpu_cycle,
+                          format("line [%d] : check [cpu_cycle] : expected [%s] found [%s]") % line_count % result_cpu_cycle % trace_cpu_cycle);
+    }
+    stop_test_if_failed();
   }
 }
 
@@ -165,37 +206,61 @@ size_t get_line_count(const std::string &file_path) {
 void add_trace_entry(const fs::path &trace_path, const jones::nes_state &nes_state) {
   std::ofstream trace_file(trace_path, std::ios::app);
 
-  trace_file << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << nes_state.registers.PC << "  ";
+  trace_file << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << nes_state.cpu.registers.PC << " ";
 
-  for (const auto &i : nes_state.instruction_bytes) {
-    trace_file << std::right << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(i) << " ";
+  for (const auto &i : nes_state.instruction.instruction_bytes) {
+    trace_file << "$" << std::right << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<uint16_t>(i) << " ";
   }
 
-  const size_t instruction_bytes_padding = 10 - (nes_state.instruction_bytes.size() * 3);
+  for (size_t i = 0; i < (3 - nes_state.instruction.instruction_bytes.size()); i++) {
+    trace_file << " ";
+  }
+
+  const size_t instruction_bytes_padding = 9 - (nes_state.instruction.instruction_bytes.size() * 3);
   for (size_t i = 0; i < instruction_bytes_padding; i++) {
     trace_file << " ";
   }
 
-  trace_file << nes_state.instruction;
+  std::ostringstream instruction_string;
 
-  const size_t instruction_padding = 32 - nes_state.instruction.length();
+  instruction_string << nes_state.instruction.instruction;
+
+  const auto &instruction_memory = nes_state.instruction.memory;
+
+  if (instruction_memory.is_indirect && instruction_memory.is_indirect.value()) {
+    instruction_string << " @ $" << std::hex << std::uppercase << nes_state.instruction.memory.address.value();
+  }
+
+  if (instruction_memory.value) {
+    instruction_string << " = $" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << nes_state.instruction.memory.value.value();
+  }
+
+  trace_file << instruction_string.str();
+
+  const size_t instruction_padding = 38 - instruction_string.str().size();
   for (size_t i = 0; i < instruction_padding; i++) {
     trace_file << " ";
   }
 
-  trace_file << "A:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(nes_state.registers.A) << " ";
-  trace_file << "X:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(nes_state.registers.X) << " ";
-  trace_file << "Y:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(nes_state.registers.Y) << " ";
-  trace_file << "P:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(nes_state.registers.SR) << " ";
-  trace_file << "SP:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(nes_state.registers.SP) << " ";
+  trace_file << "A:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(nes_state.cpu.registers.A) << " ";
+  trace_file << "X:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(nes_state.cpu.registers.X) << " ";
+  trace_file << "Y:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(nes_state.cpu.registers.Y) << " ";
+  trace_file << "P:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(nes_state.cpu.registers.SR) << " ";
+  trace_file << "SP:" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(nes_state.cpu.registers.SP) << " ";
 
-  trace_file << "PPU:";
+  trace_file << "CYC:";
 
-  trace_file << std::dec << std::right << std::setw(3) << std::setfill(' ') << nes_state.ppu_cycle << ",";
+  trace_file << std::dec << std::left << std::setw(3) << std::setfill(' ') << nes_state.ppu.cycle << " ";
 
-  trace_file << std::dec << std::right << std::setw(3) << std::setfill(' ') << nes_state.ppu_scanline << " ";
+  trace_file << "SL:";
 
-  trace_file << "CYC:" << std::dec << nes_state.cpu_cycle;
+  trace_file << std::dec << std::left << std::setw(3) << std::setfill(' ') << nes_state.ppu.scanline << " ";
+
+  trace_file << "FC:";
+
+  trace_file << std::dec << std::left << nes_state.ppu.frame << " ";
+
+  trace_file << "CPU Cycle:" << std::dec << nes_state.cpu.cycle;
 
   trace_file << std::endl;
 }
@@ -212,15 +277,15 @@ public:
     case event::ON_RESET:
     case event::ON_RUN_FINISHED:
     case event::ON_RUN_PAUSED:
-    case event::ON_UNINITIALIZED: {
+    case event::ON_POWER_OFF: {
       //
       // do nothing.
       //
       break;
     }
-    case event::ON_INITIALIZED: {
+    case event::ON_POWER_ON: {
       if (initial_pc_ >= 0) {
-        state.registers.PC = initial_pc_;
+        state.cpu.registers.PC = initial_pc_;
       }
       break;
     }
@@ -247,54 +312,60 @@ BOOST_AUTO_TEST_CASE(test_suite_traces) {
   }
   const auto argv = bt::framework::master_test_suite().argv;
   const auto root_trace_path = argv[1];
-
+  if (!fs::exists(root_trace_path)) {
+    BOOST_FAIL("root trace path is not valid");
+    return;
+  }
   const auto &root_trace_iterator = fs::directory_iterator(root_trace_path);
   for (auto &trace_directory_entry : boost::make_iterator_range(root_trace_iterator, {})) {
     const auto trace_directory_path = fs::path(trace_directory_entry);
-    if (is_directory(trace_directory_path)) {
+    if (!is_directory(trace_directory_path)) {
+      LOG_DEBUG << "skipping trace test [" << trace_directory_path.string() << "]";
+      continue;
+    }
+    const auto trace_file_path = trace_directory_path / fs::path("trace.json");
+    if (!fs::exists(trace_file_path)) {
+      LOG_DEBUG << "skipping trace test [" << trace_directory_path.string() << "]; test does not exist";
+      continue;
+    }
+    pt::ptree json;
+    pt::read_json(trace_file_path.string(), json);
 
-      const auto trace_file_path = trace_directory_path / fs::path("trace.json");
-      if (!fs::exists(trace_file_path)) {
-        LOG_DEBUG << "skipping trace test [" << trace_directory_path.string() << "]";
-        continue;
-      }
+    const auto is_trace_excluded = json.get<bool>("exclude");
+    if (is_trace_excluded) {
+      LOG_DEBUG << "skipping trace test [" << trace_directory_path.string() << "]; test is excluded";
+      continue;
+    }
+    const auto rom_path = trace_directory_path / json.get<std::string>("rom");
+    if (!fs::exists(rom_path)) {
+      LOG_DEBUG << "skipping trace test [" << trace_directory_path.string() << "]; rom does not exist";
+      continue;
+    }
+    jones::nes nes(rom_path.string().c_str());
+    jones::debugger debugger(nes);
 
-      pt::ptree json;
-      pt::read_json(trace_file_path.string(), json);
+    const auto trace_test_path = fs::temp_directory_path() / fs::unique_path();
+    const auto trace_result_path = fs::temp_directory_path() / fs::unique_path();
+    const auto trace_name = trace_directory_path.filename().string() + ".trace";
 
-      const auto is_trace_excluded = json.get<bool>("exclude");
-      if (is_trace_excluded) {
-        LOG_DEBUG << "skipping trace test [" << trace_directory_path.string() << "]";
-        continue;
-      }
-
+    const auto is_trace_file_built = build_trace_file(trace_result_path, trace_directory_path, trace_name);
+    if (is_trace_file_built) {
       const auto &json_initial_state_tree = json.get_child_optional("initial_state");
       const auto initial_pc = json_initial_state_tree ? json_initial_state_tree.value().get<int>("pc") : -1;
-
-      jones::nes nes;
-      jones::debugger debugger(nes);
-
-      const auto trace_test_path = fs::temp_directory_path() / fs::unique_path();
-      const auto trace_result_path = fs::temp_directory_path() / fs::unique_path();
-      const auto trace_name = trace_directory_path.filename().string() + ".trace";
 
       const auto nes_listener = std::make_unique<trace_listener>(trace_test_path.string(), initial_pc);
       debugger.set_listener(nes_listener.get());
 
-      const auto is_trace_file_built = build_trace_file(trace_result_path, trace_directory_path, trace_name);
-      if (is_trace_file_built) {
-        const auto rom_path = trace_directory_path / (trace_directory_path.filename().string() + ".nes");
-        const auto rom_loaded = nes.load(rom_path.c_str());
-        if (rom_loaded) {
-          const auto steps_count = json.get_optional<int>("steps");
-          const auto line_count = get_line_count(trace_result_path.string());
-          const auto run_count = steps_count ? steps_count.value() : line_count;
-          nes.run(run_count);
-          check_trace_files(trace_test_path.string(), trace_result_path.string());
-          continue;
-        }
+      const auto steps_count = json.get_optional<int>("steps");
+      const auto line_count = get_line_count(trace_result_path.string());
+      const auto run_count = steps_count ? steps_count.value() : line_count;
+
+      if (nes.power()) {
+        nes.run(run_count);
+        check_trace_files(trace_test_path.string(), trace_result_path.string());
+        continue;
       }
-      BOOST_FAIL("unable to complete test");
     }
+    BOOST_FAIL("unable to complete test");
   }
 }

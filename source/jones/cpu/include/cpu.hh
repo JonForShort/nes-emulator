@@ -28,14 +28,29 @@
 #include "memory.hh"
 
 #include <memory>
+#include <optional>
 
 namespace jones {
 
 struct cpu_state {
 
-  std::string instruction;
+  struct instruction {
 
-  std::vector<uint8_t> instruction_bytes;
+    std::string instruction;
+
+    std::vector<uint8_t> instruction_bytes;
+
+    struct memory {
+
+      std::optional<uint16_t> address;
+
+      std::optional<uint8_t> value;
+
+      std::optional<bool> is_indirect;
+
+    } memory;
+
+  } instruction;
 
   size_t cycles;
 
@@ -74,7 +89,7 @@ public:
 
   auto write(uint16_t address, uint8_t data) -> void;
 
-  auto get_state() -> cpu_state;
+  auto get_state() const -> cpu_state;
 
   auto set_state(const cpu_state &state) -> void;
 

@@ -33,35 +33,61 @@ class nes;
 
 struct nes_state {
 
-  std::string instruction;
+  struct cpu {
 
-  std::vector<uint8_t> instruction_bytes;
+    size_t cycle;
 
-  size_t cpu_cycle;
+    struct registers {
 
-  size_t ppu_cycle;
+      uint16_t PC;
 
-  size_t ppu_scanline;
+      uint8_t A;
 
-  size_t ppu_frame;
+      uint8_t X;
 
-  size_t apu_cycle;
+      uint8_t Y;
 
-  struct cpu_registers {
+      uint8_t SR;
 
-    uint16_t PC;
+      uint8_t SP;
 
-    uint8_t A;
+    } registers;
 
-    uint8_t X;
+  } cpu;
 
-    uint8_t Y;
+  struct ppu {
 
-    uint8_t SR;
+    size_t cycle;
 
-    uint8_t SP;
+    size_t scanline;
 
-  } registers;
+    size_t frame;
+
+  } ppu;
+
+  struct apu {
+
+    size_t cycle;
+
+  } apu;
+
+  struct instruction {
+
+    std::string instruction;
+
+    std::vector<uint8_t> instruction_bytes;
+
+    struct memory {
+
+      std::optional<uint16_t> address;
+
+      std::optional<uint16_t> value;
+
+      std::optional<bool> is_indirect;
+
+    } memory;
+
+  } instruction;
 };
 
 class nes_listener {
@@ -77,9 +103,9 @@ public:
 
     ON_RESET,
 
-    ON_INITIALIZED,
+    ON_POWER_ON,
 
-    ON_UNINITIALIZED,
+    ON_POWER_OFF,
   };
 
   virtual ~nes_listener() = default;

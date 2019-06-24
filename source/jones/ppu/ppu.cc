@@ -65,7 +65,7 @@ constexpr auto ppu_dma_cycles = 513;
 
 constexpr auto ppu_max_sprites = 64;
 
-constexpr auto ppu_num_scanlines = 262;
+constexpr auto ppu_max_scanlines = 262;
 
 constexpr auto ppu_num_cycles = 341;
 
@@ -761,30 +761,44 @@ private:
   }
 
   auto update_frame_counters() -> void {
+    update_cycle_counter();
+    update_frame_counter();
+    update_scanline_counter();
+  }
+
+  auto update_cycle_counter() -> void {
     frame_current_cycle_ += 1;
     if (frame_current_cycle_ <= ppu_max_cycles) {
       return;
     }
     frame_current_cycle_ = 0;
+  }
 
-    frame_current_scanline_ += 1;
-    if (frame_current_scanline_ < ppu_num_scanlines) {
-      return;
+  auto update_frame_counter() -> void {
+    if (frame_current_cycle_ == ppu_max_cycles &&
+        frame_current_scanline_ == ppu_scanline_visible_end) {
+      frame_current_frame_ += 1;
+      const auto is_odd_frame = frame_current_frame_ % 2 == 1;
+      const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+      if (is_odd_frame && is_background_visible) {
+        frame_current_cycle_ += 1;
+      }
     }
-    frame_current_scanline_ = 0;
+  }
 
-    frame_current_frame_ += 1;
-
-    const auto is_odd_frame = frame_current_frame_ % 2 == 1;
-    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
-    if (is_odd_frame && is_background_visible) {
-      frame_current_cycle_ += 1;
+  auto update_scanline_counter() -> void {
+    if (frame_current_cycle_ == 0) {
+      frame_current_scanline_ += 1;
+      if (frame_current_scanline_ < ppu_max_scanlines) {
+        return;
+      }
+      frame_current_scanline_ = 0;
     }
   }
 
   auto initialize_frame_scanlines() -> void {
     const auto scanline_cycles = std::vector<ppu_frame_state_mask>(ppu_num_cycles, 0);
-    frame_scanlines_ = std::vector<ppu_frame_cycles>(ppu_num_scanlines, scanline_cycles);
+    frame_scanlines_ = std::vector<ppu_frame_cycles>(ppu_max_scanlines, scanline_cycles);
   }
 
   auto initialize_prerender_scanline() -> void {
@@ -993,7 +1007,7 @@ private:
 
   uint16_t frame_current_scanline_{};
 
-  uint64_t frame_current_frame_{};
+  uint64_t frame_current_frame_{1};
 
   ppu_frame_scanlines frame_scanlines_{};
 

@@ -31,25 +31,25 @@
 
 namespace jones {
 
-class nes {
+class nes final {
 public:
-  nes() noexcept;
+  explicit nes(const char *rom_path) noexcept;
 
   ~nes();
 
-  bool load(const char *rom_path);
+  auto power() -> bool;
 
-  void run(size_t step_limit = 0);
+  auto reset() -> bool;
 
-  void stop();
+  auto run(size_t step_limit = 0) -> void;
 
-  void reset();
+  auto stop() -> void;
 
-  controller::controller_ptr controller_one();
+  auto controller_one() -> controller::controller_ptr;
 
-  controller::controller_ptr controller_two();
+  auto controller_two() -> controller::controller_ptr;
 
-  void attach_screen(std::unique_ptr<screen::screen> screen);
+  auto attach_screen(std::unique_ptr<screen::screen> screen = nullptr) -> void;
 
 private:
   friend class debugger;

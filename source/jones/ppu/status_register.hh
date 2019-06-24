@@ -56,9 +56,9 @@ public:
   uint8_t get() const;
 
 private:
-  std::bitset<8> status_flags_;
+  std::bitset<8> status_flags_{};
 
-  uint8_t register_ = 0xFF;
+  uint8_t register_{};
 };
 
 } // namespace jones::ppu

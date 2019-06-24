@@ -34,7 +34,8 @@ mapper_nrom::mapper_nrom(const mapper_view &mapper_view)
       mirroring_type_(resolve_mirroring_type(mapper_view.cartridge())),
       use_chrram(mapper_view.cartridge().header()->chrrom_size() <= 0),
       prgrom_(get_cartridge().address() + get_cartridge().header()->prgrom_offset()),
-      prgrom_size_(get_cartridge().header()->prgrom_size()) {
+      prgrom_size_(get_cartridge().header()->prgrom_size()),
+      sram_(0x2000, 0) {
   mapper_view.cpu_memory().map(std::make_unique<memory_mappable_component<mapper_nrom>>(this, 0x6000, 0xFFFF));
   mapper_view.ppu_memory().map(std::make_unique<memory_mappable_component<mapper_nrom>>(this, 0x0000, 0x1FFF));
   if (use_chrram) {

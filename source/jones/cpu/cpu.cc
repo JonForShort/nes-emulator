@@ -62,7 +62,6 @@ public:
 
   void reset() {
     status_register_.set(status_flag::I);
-    status_register_.set(status_flag::B2);
 
     registers_.set(register_type::AC, 0x00);
     registers_.set(register_type::X, 0x00);
@@ -81,8 +80,6 @@ public:
     const auto interrupt_vector = interrupts_.get_vector(interrupt_type::RESET);
     const auto interrupt_routine = memory_.read_word(interrupt_vector);
     registers_.set(register_type::PC, interrupt_routine);
-
-    cycles_ += 7;
   }
 
   uint8_t read(const uint16_t address) const {
@@ -108,6 +105,11 @@ public:
           instruction.decoded_operand.value = static_cast<uint16_t>(address_absolute);
           instruction.decoded_addressing_mode = addressing_mode_type::ABSOLUTE;
         }
+        if (instruction.decoded_addressing_mode == addressing_mode_type::ZERO_PAGE) {
+          const int8_t address = std::get<uint8_t>(instruction.decoded_operand.value);
+          instruction.decoded_operand.value = static_cast<uint16_t>(address);
+          instruction.decoded_addressing_mode = addressing_mode_type::ABSOLUTE;
+        }
       }
 
       void on_disassembled(disassemble::instruction &instruction) override {
@@ -122,8 +124,8 @@ public:
     auto disassembled = disassemble::disassemble(&fetched[0], fetched.size(), std::make_unique<listener>(registers_));
 
     cpu_state current_cpu_state;
-    current_cpu_state.instruction = disassembled.instructions[0].opcode + disassembled.instructions[0].operand;
-    current_cpu_state.instruction_bytes = fetched;
+    current_cpu_state.instruction.instruction = disassembled.instructions[0].opcode + disassembled.instructions[0].operand;
+    current_cpu_state.instruction.instruction_bytes = fetched;
     current_cpu_state.cycles = cycles_;
     current_cpu_state.registers.PC = registers_.get(register_type::PC);
     current_cpu_state.registers.SP = registers_.get(register_type::SP);
@@ -131,6 +133,84 @@ public:
     current_cpu_state.registers.X = registers_.get(register_type::X);
     current_cpu_state.registers.Y = registers_.get(register_type::Y);
     current_cpu_state.registers.SR = registers_.get(register_type::SR);
+
+    auto instruction_binary = disassembled.instructions[0].binary;
+    auto decoded = decode::decode(instruction_binary.data(), instruction_binary.size());
+
+    switch (decoded.decoded_addressing_mode) {
+    case addressing_mode_type::ZERO_PAGE: {
+      const auto address = get_zero_page_address(decoded);
+      current_cpu_state.instruction.memory.address = address;
+      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.is_indirect = false;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_X: {
+      const auto address = get_zero_page_x_address(decoded);
+      current_cpu_state.instruction.memory.address = address;
+      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.is_indirect = true;
+      break;
+    }
+    case addressing_mode_type::ZERO_PAGE_Y: {
+      const auto address = get_zero_page_y_address(decoded);
+      current_cpu_state.instruction.memory.address = address;
+      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.is_indirect = true;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE: {
+      const auto address = get_absolute_address(decoded);
+      current_cpu_state.instruction.memory.address = address;
+      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.is_indirect = false;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_X: {
+      const auto address = get_absolute_x_address(decoded);
+      current_cpu_state.instruction.memory.address = address;
+      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.is_indirect = true;
+      break;
+    }
+    case addressing_mode_type::ABSOLUTE_Y: {
+      const auto address = get_absolute_y_address(decoded);
+      current_cpu_state.instruction.memory.address = address;
+      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.is_indirect = true;
+      break;
+    }
+    case addressing_mode_type::INDEXED_INDIRECT: {
+      const auto address = get_indexed_indirect_address(decoded);
+      current_cpu_state.instruction.memory.address = address;
+      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.is_indirect = true;
+      break;
+    }
+    case addressing_mode_type::INDIRECT_INDEXED: {
+      const auto address = get_absolute_address(decoded);
+      current_cpu_state.instruction.memory.address = address;
+      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.is_indirect = true;
+      break;
+    }
+    case addressing_mode_type::RELATIVE: {
+      const auto address = get_relative_address(decoded) + decoded.encoded_length_in_bytes;
+      current_cpu_state.instruction.memory.address = address;
+      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.is_indirect = false;
+      break;
+    }
+    case addressing_mode_type::INDIRECT: {
+      const auto address = get_indirect_address(decoded);
+      current_cpu_state.instruction.memory.address = address;
+      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.is_indirect = true;
+      break;
+    }
+    default:
+      break;
+    }
 
     return current_cpu_state;
   }
@@ -2135,10 +2215,9 @@ private:
       cycles_ += 2;
       if (status_register_.is_set(flag) == is_flag_set) {
         cycles_ += 1;
-        const int8_t address_offset = std::get<uint8_t>(instruction.decoded_operand.value);
         const uint16_t previous_pc = registers_.get(register_type::PC);
         const uint16_t previous_page = previous_pc & 0xFF00U;
-        const uint16_t next_pc = registers_.get(register_type::PC) + address_offset;
+        const uint16_t next_pc = get_relative_address(instruction);
         const uint16_t next_page = next_pc & 0xFF00U;
         if (previous_page != next_page) {
           cycles_ += 1;
@@ -2678,6 +2757,11 @@ private:
     return std::get<uint8_t>(instruction.decoded_operand.value);
   }
 
+  uint16_t get_relative_address(const decode::instruction &instruction) const {
+    const int8_t address_offset = std::get<uint8_t>(instruction.decoded_operand.value);
+    return registers_.get(register_type::PC) + address_offset;
+  }
+
 private:
   static constexpr uint16_t stack_pointer_base = 0x100U;
 
@@ -2722,7 +2806,7 @@ auto cpu::write(const uint16_t address, const uint8_t data) -> void {
   impl_->write(address, data);
 }
 
-auto cpu::get_state() -> cpu_state {
+auto cpu::get_state() const -> cpu_state {
   return impl_->get_state();
 }
 

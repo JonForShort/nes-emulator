@@ -75,7 +75,11 @@ int main(int argc, char *argv[]) {
     return -3;
   }
 
-  jones::nes nes;
+  jones::nes nes(file_path.string().c_str());
+  if (nes.power()) {
+    std::cerr << "rom file is not valid; please check file" << std::endl;
+    return -4;
+  }
 
   auto listener = std::make_unique<screen_listener>(nes);
   auto screen = std::make_unique<js::sdl_screen>(std::move(listener));
@@ -87,7 +91,6 @@ int main(int argc, char *argv[]) {
   manager.initialize();
 
   nes.attach_screen(std::move(screen));
-  nes.load(file_path.string().c_str());
   nes.run();
 
   return 0;
