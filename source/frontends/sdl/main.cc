@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
   }
 
   jones::nes nes(file_path.string().c_str());
-  if (nes.power()) {
+  if (!nes.power()) {
     std::cerr << "rom file is not valid; please check file" << std::endl;
     return -4;
   }
