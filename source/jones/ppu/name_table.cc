@@ -27,14 +27,22 @@
 
 using namespace jones::ppu;
 
-auto name_table::peek(const uint16_t address) const -> uint8_t {
+namespace {
+
+constexpr inline auto get_address_offset(uint16_t const address) {
+  return address % name_table_size;
+}
+
+} // namespace
+
+auto name_table::peek(uint16_t const address) const -> uint8_t {
   return read(address);
 }
 
-auto name_table::read(const uint16_t address) const -> uint8_t {
-  return name_table_[address - name_table_memory_begin];
+auto name_table::read(uint16_t const address) const -> uint8_t {
+  return name_table_[get_address_offset(address)];
 }
 
-auto name_table::write(const uint16_t address, const uint8_t data) -> void {
-  name_table_[address - name_table_memory_begin] = data;
+auto name_table::write(uint16_t const address, uint8_t const data) -> void {
+  name_table_[get_address_offset(address)] = data;
 }
