@@ -27,11 +27,16 @@
 
 using namespace jones;
 
-auto mapper_unsupported::read(const uint16_t address) -> uint8_t {
+auto mapper_unsupported::peek(uint16_t const address) const -> uint8_t {
   boost::ignore_unused(address);
   return 0;
 }
 
-auto mapper_unsupported::write(const uint16_t address, const uint8_t data) -> void {
+auto mapper_unsupported::read(uint16_t const address) const -> uint8_t {
+  boost::ignore_unused(address);
+  return 0;
+}
+
+auto mapper_unsupported::write(uint16_t const address, const uint8_t data) -> void {
   boost::ignore_unused(address, data);
 }

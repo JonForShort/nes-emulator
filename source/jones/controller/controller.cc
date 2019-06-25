@@ -137,12 +137,20 @@ public:
     return controller_state_;
   }
 
-  auto read(const uint16_t address) -> uint8_t {
+  auto peek(uint16_t const address) const -> uint8_t {
     boost::ignore_unused(address);
     uint8_t data = 0;
-    if (index_ < 8 && button_states_[position_to_button(index_)] == button_state::BUTTON_STATE_DOWN) {
-      data = 1;
+    if (index_ < 8) {
+      const auto button_state = button_states_.find(position_to_button(index_));
+      if (button_state != button_states_.end() && button_state->second == button_state::BUTTON_STATE_DOWN) {
+        data = 1;
+      }
     }
+    return data;
+  }
+
+  auto read(const uint16_t address) -> uint8_t {
+    const auto data = peek(address);
     index_++;
     update_button_index();
     return data;
@@ -193,6 +201,10 @@ auto controller::controller::set_controller_state(const controller_state state) 
 
 auto controller::controller::get_controller_state() const -> controller_state {
   return impl_->get_controller_state();
+}
+
+auto controller::controller::peek(const uint16_t address) const -> uint8_t {
+  return impl_->peek(address);
 }
 
 auto controller::controller::read(const uint16_t address) -> uint8_t {

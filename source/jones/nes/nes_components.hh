@@ -34,12 +34,16 @@ public:
 
   ~memory_ram() = default;
 
-  uint8_t read(const uint16_t address) {
+  auto peek(uint16_t const address) const -> uint8_t {
+    return read(address);
+  }
+
+  auto read(uint16_t const address) const -> uint8_t {
     const auto read_address = address % 0x0800U;
     return ram_[read_address];
   }
 
-  void write(const uint16_t address, const uint8_t data) {
+  auto write(uint16_t const address, uint8_t const data) -> void {
     const auto write_address = address % 0x0800U;
     ram_[write_address] = data;
   }

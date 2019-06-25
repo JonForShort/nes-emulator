@@ -27,6 +27,10 @@
 
 using namespace jones::ppu;
 
+auto name_table::peek(const uint16_t address) const -> uint8_t {
+  return read(address);
+}
+
 auto name_table::read(const uint16_t address) const -> uint8_t {
   return name_table_[address - name_table_memory_begin];
 }

@@ -38,6 +38,8 @@ constexpr auto pattern_table_one_memory_begin = 0x1000;
 
 class pattern_table {
 public:
+  auto peek(uint16_t address) const -> uint8_t;
+
   auto read(uint16_t address) const -> uint8_t;
 
   auto write(uint16_t address, uint8_t data) -> void;

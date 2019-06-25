@@ -83,6 +83,8 @@ public:
 
   virtual auto end_address() -> uint16_t = 0;
 
+  virtual auto peek(uint16_t address) const -> uint8_t = 0;
+
   virtual auto read(uint16_t address) -> uint8_t = 0;
 
   virtual auto write(uint16_t address, uint8_t data) -> void = 0;
@@ -102,11 +104,15 @@ public:
     return end_address_;
   }
 
-  auto read(const uint16_t address) -> uint8_t override {
+  auto peek(uint16_t const address) const -> uint8_t override {
+    return component_->peek(address);
+  }
+
+  auto read(uint16_t const address) -> uint8_t override {
     return component_->read(address);
   }
 
-  auto write(const uint16_t address, const uint8_t data) -> void override {
+  auto write(uint16_t const address, uint8_t const data) -> void override {
     component_->write(address, data);
   }
 
@@ -126,13 +132,17 @@ public:
 
   ~memory() = default;
 
-  uint8_t read(uint16_t address) const;
+  auto peek(uint16_t address) const -> uint8_t;
 
-  uint16_t read_word(uint16_t address) const;
+  auto peek_word(uint16_t address) const -> uint16_t;
 
-  void write(uint16_t address, uint8_t data) const;
+  auto read(uint16_t address) const -> uint8_t;
 
-  void map(memory_mappable_ptr mappable);
+  auto read_word(uint16_t address) const -> uint16_t;
+
+  auto write(uint16_t address, uint8_t data) const -> void;
+
+  auto map(memory_mappable_ptr mappable) -> void;
 
 private:
   std::vector<memory_mappable_ptr> memory_mappings_;

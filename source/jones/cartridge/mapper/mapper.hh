@@ -39,7 +39,9 @@ public:
 
   virtual ~mapper() = default;
 
-  virtual auto read(uint16_t address) -> uint8_t = 0;
+  virtual auto peek(uint16_t address) const -> uint8_t = 0;
+
+  virtual auto read(uint16_t address) const -> uint8_t = 0;
 
   virtual auto write(uint16_t address, uint8_t data) -> void = 0;
 

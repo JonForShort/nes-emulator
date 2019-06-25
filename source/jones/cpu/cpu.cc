@@ -82,11 +82,15 @@ public:
     registers_.set(register_type::PC, interrupt_routine);
   }
 
-  uint8_t read(const uint16_t address) const {
+  auto peek(uint16_t const address) const -> uint8_t {
+    return memory_.peek(address);
+  }
+
+  auto read(uint16_t const address) const -> uint8_t {
     return memory_.read(address);
   }
 
-  void write(const uint16_t address, const uint8_t data) {
+  auto write(uint16_t const address, uint8_t const data) -> void {
     memory_.write(address, data);
   }
 
@@ -141,70 +145,70 @@ public:
     case addressing_mode_type::ZERO_PAGE: {
       const auto address = get_zero_page_address(decoded);
       current_cpu_state.instruction.memory.address = address;
-      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = false;
       break;
     }
     case addressing_mode_type::ZERO_PAGE_X: {
       const auto address = get_zero_page_x_address(decoded);
       current_cpu_state.instruction.memory.address = address;
-      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
       break;
     }
     case addressing_mode_type::ZERO_PAGE_Y: {
       const auto address = get_zero_page_y_address(decoded);
       current_cpu_state.instruction.memory.address = address;
-      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
       break;
     }
     case addressing_mode_type::ABSOLUTE: {
       const auto address = get_absolute_address(decoded);
       current_cpu_state.instruction.memory.address = address;
-      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = false;
       break;
     }
     case addressing_mode_type::ABSOLUTE_X: {
       const auto address = get_absolute_x_address(decoded);
       current_cpu_state.instruction.memory.address = address;
-      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
       break;
     }
     case addressing_mode_type::ABSOLUTE_Y: {
       const auto address = get_absolute_y_address(decoded);
       current_cpu_state.instruction.memory.address = address;
-      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
       break;
     }
     case addressing_mode_type::INDEXED_INDIRECT: {
       const auto address = get_indexed_indirect_address(decoded);
       current_cpu_state.instruction.memory.address = address;
-      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
       break;
     }
     case addressing_mode_type::INDIRECT_INDEXED: {
       const auto address = get_absolute_address(decoded);
       current_cpu_state.instruction.memory.address = address;
-      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
       break;
     }
     case addressing_mode_type::RELATIVE: {
       const auto address = get_relative_address(decoded) + decoded.encoded_length_in_bytes;
       current_cpu_state.instruction.memory.address = address;
-      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = false;
       break;
     }
     case addressing_mode_type::INDIRECT: {
       const auto address = get_indirect_address(decoded);
       current_cpu_state.instruction.memory.address = address;
-      current_cpu_state.instruction.memory.value = memory_.read(address);
+      current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
       break;
     }
@@ -2796,6 +2800,10 @@ auto cpu::step() -> uint8_t {
 
 auto cpu::reset() -> void {
   impl_->reset();
+}
+
+auto cpu::peek(const uint16_t address) const -> uint8_t {
+  return impl_->peek(address);
 }
 
 auto cpu::read(const uint16_t address) -> uint8_t {

@@ -68,8 +68,7 @@ void status_register::set(const uint8_t flags) {
 }
 
 uint8_t status_register::get() const {
-  return (register_ & 0x1FU) |
-         (is_set(status_flag::SPRITE_OVER_FLOW) ? 0x20U : 0x00U) |
-         (is_set(status_flag::SPRITE_ZERO_HIT) ? 0x04U : 0x00U) |
-         (is_set(status_flag::VERTICAL_BLANK_STARTED) ? 0x08U : 0x00U);
+  return (is_set(status_flag::SPRITE_OVER_FLOW) ? 0x20U : 0x00U) |
+         (is_set(status_flag::SPRITE_ZERO_HIT) ? 0x40U : 0x00U) |
+         (is_set(status_flag::VERTICAL_BLANK_STARTED) ? 0x80U : 0x00U);
 }

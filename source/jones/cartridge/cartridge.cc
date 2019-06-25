@@ -123,6 +123,13 @@ public:
     }
   }
 
+  uint8_t peek(uint16_t const address) const {
+    if (cartridge_mapper_ != nullptr) {
+      return cartridge_mapper_->peek(address);
+    }
+    return 0;
+  }
+
   uint8_t read(uint16_t const address) const {
     if (cartridge_mapper_ != nullptr) {
       return cartridge_mapper_->read(address);
@@ -168,10 +175,14 @@ auto cartridge::dump_chr(std::ostream &out) const -> void {
   return impl_->dump_chr(out);
 }
 
+auto cartridge::peek(uint16_t const address) const -> uint8_t {
+  return impl_->peek(address);
+}
+
 auto cartridge::read(uint16_t const address) const -> uint8_t {
   return impl_->read(address);
 }
 
-auto cartridge::write(uint16_t const address, const uint8_t data) const -> void {
+auto cartridge::write(uint16_t const address, uint8_t const data) const -> void {
   return impl_->write(address, data);
 }

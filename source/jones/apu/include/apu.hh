@@ -36,15 +36,17 @@ public:
 
   ~apu();
 
-  uint8_t step();
+  auto step() -> uint8_t;
 
-  void initialize();
+  auto initialize() -> void;
 
-  void uninitialize();
+  auto uninitialize() -> void;
 
-  uint8_t read(uint16_t address);
+  auto peek(uint16_t address) const -> uint8_t;
 
-  void write(uint16_t address, uint8_t data);
+  auto read(uint16_t address) -> uint8_t;
+
+  auto write(uint16_t address, uint8_t data) -> void;
 
 private:
   class impl;

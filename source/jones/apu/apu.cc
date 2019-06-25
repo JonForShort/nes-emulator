@@ -38,12 +38,16 @@ public:
     return 0;
   }
 
-  uint8_t read(const uint16_t address) {
+  uint8_t peek(uint16_t const address) const {
+    return read(address);
+  }
+
+  uint8_t read(uint16_t const address) const {
     boost::ignore_unused(address);
     return 0;
   }
 
-  void write(const uint16_t address, const uint8_t data) {
+  auto write(uint16_t const address, uint8_t const data) -> void {
     boost::ignore_unused(address, data);
   }
 
@@ -65,6 +69,10 @@ apu::~apu() = default;
 
 uint8_t apu::step() {
   return impl_->step();
+}
+
+uint8_t apu::peek(const uint16_t address) const {
+  return impl_->peek(address);
 }
 
 uint8_t apu::read(const uint16_t address) {

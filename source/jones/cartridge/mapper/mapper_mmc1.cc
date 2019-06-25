@@ -113,7 +113,11 @@ auto mapper_mmc1::update_offsets() -> void {
   }
 }
 
-auto mapper_mmc1::read(const uint16_t address) -> uint8_t {
+auto mapper_mmc1::peek(uint16_t const address) const -> uint8_t {
+  return read(address);
+}
+
+auto mapper_mmc1::read(const uint16_t address) const -> uint8_t {
   if (address < 0x2000) {
     const auto bank = address / 0x1000;
     const auto offset = address % 0x1000;

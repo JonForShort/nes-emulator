@@ -33,11 +33,13 @@ namespace jones {
 
 class mapper_mmc1 : public mapper {
 public:
-  mapper_mmc1(const mapper_view &mapper_view);
+  explicit mapper_mmc1(const mapper_view &mapper_view);
 
   ~mapper_mmc1() override = default;
 
-  auto read(uint16_t address) -> uint8_t override;
+  auto peek(uint16_t address) const -> uint8_t override;
+
+  auto read(uint16_t address) const -> uint8_t override;
 
   auto write(uint16_t address, uint8_t data) -> void override;
 

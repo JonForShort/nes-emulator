@@ -85,6 +85,8 @@ public:
 
   auto reset() -> void;
 
+  auto peek(uint16_t address) const -> uint8_t;
+
   auto read(uint16_t address) -> uint8_t;
 
   auto write(uint16_t address, uint8_t data) -> void;

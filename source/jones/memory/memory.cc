@@ -27,7 +27,22 @@
 
 using namespace jones;
 
-uint8_t memory::read(const uint16_t address) const {
+auto memory::peek(uint16_t const address) const -> uint8_t {
+  for (const auto &i : memory_mappings_) {
+    if (address >= i->start_address() && address <= i->end_address()) {
+      return i->peek(address);
+    }
+  }
+  BOOST_STATIC_ASSERT("unexpected peek address");
+  return 0;
+}
+
+auto memory::peek_word(uint16_t const address) const -> uint16_t {
+  return static_cast<uint16_t>(peek(address)) |
+         static_cast<uint16_t>(peek(address + 1) << 8U);
+}
+
+auto memory::read(const uint16_t address) const -> uint8_t {
   for (const auto &i : memory_mappings_) {
     if (address >= i->start_address() && address <= i->end_address()) {
       return i->read(address);
@@ -37,12 +52,12 @@ uint8_t memory::read(const uint16_t address) const {
   return 0;
 }
 
-uint16_t memory::read_word(const uint16_t address) const {
+auto memory::read_word(uint16_t const address) const -> uint16_t {
   return static_cast<uint16_t>(read(address)) |
          static_cast<uint16_t>(read(address + 1) << 8U);
 }
 
-void memory::write(const uint16_t address, uint8_t data) const {
+auto memory::write(uint16_t const address, uint8_t const data) const -> void {
   for (const auto &i : memory_mappings_) {
     if (address >= i->start_address() && address <= i->end_address()) {
       i->write(address, data);
@@ -52,6 +67,6 @@ void memory::write(const uint16_t address, uint8_t data) const {
   BOOST_STATIC_ASSERT("unexpected write address");
 }
 
-void memory::map(memory_mappable_ptr mappable) {
+auto memory::map(memory_mappable_ptr mappable) -> void {
   memory_mappings_.emplace_back(std::move(mappable));
 }

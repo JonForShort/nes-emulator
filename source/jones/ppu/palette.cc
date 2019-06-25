@@ -102,11 +102,15 @@ constexpr std::uint32_t ppu_palette[] = {
 
 } // namespace
 
-auto palette::read(const uint16_t address) const -> uint8_t {
+auto palette::peek(uint16_t const address) const -> uint8_t {
+  return read(address);
+}
+
+auto palette::read(uint16_t const address) const -> uint8_t {
   return ppu_palette[address - palette_memory_begin];
 }
 
-auto palette::write(const uint16_t address, const uint8_t data) -> void {
+auto palette::write(uint16_t const address, uint8_t const data) -> void {
   boost::ignore_unused(address, data);
   BOOST_STATIC_ASSERT("unexpected write on palette");
 }

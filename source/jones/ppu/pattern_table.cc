@@ -27,6 +27,10 @@
 
 using namespace jones::ppu;
 
+auto pattern_table::peek(const uint16_t address) const -> uint8_t {
+  return read(address);
+}
+
 auto pattern_table::read(const uint16_t address) const -> uint8_t {
   boost::ignore_unused(address);
   return 0;

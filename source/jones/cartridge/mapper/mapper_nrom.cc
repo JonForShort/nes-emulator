@@ -44,7 +44,11 @@ mapper_nrom::mapper_nrom(const mapper_view &mapper_view)
   }
 }
 
-auto mapper_nrom::read(const uint16_t address) -> uint8_t {
+auto mapper_nrom::peek(uint16_t const address) const -> uint8_t {
+  return read(address);
+}
+
+auto mapper_nrom::read(uint16_t const address) const -> uint8_t {
   if (address < 0x2000) {
     return read_chr(address);
   } else if (address >= 0x8000) {

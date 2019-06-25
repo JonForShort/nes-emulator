@@ -147,6 +147,17 @@ public:
     //
   }
 
+  auto peek(const uint16_t address) const -> uint8_t {
+    if (address >= 0x2000 && address <= 0x3FFF) {
+      return peek_registers(address);
+    } else if (address == 0x4014) {
+      return peek_object_attribute_memory_dma();
+    } else {
+      BOOST_STATIC_ASSERT("peek unexpected for ppu");
+    }
+    return -1;
+  }
+
   auto read(const uint16_t address) -> uint8_t {
     if (address >= 0x2000 && address <= 0x3FFF) {
       return read_registers(address);
@@ -358,6 +369,46 @@ private:
 
   auto read_object_attribute_memory_dma() const -> uint8_t {
     return 0;
+  }
+
+  auto peek_registers(const uint16_t address) const -> uint8_t {
+    BOOST_ASSERT_MSG(address >= 0x2000 && address <= 0x3FFF, "peek unexpected address for ppu");
+    const auto address_offset = (address - 0x2000);
+    switch (address_offset % 8) {
+    case 0:
+      return read_control();
+    case 1:
+      return read_mask();
+    case 2:
+      return peek_status();
+    case 3:
+      return read_object_attribute_memory_address();
+    case 4:
+      return read_object_attribute_memory_data();
+    case 5:
+      return read_scroll();
+    case 6:
+      return read_address();
+    case 7:
+      return peek_data();
+    }
+    return -1;
+  }
+
+  auto peek_status() const -> uint8_t {
+    return status_register_.get();
+  }
+
+  auto peek_data() const -> uint8_t {
+    auto data = io_context_.vram_buffer;
+    if (io_context_.vram_address.value >= palette_background_begin) {
+      data = io_context_.vram_buffer;
+    }
+    return data;
+  }
+
+  auto peek_object_attribute_memory_dma() const -> uint8_t {
+    return read_object_attribute_memory_address();
   }
 
   auto process_frame_state() -> void {
@@ -762,8 +813,8 @@ private:
 
   auto update_frame_counters() -> void {
     update_cycle_counter();
-    update_frame_counter();
     update_scanline_counter();
+    update_frame_counter();
   }
 
   auto update_cycle_counter() -> void {
@@ -1031,6 +1082,10 @@ auto ppu::initialize() -> void {
 
 auto ppu::uninitialize() -> void {
   impl_->uninitialize();
+}
+
+auto ppu::peek(const uint16_t address) const -> uint8_t {
+  return impl_->peek(address);
 }
 
 auto ppu::read(const uint16_t address) const -> uint8_t {
