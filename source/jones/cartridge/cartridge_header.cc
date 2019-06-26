@@ -130,6 +130,10 @@ uint8_t cartridge_header::mapper_number() const {
   return (header.upper_mapper_nibble << 4U) | (header.lower_mapper_nibble);
 }
 
-bool cartridge_header::mirroring() const {
+bool cartridge_header::has_mirroring() const {
   return header.has_mirroring;
+}
+
+auto cartridge_header::mirror_type() const -> uint8_t {
+  return header.has_mirroring | (header.ignore_mirroring_control << 1);
 }

@@ -33,7 +33,9 @@ constexpr uint16_t name_table_memory_begin = 0x2000;
 
 constexpr uint16_t name_table_memory_end = 0x3EFF;
 
-constexpr uint16_t name_table_size = 0x800;
+constexpr uint16_t name_table_size = 0x400;
+
+constexpr uint16_t name_table_max_size = 0x1000;
 
 constexpr uint16_t attribute_table_memory_begin = 0x23C0;
 
@@ -46,7 +48,7 @@ public:
   auto write(uint16_t address, uint8_t data) -> void;
 
 private:
-  std::array<uint8_t, name_table_size> name_table_{};
+  std::array<uint8_t, name_table_size * 2> name_table_{};
 };
 
 } // namespace jones::ppu

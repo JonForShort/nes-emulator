@@ -29,8 +29,20 @@ using namespace jones::ppu;
 
 namespace {
 
+constexpr uint16_t mirror_table_mapping[][4]{
+    {0, 0, 1, 1},
+    {0, 1, 0, 1},
+    {0, 0, 0, 0},
+    {1, 1, 1, 1},
+    {0, 1, 2, 3},
+};
+
 constexpr inline auto get_address_offset(uint16_t const address) {
-  return address % name_table_size;
+  const auto relative = (address - name_table_memory_begin) % name_table_max_size;
+  const auto table = (relative / name_table_size);
+  const auto offset = (relative % name_table_size);
+  const auto absolute = name_table_memory_begin + mirror_table_mapping[2][table] * name_table_size + offset;
+  return absolute % (name_table_size * 2);
 }
 
 } // namespace

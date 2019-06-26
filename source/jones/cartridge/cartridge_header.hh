@@ -37,27 +37,29 @@ public:
 
   ~cartridge_header() override = default;
 
-  void print(std::ostream &out) const override;
+  auto print(std::ostream &out) const -> void override;
 
-  bool valid() const override;
+  auto valid() const -> bool override;
 
-  size_t version() const override;
+  auto version() const -> size_t override;
 
-  uint16_t prgrom_offset() const override;
+  auto prgrom_offset() const -> uint16_t override;
 
-  uint16_t prgrom_size() const override;
+  auto prgrom_size() const -> uint16_t override;
 
-  uint8_t prgrom_count() const override;
+  auto prgrom_count() const -> uint8_t override;
 
-  uint16_t chrrom_offset() const override;
+  auto chrrom_offset() const -> uint16_t override;
 
-  uint16_t chrrom_size() const override;
+  auto chrrom_size() const -> uint16_t override;
 
-  uint8_t chrrom_count() const override;
+  auto chrrom_count() const -> uint8_t override;
 
-  uint8_t mapper_number() const override;
+  auto mapper_number() const -> uint8_t override;
 
-  bool mirroring() const override;
+  auto has_mirroring() const -> bool override;
+
+  auto mirror_type() const -> uint8_t override;
 };
 
 } // namespace jones

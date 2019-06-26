@@ -72,7 +72,7 @@ private:
   }
 
   static nrom_mirroring_type resolve_mirroring_type(const mapped_cartridge &cartridge) {
-    const auto mirroring = cartridge.header()->mirroring();
+    const auto mirroring = cartridge.header()->has_mirroring();
     return mirroring ? nrom_mirroring_type::NROM_VERTICAL : nrom_mirroring_type::NROM_HORIZONAL;
   }
 

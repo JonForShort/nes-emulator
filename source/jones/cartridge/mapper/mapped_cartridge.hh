@@ -32,40 +32,42 @@ public:
 
   virtual ~mapped_cartridge_header() = default;
 
-  virtual void print(std::ostream &ostream) const = 0;
+  virtual auto print(std::ostream &out) const -> void = 0;
 
-  virtual bool valid() const = 0;
+  virtual auto valid() const -> bool = 0;
 
-  virtual size_t version() const = 0;
+  virtual auto version() const -> size_t = 0;
 
-  virtual uint16_t prgrom_offset() const = 0;
+  virtual auto prgrom_offset() const -> uint16_t = 0;
 
-  virtual uint16_t prgrom_size() const = 0;
+  virtual auto prgrom_size() const -> uint16_t = 0;
 
-  virtual uint8_t prgrom_count() const = 0;
+  virtual auto prgrom_count() const -> uint8_t = 0;
 
-  virtual uint16_t chrrom_offset() const = 0;
+  virtual auto chrrom_offset() const -> uint16_t = 0;
 
-  virtual uint16_t chrrom_size() const = 0;
+  virtual auto chrrom_size() const -> uint16_t = 0;
 
-  virtual uint8_t chrrom_count() const = 0;
+  virtual auto chrrom_count() const -> uint8_t = 0;
 
-  virtual uint8_t mapper_number() const = 0;
+  virtual auto mapper_number() const -> uint8_t = 0;
 
-  virtual bool mirroring() const = 0;
+  virtual auto has_mirroring() const -> bool = 0;
+
+  virtual auto mirror_type() const -> uint8_t = 0;
 };
 
 class mapped_cartridge {
 public:
   virtual ~mapped_cartridge() = default;
 
-  virtual bool valid() const = 0;
+  virtual auto valid() const -> bool = 0;
 
-  virtual size_t size() const = 0;
+  virtual auto size() const -> size_t = 0;
 
-  virtual uint8_t *address() const = 0;
+  virtual auto address() const -> uint8_t * = 0;
 
-  virtual mapped_cartridge_header *header() const = 0;
+  virtual auto header() const -> mapped_cartridge_header * = 0;
 };
 
 } // namespace jones
