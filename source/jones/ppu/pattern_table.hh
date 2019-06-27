@@ -24,6 +24,8 @@
 #ifndef JONES_PPU_PATTERN_TABLE_HH
 #define JONES_PPU_PATTERN_TABLE_HH
 
+#include "memory.hh"
+
 #include <cstdint>
 
 namespace jones::ppu {
@@ -36,13 +38,13 @@ constexpr auto pattern_table_zero_memory_begin = 0x0000;
 
 constexpr auto pattern_table_one_memory_begin = 0x1000;
 
-class pattern_table {
+class pattern_table : public memory_component {
 public:
-  auto peek(uint16_t address) const -> uint8_t;
+  auto peek(uint16_t address) const -> uint8_t override;
 
-  auto read(uint16_t address) const -> uint8_t;
+  auto read(uint16_t address) const -> uint8_t override;
 
-  auto write(uint16_t address, uint8_t data) -> void;
+  auto write(uint16_t address, uint8_t data) -> void override;
 };
 
 } // namespace jones::ppu

@@ -127,8 +127,8 @@ void dump_header(const fs::path &root_path, const jo::cartridge &rom) {
 namespace jones::tool {
 
 int dump(const char *file_path, const char *output_path) {
-  memory cpu_memory;
-  memory ppu_memory;
+  memory cpu_memory{"cpu"};
+  memory ppu_memory{"ppu"};
   cartridge rom = cartridge(cpu_memory, ppu_memory);
   if (!rom.attach(file_path)) {
     std::cerr << "error: must specify valid rom file" << std::endl;

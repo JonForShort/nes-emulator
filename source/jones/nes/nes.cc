@@ -31,6 +31,7 @@
 #include "cartridge.hh"
 #include "cpu.hh"
 #include "debugger.hh"
+#include "log.hh"
 #include "memory.hh"
 #include "nes.hh"
 #include "nes_components.hh"
@@ -52,14 +53,14 @@ public:
         cartridge_(cpu_memory_, ppu_memory_),
         controller_one_(std::make_unique<controller::controller>(cpu_memory_)),
         controller_two_(std::make_unique<controller::controller>(cpu_memory_)) {
-    cpu_memory_.map(std::make_unique<memory_mappable_component<memory_ram>>(&ram_, 0x0000, 0x1FFF));
-    cpu_memory_.map(std::make_unique<memory_mappable_component<ppu::ppu>>(&ppu_, 0x2000, 0x3FFF));
-    cpu_memory_.map(std::make_unique<memory_mappable_component<apu>>(&apu_, 0x4000, 0x4015));
-    cpu_memory_.map(std::make_unique<memory_mappable_component<cpu>>(&cpu_, 0x4000, 0x4015));
-    cpu_memory_.map(std::make_unique<memory_mappable_component<controller::controller>>(controller_one_.get(), 0x4016, 0x4016));
-    cpu_memory_.map(std::make_unique<memory_mappable_component<controller::controller>>(controller_two_.get(), 0x4017, 0x4017));
-    cpu_memory_.map(std::make_unique<memory_mappable_component<apu>>(&apu_, 0x4018, 0x401F));
-    cpu_memory_.map(std::make_unique<memory_mappable_component<cpu>>(&cpu_, 0x4018, 0x401F));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<memory_ram>>(&ram_, "memory_ram", 0x0000, 0x1FFF));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<ppu::ppu>>(&ppu_, "ppu", 0x2000, 0x3FFF));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<apu>>(&apu_, "apu", 0x4000, 0x4015));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<cpu>>(&cpu_, "cpu", 0x4000, 0x4015));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<controller::controller>>(controller_one_.get(), "controller_one", 0x4016, 0x4016));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<controller::controller>>(controller_two_.get(), "controller_two", 0x4017, 0x4017));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<apu>>(&apu_, "apu", 0x4018, 0x401F));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<cpu>>(&cpu_, "cpu", 0x4018, 0x401F));
   }
 
   auto power() -> bool {
@@ -133,6 +134,7 @@ private:
     const auto is_components_initialized = initialize_components();
     is_power_on_ = is_components_initialized && is_rom_loaded;
     if (is_power_on_) {
+      log_memory_mappings();
       notify_listener(nes_listener::event::ON_POWER_ON);
       step_power_on();
     }
@@ -171,6 +173,16 @@ private:
       listener_->on_event(event, state);
       set_state(state);
     }
+  }
+
+  auto log_memory_mappings() const -> void {
+    std::ostringstream cpu_memory_mappings;
+    cpu_memory_.print(cpu_memory_mappings);
+    LOG_DEBUG << cpu_memory_mappings.str();
+
+    std::ostringstream ppu_memory_mappings;
+    ppu_memory_.print(ppu_memory_mappings);
+    LOG_DEBUG << cpu_memory_mappings.str();
   }
 
   auto get_state() -> nes_state {
@@ -239,9 +251,9 @@ private:
 
   std::unique_ptr<screen_proxy> screen_{};
 
-  memory cpu_memory_{};
+  memory cpu_memory_{"cpu"};
 
-  memory ppu_memory_{};
+  memory ppu_memory_{"ppu"};
 
   apu apu_;
 

@@ -33,17 +33,17 @@
 
 namespace jones {
 
-class mapper {
+class mapper : public memory_component {
 public:
   explicit mapper(const mapper_view &mapper_view) : mapper_view_(mapper_view) {}
 
-  virtual ~mapper() = default;
+  ~mapper() override = default;
 
-  virtual auto peek(uint16_t address) const -> uint8_t = 0;
+  auto peek(uint16_t address) const -> uint8_t override = 0;
 
-  virtual auto read(uint16_t address) const -> uint8_t = 0;
+  auto read(uint16_t address) const -> uint8_t override = 0;
 
-  virtual auto write(uint16_t address, uint8_t data) -> void = 0;
+  auto write(uint16_t address, uint8_t data) -> void override = 0;
 
 protected:
   const mapped_cartridge &get_cartridge() const {

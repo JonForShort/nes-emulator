@@ -49,6 +49,8 @@
 // ----------------------------------------------------------------------------
 //
 
+#include "memory.hh"
+
 namespace jones::ppu {
 
 constexpr auto palette_size_bytes = 0x20;
@@ -67,13 +69,13 @@ constexpr auto palette_memory_begin = 0x3F00;
 
 constexpr auto palette_memory_end = 0x3FFF;
 
-class palette {
+class palette : public memory_component {
 public:
-  auto peek(uint16_t address) const -> uint8_t;
+  auto peek(uint16_t address) const -> uint8_t override;
 
-  auto read(uint16_t address) const -> uint8_t;
+  auto read(uint16_t address) const -> uint8_t override;
 
-  auto write(uint16_t address, uint8_t data) -> void;
+  auto write(uint16_t address, uint8_t data) -> void override;
 };
 
 } // namespace jones::ppu

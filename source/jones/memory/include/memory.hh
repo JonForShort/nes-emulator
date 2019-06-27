@@ -92,26 +92,28 @@ public:
 
   ~memory_mappable() override = default;
 
-  virtual auto start_address() -> uint16_t = 0;
+  virtual auto start_address() const -> uint16_t = 0;
 
-  virtual auto end_address() -> uint16_t = 0;
+  virtual auto end_address() const -> uint16_t = 0;
+
+  virtual auto tag() const -> const char * = 0;
 };
 
 template <typename C>
 class memory_mappable_component : public memory_mappable {
 public:
-  memory_mappable_component(C *const component, uint16_t const start_address, uint16_t const end_address)
-      : component_(component), start_address_(start_address), end_address_(end_address) {
+  memory_mappable_component(C *const component, const char *tag, uint16_t const start_address, uint16_t const end_address)
+      : component_(component), tag_(tag), start_address_(start_address), end_address_(end_address) {
     //
     // nothing to do.
     //
   }
 
-  auto start_address() -> uint16_t override {
+  auto start_address() const -> uint16_t override {
     return start_address_;
   }
 
-  auto end_address() -> uint16_t override {
+  auto end_address() const -> uint16_t override {
     return end_address_;
   }
 
@@ -127,8 +129,14 @@ public:
     component_->write(address, data);
   }
 
+  auto tag() const -> const char * override {
+    return tag_;
+  }
+
 private:
   C *const component_;
+
+  const char *const tag_;
 
   const uint16_t start_address_;
 
@@ -139,7 +147,11 @@ using memory_mappable_ptr = std::unique_ptr<memory_mappable>;
 
 class memory {
 public:
-  memory() = default;
+  explicit memory(const char *const tag) : tag_(tag) {
+    //
+    // nothing to do.
+    //
+  }
 
   ~memory() = default;
 
@@ -155,7 +167,11 @@ public:
 
   auto map(memory_mappable_ptr mappable) -> void;
 
+  auto print(std::ostream &out) const -> void;
+
 private:
+  char const *const tag_;
+
   std::vector<memory_mappable_ptr> memory_mappings_;
 };
 

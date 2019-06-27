@@ -36,8 +36,8 @@ mapper_nrom::mapper_nrom(const mapper_view &mapper_view)
       prgrom_(get_cartridge().address() + get_cartridge().header()->prgrom_offset()),
       prgrom_size_(get_cartridge().header()->prgrom_size()),
       sram_(0x2000, 0) {
-  mapper_view.cpu_memory().map(std::make_unique<memory_mappable_component<mapper_nrom>>(this, 0x6000, 0xFFFF));
-  mapper_view.ppu_memory().map(std::make_unique<memory_mappable_component<mapper_nrom>>(this, 0x0000, 0x1FFF));
+  mapper_view.cpu_memory().map(std::make_unique<memory_mappable_component<mapper_nrom>>(this, "mapper_nrom", 0x6000, 0xFFFF));
+  mapper_view.ppu_memory().map(std::make_unique<memory_mappable_component<mapper_nrom>>(this, "mapper_nrom", 0x0000, 0x1FFF));
   if (use_chrram) {
     chrram_.resize(0x2000);
     std::fill(chrram_.begin(), chrram_.end(), 0);
