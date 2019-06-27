@@ -183,6 +183,6 @@ auto cartridge::read(uint16_t const address) const -> uint8_t {
   return impl_->read(address);
 }
 
-auto cartridge::write(uint16_t const address, uint8_t const data) const -> void {
+auto cartridge::write(uint16_t const address, uint8_t const data) -> void {
   return impl_->write(address, data);
 }

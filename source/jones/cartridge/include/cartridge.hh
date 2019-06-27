@@ -32,7 +32,7 @@
 
 namespace jones {
 
-class cartridge final {
+class cartridge : public memory_component {
 public:
   cartridge(memory &cpu_memory, memory &ppu_memory);
 
@@ -46,11 +46,11 @@ public:
 
   auto dump_chr(std::ostream &out) const -> void;
 
-  auto peek(uint16_t address) const -> uint8_t;
+  auto peek(uint16_t address) const -> uint8_t override;
 
-  auto read(uint16_t address) const -> uint8_t;
+  auto read(uint16_t address) const -> uint8_t override;
 
-  auto write(uint16_t address, uint8_t data) const -> void;
+  auto write(uint16_t address, uint8_t data) -> void override;
 
 private:
   class impl;

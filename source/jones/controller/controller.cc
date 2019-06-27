@@ -207,7 +207,7 @@ auto controller::controller::peek(const uint16_t address) const -> uint8_t {
   return impl_->peek(address);
 }
 
-auto controller::controller::read(const uint16_t address) -> uint8_t {
+auto controller::controller::read(const uint16_t address) const -> uint8_t {
   return impl_->read(address);
 }
 

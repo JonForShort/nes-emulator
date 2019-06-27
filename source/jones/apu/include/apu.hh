@@ -30,11 +30,11 @@
 
 namespace jones {
 
-class apu final {
+class apu : public memory_component {
 public:
   explicit apu(const memory &memory);
 
-  ~apu();
+  ~apu() override;
 
   auto step() -> uint8_t;
 
@@ -42,11 +42,11 @@ public:
 
   auto uninitialize() -> void;
 
-  auto peek(uint16_t address) const -> uint8_t;
+  auto peek(uint16_t address) const -> uint8_t override;
 
-  auto read(uint16_t address) -> uint8_t;
+  auto read(uint16_t address) const -> uint8_t override;
 
-  auto write(uint16_t address, uint8_t data) -> void;
+  auto write(uint16_t address, uint8_t data) -> void override;
 
 private:
   class impl;

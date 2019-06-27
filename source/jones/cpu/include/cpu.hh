@@ -52,7 +52,7 @@ struct cpu_state {
 
   } instruction;
 
-  size_t cycles;
+  size_t cycles{};
 
   struct registers {
 
@@ -68,14 +68,14 @@ struct cpu_state {
 
     uint8_t SP;
 
-  } registers;
+  } registers{};
 };
 
-class cpu final {
+class cpu : public memory_component {
 public:
   explicit cpu(const memory &memory);
 
-  ~cpu();
+  ~cpu() override;
 
   auto initialize() -> void;
 
@@ -85,11 +85,11 @@ public:
 
   auto reset() -> void;
 
-  auto peek(uint16_t address) const -> uint8_t;
+  auto peek(uint16_t address) const -> uint8_t override;
 
-  auto read(uint16_t address) -> uint8_t;
+  auto read(uint16_t address) const -> uint8_t override;
 
-  auto write(uint16_t address, uint8_t data) -> void;
+  auto write(uint16_t address, uint8_t data) -> void override;
 
   auto get_state() const -> cpu_state;
 

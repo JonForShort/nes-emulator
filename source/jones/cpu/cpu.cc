@@ -2806,7 +2806,7 @@ auto cpu::peek(const uint16_t address) const -> uint8_t {
   return impl_->peek(address);
 }
 
-auto cpu::read(const uint16_t address) -> uint8_t {
+auto cpu::read(const uint16_t address) const -> uint8_t {
   return impl_->read(address);
 }
 

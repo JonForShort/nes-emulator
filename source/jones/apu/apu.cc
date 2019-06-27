@@ -34,15 +34,15 @@ public:
     boost::ignore_unused(memory_);
   }
 
-  uint8_t step() {
+  auto step() -> uint8_t {
     return 0;
   }
 
-  uint8_t peek(uint16_t const address) const {
+  auto peek(uint16_t const address) const -> uint8_t {
     return read(address);
   }
 
-  uint8_t read(uint16_t const address) const {
+  auto read(uint16_t const address) const -> uint8_t {
     boost::ignore_unused(address);
     return 0;
   }
@@ -51,10 +51,16 @@ public:
     boost::ignore_unused(address, data);
   }
 
-  void initialize() {
+  auto initialize() -> void {
+    //
+    // nothing to do.
+    //
   }
 
-  void uninitialize() {
+  auto uninitialize() -> void {
+    //
+    // nothing to do.
+    //
   }
 
 private:
@@ -67,26 +73,26 @@ apu::apu(const jones::memory &memory)
 
 apu::~apu() = default;
 
-uint8_t apu::step() {
+auto apu::step() -> uint8_t {
   return impl_->step();
 }
 
-uint8_t apu::peek(const uint16_t address) const {
+auto apu::peek(const uint16_t address) const -> uint8_t {
   return impl_->peek(address);
 }
 
-uint8_t apu::read(const uint16_t address) {
+auto apu::read(const uint16_t address) const -> uint8_t {
   return impl_->read(address);
 }
 
-void apu::write(const uint16_t address, const uint8_t data) {
+auto apu::write(uint16_t const address, uint8_t const data) -> void {
   impl_->write(address, data);
 }
 
-void apu::initialize() {
+auto apu::initialize() -> void {
   impl_->initialize();
 }
 
-void apu::uninitialize() {
+auto apu::uninitialize() -> void {
   impl_->uninitialize();
 }

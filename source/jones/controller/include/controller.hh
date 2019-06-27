@@ -70,11 +70,11 @@ auto button_state_to_string(button_state button_state) -> auto;
 
 auto controller_state_to_string(controller_state controller_state) -> auto;
 
-class controller final {
+class controller : public memory_component {
 public:
   explicit controller(const memory &memory);
 
-  ~controller();
+  ~controller() override;
 
   auto set_button_state(button button, button_state button_state) -> void;
 
@@ -84,11 +84,11 @@ public:
 
   auto get_controller_state() const -> controller_state;
 
-  auto peek(uint16_t address) const -> uint8_t;
+  auto peek(uint16_t address) const -> uint8_t override;
 
-  auto read(uint16_t address) -> uint8_t;
+  auto read(uint16_t address) const -> uint8_t override;
 
-  auto write(uint16_t address, uint8_t data) -> void;
+  auto write(uint16_t address, uint8_t data) -> void override;
 
 private:
   class impl;

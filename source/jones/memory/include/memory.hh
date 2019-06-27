@@ -73,28 +73,39 @@ namespace jones {
 // $3F20-$3FFF    |  $00E0  | Mirrors of $3F00-$3F1F
 // ----------------------------------------------------------------------------
 //
-class memory_mappable {
+class memory_component {
+public:
+  memory_component() = default;
+
+  virtual ~memory_component() = default;
+
+  virtual auto peek(uint16_t address) const -> uint8_t = 0;
+
+  virtual auto read(uint16_t address) const -> uint8_t = 0;
+
+  virtual auto write(uint16_t address, uint8_t data) -> void = 0;
+};
+
+class memory_mappable : public memory_component {
 public:
   memory_mappable() = default;
 
-  virtual ~memory_mappable() = default;
+  ~memory_mappable() override = default;
 
   virtual auto start_address() -> uint16_t = 0;
 
   virtual auto end_address() -> uint16_t = 0;
-
-  virtual auto peek(uint16_t address) const -> uint8_t = 0;
-
-  virtual auto read(uint16_t address) -> uint8_t = 0;
-
-  virtual auto write(uint16_t address, uint8_t data) -> void = 0;
 };
 
 template <typename C>
 class memory_mappable_component : public memory_mappable {
 public:
-  memory_mappable_component(C *const component, const uint16_t start_address, const uint16_t end_address)
-      : component_(component), start_address_(start_address), end_address_(end_address) {}
+  memory_mappable_component(C *const component, uint16_t const start_address, uint16_t const end_address)
+      : component_(component), start_address_(start_address), end_address_(end_address) {
+    //
+    // nothing to do.
+    //
+  }
 
   auto start_address() -> uint16_t override {
     return start_address_;
@@ -108,7 +119,7 @@ public:
     return component_->peek(address);
   }
 
-  auto read(uint16_t const address) -> uint8_t override {
+  auto read(uint16_t const address) const -> uint8_t override {
     return component_->read(address);
   }
 

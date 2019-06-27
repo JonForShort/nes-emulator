@@ -41,21 +41,21 @@ struct ppu_state {
   size_t frame;
 };
 
-class ppu final {
+class ppu : public memory_component {
 public:
   ppu(memory &cpu_memory, memory &ppu_memory, cpu &cpu, screen::screen *screen);
 
-  ~ppu();
+  ~ppu() override;
 
   auto initialize() -> void;
 
   auto uninitialize() -> void;
 
-  auto peek(uint16_t address) const -> uint8_t;
+  auto peek(uint16_t address) const -> uint8_t override;
 
-  auto read(uint16_t address) const -> uint8_t;
+  auto read(uint16_t address) const -> uint8_t override;
 
-  auto write(uint16_t address, uint8_t data) -> void;
+  auto write(uint16_t address, uint8_t data) -> void override;
 
   auto step() -> uint8_t;
 
