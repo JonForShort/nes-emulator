@@ -107,7 +107,11 @@ auto palette::peek(uint16_t const address) const -> uint8_t {
 }
 
 auto palette::read(uint16_t const address) const -> uint8_t {
-  return ppu_palette[address - palette_memory_begin];
+  const uint16_t address_offset = (address - palette_memory_begin);
+  const uint16_t address_byte = address_offset % sizeof(uint32_t);
+  const uint32_t palette = ppu_palette[address_offset / sizeof(uint32_t)];
+  const uint8_t palette_byte = (palette >> (address_byte * 8)) & 0xFF;
+  return palette_byte;
 }
 
 auto palette::write(uint16_t const address, uint8_t const data) -> void {

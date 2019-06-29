@@ -48,6 +48,21 @@ private:
   std::map<property, std::any> properties_;
 };
 
+auto jones::configuration::get_mirror_mode(uint8_t const data) -> uint8_t {
+  switch (data) {
+  case static_cast<uint8_t>(mirror_mode::MIRROR_MODE_SINGLE_LOWER):
+    return static_cast<uint8_t>(mirror_mode::MIRROR_MODE_SINGLE_LOWER);
+  case static_cast<uint8_t>(mirror_mode::MIRROR_MODE_SINGLE_UPPER):
+    return static_cast<uint8_t>(mirror_mode::MIRROR_MODE_SINGLE_UPPER);
+  case static_cast<uint8_t>(mirror_mode::MIRROR_MODE_VERTICAL):
+    return static_cast<uint8_t>(mirror_mode::MIRROR_MODE_VERTICAL);
+  case static_cast<uint8_t>(mirror_mode::MIRROR_MODE_HORIZONTAL):
+    return static_cast<uint8_t>(mirror_mode::MIRROR_MODE_HORIZONTAL);
+  default:
+    return static_cast<uint8_t>(mirror_mode::MIRROR_MODE_VERTICAL);
+  }
+}
+
 template auto configuration::get<uint8_t>(property property, uint8_t default_value) const -> uint8_t;
 template auto configuration::set<uint8_t>(property property, uint8_t const &value) -> void;
 

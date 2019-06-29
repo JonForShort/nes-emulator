@@ -36,6 +36,20 @@ enum class property : uint8_t {
   PROPERTY_COUNT
 };
 
+enum class mirror_mode : uint8_t {
+  MIRROR_MODE_SINGLE_LOWER = 0,
+
+  MIRROR_MODE_SINGLE_UPPER,
+
+  MIRROR_MODE_VERTICAL,
+
+  MIRROR_MODE_HORIZONTAL,
+
+  MIRROR_MODE_COUNT
+};
+
+auto get_mirror_mode(uint8_t data) -> uint8_t;
+
 class configuration {
 public:
   configuration();

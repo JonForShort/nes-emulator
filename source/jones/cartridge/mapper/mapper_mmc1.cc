@@ -204,7 +204,8 @@ auto mapper_mmc1::write_control_register(const uint8_t data) -> void {
   chr_mode_ = (data >> 4U) & 1U;
   prg_mode_ = (data >> 2U) & 3U;
 
-  jc::configuration::instance().set<uint8_t>(jc::property::PROPERTY_MIRROR_MODE, data & 3U);
+  const auto mirror_mode = jc::get_mirror_mode(data & 3U);
+  jc::configuration::instance().set<uint8_t>(jc::property::PROPERTY_MIRROR_MODE, mirror_mode);
 
   update_offsets();
 }

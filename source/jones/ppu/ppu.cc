@@ -807,8 +807,14 @@ private:
       palette_address += (palette_entries * pixel_palette) + pixel_color;
     }
 
-    const auto pixel_rgba = ppu_memory_.read(palette_address);
-    screen_->set_pixel(screen_x_position, screen_y_position, pixel_rgba);
+    screen_->set_pixel(screen_x_position, screen_y_position, get_palette_pixel(palette_address));
+  }
+
+  auto get_palette_pixel(uint16_t const address) -> uint32_t {
+    const uint16_t pixel_rgba_lower = ppu_memory_.read_word(address);
+    const uint16_t pixel_rgba_upper = ppu_memory_.read_word(address + 2);
+    const uint32_t pixel_rgba = pixel_rgba_lower | (pixel_rgba_upper << 16);
+    return pixel_rgba;
   }
 
   auto update_frame_counters() -> void {

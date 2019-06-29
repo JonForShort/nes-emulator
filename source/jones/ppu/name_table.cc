@@ -29,7 +29,7 @@ using namespace jones::configuration;
 
 namespace {
 
-constexpr uint8_t default_mirror_mode = 2;
+constexpr uint8_t default_mirror_mode = static_cast<uint8_t>(mirror_mode::MIRROR_MODE_VERTICAL);
 
 constexpr uint16_t mirror_table_mapping[][4]{
     {0, 0, 1, 1},
@@ -39,7 +39,7 @@ constexpr uint16_t mirror_table_mapping[][4]{
     {0, 1, 2, 3},
 };
 
-constexpr inline auto get_address_offset(uint16_t const address, uint8_t const mirror) {
+constexpr auto get_address_offset(uint16_t const address, uint8_t const mirror) {
   const auto relative = (address - name_table_memory_begin) % name_table_max_size;
   const auto table = (relative / name_table_size);
   const auto offset = (relative % name_table_size);
