@@ -192,7 +192,7 @@ public:
       break;
     }
     case addressing_mode_type::INDIRECT_INDEXED: {
-      const auto address = get_absolute_address(decoded);
+      const auto address = get_indirect_indexed_address(decoded);
       current_cpu_state.instruction.memory.address = address;
       current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
