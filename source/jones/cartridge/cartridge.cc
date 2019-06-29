@@ -23,6 +23,7 @@
 //
 #include "cartridge.hh"
 #include "cartridge_header.hh"
+#include "configuration.hh"
 #include "mapper/mapper.hh"
 #include "mapper/mapper_view.hh"
 #include "memory.hh"
@@ -35,12 +36,18 @@ using namespace jones;
 
 namespace ip = boost::interprocess;
 namespace fs = boost::filesystem;
+namespace jc = jones::configuration;
 
 class file_mapped_cartridge final : public mapped_cartridge {
 public:
   explicit file_mapped_cartridge(const char *file_path)
       : header_(create_cartridge_header(file_path)),
-        mapped_region_(map_cartridge_file(file_path)) {}
+        mapped_region_(map_cartridge_file(file_path)) {
+    if (valid()) {
+      const auto mirror = header_->mirror_type();
+      jc::configuration::instance().set(jc::property::PROPERTY_MIRROR_MODE, mirror);
+    }
+  }
 
   ~file_mapped_cartridge() override = default;
 

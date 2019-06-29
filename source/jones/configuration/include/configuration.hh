@@ -24,27 +24,36 @@
 #ifndef JONES_CONFIGURATION_CONFIGURATION_HH
 #define JONES_CONFIGURATION_CONFIGURATION_HH
 
+#include <memory>
+
 #include <cstdint>
 
 namespace jones::configuration {
 
-enum class property : uint16_t {
+enum class property : uint8_t {
+  PROPERTY_MIRROR_MODE = 0,
 
+  PROPERTY_COUNT
 };
 
-class configuration final {
+class configuration {
 public:
+  configuration();
+
   static configuration &instance();
 
   template <typename T>
   auto set(property property, const T &value) -> void;
 
   template <typename T>
-  auto get(property property) const -> T;
+  auto get(property property, T default_value) const -> T;
+
+private:
+  class impl;
+
+  std::unique_ptr<impl> pimpl_;
 };
 
 } // namespace jones::configuration
-
-#include "configuration.tt"
 
 #endif // JONES_CONFIGURATION_CONFIGURATION_HH

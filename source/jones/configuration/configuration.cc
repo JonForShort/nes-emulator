@@ -21,11 +21,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <any>
+#include <map>
+
 #include "configuration.hh"
 
 using namespace jones::configuration;
 
+class configuration::impl {
+public:
+  template <typename T>
+  auto set(property const property, T const &value) -> void {
+    properties_[property] = std::any(value);
+  }
+
+  template <typename T>
+  auto get(property const property, T const default_value) const -> T {
+    const auto found_property = properties_.find(property);
+    if (found_property == properties_.end()) {
+      return default_value;
+    }
+    return std::any_cast<T>(found_property->second);
+  }
+
+private:
+  std::map<property, std::any> properties_;
+};
+
+template auto configuration::get<uint8_t>(property property, uint8_t default_value) const -> uint8_t;
+template auto configuration::set<uint8_t>(property property, uint8_t const &value) -> void;
+
+configuration::configuration() : pimpl_(new impl()) {}
+
 auto configuration::instance() -> configuration & {
   static configuration instance;
   return instance;
+}
+
+template <typename T>
+auto configuration::set(property const property, T const &value) -> void {
+  return pimpl_->set<T>(property, value);
+}
+
+template <typename T>
+auto configuration::get(property const property, T const default_value) const -> T {
+  return pimpl_->get<T>(property, default_value);
 }

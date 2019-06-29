@@ -74,7 +74,7 @@ auto memory::map(memory_mappable_ptr mappable) -> void {
 
 auto memory::print(std::ostream &out) const -> void {
   for (const auto &mapping : memory_mappings_) {
-    out << boost::format("[%1] : [%2$#x] - [%3$#x] : [%4]") % tag_ % mapping->start_address() % mapping->end_address() % mapping->tag();
+    out << boost::format("[%s] : [%d$#x] - [%d$#x] : [%s]") % tag_ % mapping->start_address() % mapping->end_address() % mapping->tag();
     out << std::endl;
   }
 }

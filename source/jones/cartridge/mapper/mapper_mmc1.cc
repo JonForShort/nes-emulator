@@ -21,12 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <boost/core/ignore_unused.hpp>
 #include <boost/static_assert.hpp>
 
+#include "configuration.hh"
 #include "mapper_mmc1.hh"
 
 using namespace jones;
+
+namespace jc = jones::configuration;
 
 mapper_mmc1::mapper_mmc1(const mapper_view &mapper_view) : mapper(mapper_view), shift_register_(0x10) {
   const auto &cartridge = mapper_view.cartridge();
@@ -199,34 +201,10 @@ auto mapper_mmc1::write_prg_bank(const uint8_t data) -> void {
 
 auto mapper_mmc1::write_control_register(const uint8_t data) -> void {
   control_register_ = data;
-  chr_mode_ = (data >> 4U) & 1;
-  prg_mode_ = (data >> 2U) & 3;
+  chr_mode_ = (data >> 4U) & 1U;
+  prg_mode_ = (data >> 2U) & 3U;
 
-  const auto is_mirrored = data & 3U;
-  switch (is_mirrored) {
-  case 0: {
-    break;
-  }
-  case 1: {
-    break;
-  }
-  case 2: {
-    break;
-  }
-  case 3: {
-    break;
-  }
-  }
+  jc::configuration::instance().set<uint8_t>(jc::property::PROPERTY_MIRROR_MODE, data & 3U);
+
   update_offsets();
-
-  //  switch mirror {
-  //        case 0:
-  //        m.Cartridge.Mirror = MirrorSingle0
-  //        case 1:
-  //        m.Cartridge.Mirror = MirrorSingle1
-  //        case 2:
-  //        m.Cartridge.Mirror = MirrorVertical
-  //        case 3:
-  //        m.Cartridge.Mirror = MirrorHorizontal
-  //    }
 }

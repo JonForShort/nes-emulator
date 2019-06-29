@@ -17,6 +17,7 @@ set (sources
 
 add_library (cartridge STATIC ${sources})
 
+target_link_libraries (cartridge configuration)
 target_link_libraries (cartridge memory)
 
 target_include_directories (cartridge PRIVATE ${boost-include})
