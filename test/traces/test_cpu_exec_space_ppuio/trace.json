@@ -1,0 +1,5 @@
+{
+  "rom": "test_cpu_exec_space_ppuio.nes",
+  "trace": "test_cpu_exec_space_ppuio.trace.gz",
+  "exclude": true
+}
