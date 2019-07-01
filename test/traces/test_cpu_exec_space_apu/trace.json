@@ -1,0 +1,5 @@
+{
+  "rom": "test_cpu_exec_space_apu.nes",
+  "trace": "test_cpu_exec_space_apu.trace.gz",
+  "exclude": true
+}
