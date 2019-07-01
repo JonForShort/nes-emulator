@@ -73,12 +73,12 @@ std::string disassemble_operand_memory(const jde::operand &decoded_operand, cons
   }
   case addressing_mode_type::INDEXED_INDIRECT: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
-    operand_string << " ($" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << memory_value << ",X)";
+    operand_string << " ($" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << memory_value << ",X)";
     break;
   }
   case addressing_mode_type::INDIRECT_INDEXED: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
-    operand_string << " ($" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << memory_value << "),Y";
+    operand_string << " ($" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << memory_value << "),Y";
     break;
   }
   case addressing_mode_type::INDIRECT: {
@@ -88,22 +88,22 @@ std::string disassemble_operand_memory(const jde::operand &decoded_operand, cons
   }
   case addressing_mode_type::RELATIVE: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
-    operand_string << " $" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << memory_value;
+    operand_string << " $" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << memory_value;
     break;
   }
   case addressing_mode_type::ZERO_PAGE: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
-    operand_string << " $" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << memory_value;
+    operand_string << " $" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << memory_value;
     break;
   }
   case addressing_mode_type::ZERO_PAGE_X: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
-    operand_string << " $" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << memory_value << ",X";
+    operand_string << " $" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << memory_value << ",X";
     break;
   }
   case addressing_mode_type::ZERO_PAGE_Y: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
-    operand_string << " $" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << memory_value << ",Y";
+    operand_string << " $" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << memory_value << ",Y";
     break;
   }
   default: {

@@ -336,8 +336,10 @@ private:
   }
 
   auto read_status() -> uint8_t {
+    const auto status = status_register_.get();
     io_context_.vram_address_latch = false;
-    return status_register_.get();
+    status_register_.clear(status_flag::VERTICAL_BLANK_STARTED);
+    return status;
   }
 
   auto read_object_attribute_memory_address() const -> uint8_t {

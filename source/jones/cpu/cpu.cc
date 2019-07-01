@@ -109,11 +109,6 @@ public:
           instruction.decoded_operand.value = static_cast<uint16_t>(address_absolute);
           instruction.decoded_addressing_mode = addressing_mode_type::ABSOLUTE;
         }
-        if (instruction.decoded_addressing_mode == addressing_mode_type::ZERO_PAGE) {
-          const int8_t address = std::get<uint8_t>(instruction.decoded_operand.value);
-          instruction.decoded_operand.value = static_cast<uint16_t>(address);
-          instruction.decoded_addressing_mode = addressing_mode_type::ABSOLUTE;
-        }
       }
 
       void on_disassembled(disassemble::instruction &instruction) override {

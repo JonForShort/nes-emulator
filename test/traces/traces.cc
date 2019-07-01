@@ -228,7 +228,9 @@ void add_trace_entry(const fs::path &trace_path, const jones::nes_state &nes_sta
   const auto &instruction_memory = nes_state.instruction.memory;
 
   if (instruction_memory.is_indirect && instruction_memory.is_indirect.value()) {
-    instruction_string << " @ $" << std::hex << std::uppercase << nes_state.instruction.memory.address.value();
+    const auto value = nes_state.instruction.memory.address.value();
+    const auto fill_width = (value & 0xFF00U) == 0 ? 2 : 4;
+    instruction_string << " @ $" << std::hex << std::uppercase << std::setw(fill_width) << std::setfill('0') << value;
   }
 
   if (instruction_memory.value) {
