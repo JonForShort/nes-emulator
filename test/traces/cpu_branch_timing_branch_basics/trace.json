@@ -1,0 +1,5 @@
+{
+  "rom": "cpu_branch_timing_branch_basics.nes",
+  "trace": "cpu_branch_timing_branch_basics.trace.gz",
+  "exclude": true
+}
