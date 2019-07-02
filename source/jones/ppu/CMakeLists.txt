@@ -15,6 +15,7 @@ target_link_libraries (ppu configuration)
 target_link_libraries (ppu cpu)
 target_link_libraries (ppu memory)
 target_link_libraries (ppu screen)
+target_link_libraries (ppu util)
 
 target_include_directories (ppu PRIVATE ${boost-include})
 target_include_directories (ppu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

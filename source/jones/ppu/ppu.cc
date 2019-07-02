@@ -26,6 +26,7 @@
 #include <boost/core/ignore_unused.hpp>
 #include <boost/static_assert.hpp>
 
+#include "bit_utils.hh"
 #include "control_register.hh"
 #include "cpu.hh"
 #include "mask_register.hh"
@@ -50,6 +51,7 @@
 
 using namespace jones::ppu;
 using namespace jones::screen;
+using namespace jones::util;
 
 using ppu_frame_cycles = std::vector<ppu_frame_state_mask>;
 
@@ -92,28 +94,6 @@ constexpr auto ppu_scanline_visible_end = 239;
 constexpr auto ppu_scanline_postrender = 240;
 
 constexpr auto ppu_scanline_vblank = 241;
-
-template <typename T>
-constexpr inline T bit_shift_and(const T data, const T shift, const T bits) {
-  return static_cast<T>(data >> shift) & ((1U << bits) - 1);
-}
-
-template <typename T>
-constexpr inline void bit_shift_set(T &data, const T shift, const T bits, const T value) {
-  data &= ~(((1U << bits) - 1) << shift);
-  data |= static_cast<T>(value << shift);
-}
-
-template <typename T>
-constexpr inline T bit_reverse(const T value) {
-  auto reversed = 0;
-  const auto length = sizeof(value) * 8;
-  for (size_t index = 0; index < length; index++) {
-    const auto b = (value >> (length - index - 1U)) & 0x01;
-    reversed |= b << index;
-  }
-  return reversed;
-}
 
 constexpr inline bool is_color_transparent(const uint32_t color) {
   return color == 0;
