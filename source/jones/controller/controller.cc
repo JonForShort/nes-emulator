@@ -36,7 +36,7 @@ using button_state_map = std::map<button, button_state>;
 
 namespace {
 
-button position_to_button(const uint8_t position) {
+auto position_to_button(const uint8_t position) -> button {
   switch (position) {
   case 0:
     return button::BUTTON_A;
@@ -156,7 +156,7 @@ public:
     return data;
   }
 
-  auto write(const uint16_t address, const uint8_t data) -> void {
+  auto write(uint16_t const address, uint8_t const data) -> void {
     boost::ignore_unused(address);
     strobe_ = data;
     update_button_index();
@@ -181,21 +181,21 @@ private:
   controller_state controller_state_;
 };
 
-controller::controller::controller(const memory &memory)
+controller::controller::controller(memory const &memory)
     : impl_(std::make_unique<impl>(memory)) {
 }
 
 controller::controller::~controller() = default;
 
-auto controller::controller::set_button_state(const button button, const button_state state) -> void {
+auto controller::controller::set_button_state(button const button, button_state const state) -> void {
   impl_->set_button_state(button, state);
 }
 
-auto controller::controller::get_button_state(const button button) const -> button_state {
+auto controller::controller::get_button_state(button const button) const -> button_state {
   return impl_->get_button_state(button);
 }
 
-auto controller::controller::set_controller_state(const controller_state state) -> void {
+auto controller::controller::set_controller_state(controller_state const state) -> void {
   impl_->set_controller_state(state);
 }
 
@@ -203,14 +203,14 @@ auto controller::controller::get_controller_state() const -> controller_state {
   return impl_->get_controller_state();
 }
 
-auto controller::controller::peek(const uint16_t address) const -> uint8_t {
+auto controller::controller::peek(uint16_t const address) const -> uint8_t {
   return impl_->peek(address);
 }
 
-auto controller::controller::read(const uint16_t address) const -> uint8_t {
+auto controller::controller::read(uint16_t const address) const -> uint8_t {
   return impl_->read(address);
 }
 
-auto controller::controller::write(const uint16_t address, const uint8_t data) -> void {
+auto controller::controller::write(uint16_t const address, uint8_t const data) -> void {
   impl_->write(address, data);
 }
