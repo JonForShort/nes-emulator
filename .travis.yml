@@ -4,8 +4,6 @@ language:
   - cpp
 compiler:
   - gcc
-env:
-  - IS_CM_BUILD=1
 addons:
   apt:
     sources:
@@ -18,8 +16,8 @@ addons:
       - texinfo
       - autotools-dev
 script:
+  - export IS_CM_BUILD=1
   - export CC=gcc-8
   - export CXX=g++-8
-  - gcc -v && g++ -v && cmake --version
-  - cmake .
-  - make && make test
+  - . scripts/env.sh
+  - jones_test_asan
