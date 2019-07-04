@@ -49,6 +49,11 @@ jones_build() {
     popd
 }
 
+jones_cm() {
+
+    IS_CM_BUILD=1 jones_test "$@"
+}
+
 jones_test() {
 
     jones_build "$@"
