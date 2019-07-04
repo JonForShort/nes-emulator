@@ -4,6 +4,8 @@ language:
   - cpp
 compiler:
   - gcc
+env:
+  - IS_CM_BUILD=1
 addons:
   apt:
     sources:
@@ -14,6 +16,7 @@ addons:
       - cmake
       - libasound2-dev
       - texinfo
+      - autotools-dev
 script:
   - export CC=gcc-8
   - export CXX=g++-8
