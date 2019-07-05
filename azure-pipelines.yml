@@ -11,7 +11,7 @@ steps:
 - script: 'sudo apt update && sudo apt install -y git build-essential cmake libasound2-dev texinfo gcc-8 g++-8 autotools-dev automake'
   displayName: 'Setup Environment'
 
-- script: 'git clone git@github.com:thejunkjon/external-automake.git external/automake/source'
+- script: 'git clone https://github.com/thejunkjon/external-automake.git external/automake/source'
   displayName: 'Sync External Dependencies'
 
 - script: 'cd external/automake/source && ./configure && make && sudo make install'
