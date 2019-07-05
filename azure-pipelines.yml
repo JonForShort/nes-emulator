@@ -8,7 +8,7 @@ steps:
 - checkout: self
   submodules: true
 
-- script: 'sudo apt update && sudo apt install -y build-essential cmake libasound2-dev texinfo gcc-8 g++-8'
+- script: 'sudo apt update && sudo apt install -y build-essential cmake libasound2-dev texinfo gcc-8 g++-8 autotools-dev automake'
   displayName: 'Setup Environment'
 
 - script: '. scripts/env.sh && jones_cm'
