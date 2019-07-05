@@ -14,7 +14,7 @@ steps:
 - script: 'git clone https://github.com/thejunkjon/external-automake.git external/automake/source'
   displayName: 'Sync External Dependencies'
 
-- script: 'cd external/automake/source && ./configure && make && sudo make install'
+- script: 'cd external/automake/source && touch * && ./configure && make && sudo make install'
   displayName: 'Install AutoMake Tool'
 
 - script: '. scripts/env.sh && jones_cm'
