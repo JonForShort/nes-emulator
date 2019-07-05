@@ -1,8 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - master
 
@@ -10,5 +5,9 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
+- script: |
+  sudo apt install -y build-essentials cmake libasound2-dev texinfo
+  displayName: 'Setup Environment'
+
 - script: '. scripts/env.sh && jones_cm'
   displayName: 'Build'
