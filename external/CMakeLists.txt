@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.7)
 
-set (EXTERNAL_PROJECTS ncurses sndio sdl boost capstone gsl png zlib gzip)
+set (EXTERNAL_PROJECTS ncurses sndio sdl boost capstone gsl zlib png gzip)
 
 foreach (EXTERNAL_PROJECT ${EXTERNAL_PROJECTS})
 
