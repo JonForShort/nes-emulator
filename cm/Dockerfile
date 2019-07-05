@@ -7,10 +7,3 @@ RUN apt update && \
     apt autoclean -y && \
     apt remove -y && \
     apt autoremove -y
-
-RUN useradd -u 1001 -ms /bin/bash user
-
-USER user
-WORKDIR /home/user
-
-ENV TERM=xterm-256color
