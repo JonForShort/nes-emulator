@@ -1,7 +1,7 @@
 # jones
 
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Build Status](https://travis-ci.org/thejunkjon/jones.svg?branch=master)](https://travis-ci.org/thejunkjon/jones)
+[![Build Status](https://dev.azure.com/thejunkjon/Jones/_apis/build/status/thejunkjon.jones?branchName=master)](https://dev.azure.com/thejunkjon/Jones/_build/latest?definitionId=1&branchName=master)
 
 Jones is an NES emulator (and NES debugger) written entirely in c++.
 
