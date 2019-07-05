@@ -5,7 +5,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: 'sudo apt install -y build-essentials cmake libasound2-dev texinfo'
+- script: 'sudo apt update && sudo apt install -y build-essential cmake libasound2-dev texinfo'
   displayName: 'Setup Environment'
 - script: '. scripts/env.sh && jones_cm'
   displayName: 'Build'
