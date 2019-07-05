@@ -2,23 +2,15 @@ trigger:
 - master
 
 resources:
-  containers:
-  - container: build_container
-    image: ubuntu:19.10
-
-pool:
-  vmImage: 'ubuntu-latest'
+ containers:
+   - container: build_container
+     image: thejunkjon/jones
 
 container: build_container
 
 steps:
 - checkout: self
   submodules: true
-
-- script: |
-    apt update
-    apt install -y git build-essential cmake libasound2-dev texinfo gcc-8 g++-8
-  displayName: 'Setup Environment'
 
 - script: |
     . scripts/env.sh
