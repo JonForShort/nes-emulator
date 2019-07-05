@@ -9,6 +9,7 @@ resources:
   - repository: automake
     type: github
     name: thejunkjon/external-automake
+    endpoint: automake
 
 steps:
 - checkout: self
