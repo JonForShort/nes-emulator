@@ -4,19 +4,9 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-resources:         
-  repositories:
-  - repository: external-automake
-    type: github
-    name: thejunkjon/external-automake
-
 steps:
 - checkout: self
   submodules: true
-
-- checkout: automake
-  submodules: true
-  path: 'external/automake/source'
 
 - script: 'sudo apt update && sudo apt install -y build-essential cmake libasound2-dev texinfo gcc-8 g++-8 autotools-dev automake'
   displayName: 'Setup Environment'
