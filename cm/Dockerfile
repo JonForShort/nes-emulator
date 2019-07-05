@@ -8,7 +8,7 @@ RUN apt update && \
     apt remove -y && \
     apt autoremove -y
 
-RUN useradd -ms /bin/bash user
+RUN useradd -u 1001 -ms /bin/bash user
 
 USER user
 WORKDIR /home/user
