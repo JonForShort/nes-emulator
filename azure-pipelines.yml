@@ -14,5 +14,5 @@ steps:
 
 - script: |
     . scripts/env.sh
-    jones_cm'
+    jones_cm
   displayName: 'Build'
