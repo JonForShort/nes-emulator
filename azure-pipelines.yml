@@ -6,7 +6,7 @@ pool:
 
 resources:         
   repositories:
-  - repository: automake
+  - repository: external-automake
     type: github
     name: thejunkjon/external-automake
     endpoint: external-automake
