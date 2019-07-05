@@ -8,8 +8,14 @@ steps:
 - checkout: self
   submodules: true
 
-- script: 'sudo apt update && sudo apt install -y build-essential cmake libasound2-dev texinfo gcc-8 g++-8 autotools-dev automake'
+- script: 'sudo apt update && sudo apt install -y git build-essential cmake libasound2-dev texinfo gcc-8 g++-8 autotools-dev automake'
   displayName: 'Setup Environment'
+
+- script: 'git clone git@github.com:thejunkjon/external-automake.git external/automake/source'
+  displayName: 'Sync External Dependencies'
+
+- script: 'cd external/automake/source && ./configure && make && sudo make install'
+  displayName: 'Install AutoMake Tool'
 
 - script: '. scripts/env.sh && jones_cm'
   displayName: 'Build'
