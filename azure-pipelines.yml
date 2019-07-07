@@ -14,5 +14,12 @@ steps:
 
 - script: |
     . scripts/env.sh
-    jones_cm
+  displayName: 'Setup Environment'
+
+- script: |
+    jones_build
   displayName: 'Build'
+
+- script: |
+    jones_test_cm
+  displayName: 'Test'
