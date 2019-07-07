@@ -57,10 +57,6 @@ void status_register::clear(const status_flag flag) {
   status_flags_.set(flag_to_position(flag), false);
 }
 
-void status_register::register_updated(uint8_t data) {
-  register_ = data;
-}
-
 void status_register::set(const uint8_t flags) {
   (0x20U & flags) ? set(status_flag::SPRITE_OVER_FLOW) : clear(status_flag::SPRITE_OVER_FLOW);
   (0x40U & flags) ? set(status_flag::SPRITE_ZERO_HIT) : clear(status_flag::SPRITE_ZERO_HIT);

@@ -49,16 +49,12 @@ public:
 
   void clear(status_flag flag);
 
-  void register_updated(uint8_t data);
-
   void set(uint8_t flags);
 
   uint8_t get() const;
 
 private:
   std::bitset<8> status_flags_{};
-
-  uint8_t register_{};
 };
 
 } // namespace jones::ppu

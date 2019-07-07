@@ -108,7 +108,6 @@ class ppu::impl final {
 public:
   impl(memory &cpu_memory, memory &ppu_memory, cpu &cpu, screen::screen *screen)
       : cpu_memory_(cpu_memory), ppu_memory_(ppu_memory), cpu_(cpu), screen_(screen) {
-    //    ppu_memory_.map(std::make_unique<memory_mappable_component<pattern_table>>(&pattern_table_, pattern_table_memory_begin, pattern_table_memory_end));
     ppu_memory_.map(std::make_unique<memory_mappable_component<name_table>>(&name_table_, "ppu name_table", name_table_memory_begin, name_table_memory_end));
     ppu_memory_.map(std::make_unique<memory_mappable_component<palette>>(&palette_, "ppu palette", palette_memory_begin, palette_memory_end));
   }
@@ -181,7 +180,7 @@ public:
 private:
   auto write_registers(const uint16_t address, const uint8_t data) -> void {
     BOOST_ASSERT_MSG(address >= 0x2000 && address <= 0x3FFF, "write unexpected address for ppu");
-    status_register_.register_updated(data);
+    write_register = data;
     const auto address_offset = (address - 0x2000);
     switch (address_offset % 8) {
     case 0:
@@ -316,7 +315,7 @@ private:
   }
 
   auto read_status() -> uint8_t {
-    const auto status = status_register_.get();
+    const auto status = (write_register & 0x1FU) | status_register_.get();
     io_context_.vram_address_latch = false;
     status_register_.clear(status_flag::VERTICAL_BLANK_STARTED);
     return status;
@@ -332,10 +331,12 @@ private:
   }
 
   auto read_scroll() const -> uint8_t {
+    BOOST_STATIC_ASSERT("read unexpected for scroll");
     return 0;
   }
 
   auto read_address() const -> uint8_t {
+    BOOST_STATIC_ASSERT("read unexpected for address");
     return 0;
   }
 
@@ -1031,6 +1032,8 @@ private:
   mask_register mask_register_{};
 
   status_register status_register_{};
+
+  uint8_t write_register{};
 
   uint8_t oam_address_{};
 
