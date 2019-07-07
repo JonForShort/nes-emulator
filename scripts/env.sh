@@ -49,11 +49,6 @@ jones_build() {
     popd
 }
 
-jones_cm() {
-
-    IS_CM_BUILD=1 jones_test "$@"
-}
-
 jones_test() {
 
     jones_build "$@"
@@ -61,6 +56,11 @@ jones_test() {
     pushd ${JONES_BUILD_DIR}
         make test
     popd
+}
+
+jones_test_cm() {
+
+    IS_CM_BUILD=1 jones_test "$@"
 }
 
 jones_test_asan() {
