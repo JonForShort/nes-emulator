@@ -351,6 +351,7 @@ private:
   }
 
   auto read_object_attribute_memory_dma() const -> uint8_t {
+    BOOST_STATIC_ASSERT("read unexpected for oam dma");
     return 0;
   }
 
