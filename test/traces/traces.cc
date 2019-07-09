@@ -334,7 +334,7 @@ BOOST_AUTO_TEST_CASE(test_suite_traces) {
     pt::ptree json;
     pt::read_json(trace_file_path.string(), json);
 
-    const auto is_cm_build = std::getenv("IS_CM_BUILD") == std::string("1");
+    const auto is_cm_build = std::getenv("IS_CM_BUILD") != nullptr;
     const auto is_trace_excluded = json.get<bool>("exclude");
     if (is_trace_excluded && !is_cm_build) {
       LOG_DEBUG << "skipping trace test [" << trace_directory_path.string() << "]; test is excluded";
