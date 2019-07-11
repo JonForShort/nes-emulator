@@ -37,15 +37,15 @@ sdl_screen::~sdl_screen() {
   uninitialize();
 }
 
-void sdl_screen::initialize() {
+auto sdl_screen::initialize() -> void {
   show();
 }
 
-void sdl_screen::uninitialize() {
+auto sdl_screen::uninitialize() -> void {
   hide();
 }
 
-void sdl_screen::show() {
+auto sdl_screen::show() -> void {
   if (is_running_) {
     LOG_DEBUG << "screen is already being shown";
     return;
@@ -65,7 +65,7 @@ void sdl_screen::show() {
   is_running_ = true;
 }
 
-void sdl_screen::hide() {
+auto sdl_screen::hide() -> void {
   if (!is_running_) {
     LOG_DEBUG << "screen is already being hidden";
     return;
@@ -81,7 +81,7 @@ void sdl_screen::hide() {
   is_running_ = false;
 }
 
-void sdl_screen::set_pixel(const uint16_t x_position, const uint16_t y_position, const uint32_t pixel) {
+auto sdl_screen::set_pixel(uint16_t const x_position, uint16_t const y_position, uint32_t const pixel) -> void {
   if (renderer_ != nullptr) {
     const uint8_t red = (pixel & 0xFF000000U) >> 24U;
     const uint8_t green = (pixel & 0xFF0000U) >> 16U;
@@ -102,7 +102,7 @@ auto sdl_screen::render() -> void {
   SDL_RenderPresent(renderer_);
 }
 
-void sdl_screen::fill_with_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) {
+auto sdl_screen::fill_with_color(uint8_t const r, uint8_t const g, uint8_t const b, uint8_t const a) -> void {
   if (renderer_ != nullptr) {
     if (SDL_SetRenderDrawColor(renderer_, r, g, b, a) == -1) {
       LOG_ERROR << SDL_GetError();
@@ -115,7 +115,7 @@ void sdl_screen::fill_with_color(const uint8_t r, const uint8_t g, const uint8_t
   }
 }
 
-auto sdl_screen::on_event(const SDL_Event event) -> void {
+auto sdl_screen::on_event(SDL_Event const event) -> void {
   if (event.type == SDL_QUIT) {
     is_running_ = false;
     if (listener_ != nullptr) {

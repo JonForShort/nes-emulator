@@ -37,7 +37,7 @@ class sdl_screen_listener {
 public:
   virtual ~sdl_screen_listener() = default;
 
-  virtual void on_screen_closed() = 0;
+  virtual auto on_screen_closed() -> void = 0;
 };
 
 class sdl_screen : public screen::screen, public sdl_component {
