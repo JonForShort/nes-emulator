@@ -27,6 +27,7 @@
 #include <sstream>
 #include <vector>
 
+#include "configuration.hh"
 #include "decode.hh"
 #include "disassemble.hh"
 #include "disassemble_internal.hh"
@@ -34,21 +35,27 @@
 
 namespace jdi = jones::disassemble;
 namespace jde = jones::decode;
+namespace jco = jones::configuration;
 
 namespace {
 
-std::string disassemble_opcode(const jde::instruction &decoded_instruction) {
+auto use_absolute_addresses() -> bool {
+  return jco::configuration::instance().get<bool>(jco::property::PROPERTY_DISASM_USE_ABSOLUTE_ADDRESSES, false);
+}
+
+auto disassemble_opcode(const jde::instruction &decoded_instruction) -> std::string {
   return instruction_set[decoded_instruction.decoded_opcode.value].mnemonic;
 }
 
-std::string disassemble_operand_immediate(const jde::operand &decoded_operand) {
+auto disassemble_operand_immediate(jde::operand const &decoded_operand) -> std::string {
   std::stringstream operand_string;
   const int immediate_value = std::get<uint8_t>(decoded_operand.value);
   operand_string << " #$" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << immediate_value;
   return operand_string.str();
 }
 
-std::string disassemble_operand_memory(const jde::operand &decoded_operand, const addressing_mode_type addressing_mode) {
+auto disassemble_operand_memory(jde::operand const &decoded_operand, addressing_mode_type const addressing_mode) -> std::string {
+  auto const operand_string_width = use_absolute_addresses() ? 4 : 2;
   std::stringstream operand_string;
   switch (addressing_mode) {
   case addressing_mode_type::ABSOLUTE: {
@@ -73,12 +80,12 @@ std::string disassemble_operand_memory(const jde::operand &decoded_operand, cons
   }
   case addressing_mode_type::INDEXED_INDIRECT: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
-    operand_string << " ($" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << memory_value << ",X)";
+    operand_string << " ($" << std::hex << std::uppercase << std::setw(operand_string_width) << std::setfill('0') << memory_value << ",X)";
     break;
   }
   case addressing_mode_type::INDIRECT_INDEXED: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
-    operand_string << " ($" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << memory_value << "),Y";
+    operand_string << " ($" << std::hex << std::uppercase << std::setw(operand_string_width) << std::setfill('0') << memory_value << "),Y";
     break;
   }
   case addressing_mode_type::INDIRECT: {
@@ -88,22 +95,22 @@ std::string disassemble_operand_memory(const jde::operand &decoded_operand, cons
   }
   case addressing_mode_type::RELATIVE: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
-    operand_string << " $" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << memory_value;
+    operand_string << " $" << std::hex << std::uppercase << std::setw(operand_string_width) << std::setfill('0') << memory_value;
     break;
   }
   case addressing_mode_type::ZERO_PAGE: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
-    operand_string << " $" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << memory_value;
+    operand_string << " $" << std::hex << std::uppercase << std::setw(operand_string_width) << std::setfill('0') << memory_value;
     break;
   }
   case addressing_mode_type::ZERO_PAGE_X: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
-    operand_string << " $" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << memory_value << ",X";
+    operand_string << " $" << std::hex << std::uppercase << std::setw(operand_string_width) << std::setfill('0') << memory_value << ",X";
     break;
   }
   case addressing_mode_type::ZERO_PAGE_Y: {
     const int memory_value = std::get<uint8_t>(decoded_operand.value);
-    operand_string << " $" << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << memory_value << ",Y";
+    operand_string << " $" << std::hex << std::uppercase << std::setw(operand_string_width) << std::setfill('0') << memory_value << ",Y";
     break;
   }
   default: {
@@ -114,7 +121,7 @@ std::string disassemble_operand_memory(const jde::operand &decoded_operand, cons
   return operand_string.str();
 }
 
-std::string disassemble_operand_register(const jde::operand &decoded_operand, const addressing_mode_type addressing_mode) {
+auto disassemble_operand_register(jde::operand const &decoded_operand, addressing_mode_type const addressing_mode) -> std::string {
   boost::ignore_unused(decoded_operand);
   std::stringstream operand_string;
   switch (addressing_mode) {
@@ -130,7 +137,7 @@ std::string disassemble_operand_register(const jde::operand &decoded_operand, co
   return operand_string.str();
 }
 
-std::string disassemble_operand(const jde::instruction &decoded_instruction) {
+auto disassemble_operand(jde::instruction const &decoded_instruction) -> std::string {
   const auto &decoded_addressing_mode = decoded_instruction.decoded_addressing_mode;
   const auto &decoded_operand = decoded_instruction.decoded_operand;
   switch (decoded_operand.type) {
@@ -149,7 +156,7 @@ std::string disassemble_operand(const jde::instruction &decoded_instruction) {
 
 } // namespace
 
-disassemble::instructions disassemble::disassemble(uint8_t *buffer, size_t length_in_bytes, disassemble::disassemble_listener_ptr listener) {
+auto disassemble::disassemble(uint8_t *const buffer, size_t const length_in_bytes, disassemble::disassemble_listener_ptr const listener) -> disassemble::instructions {
   std::vector<jdi::instruction> disassembled_instructions;
   int buffer_offset = 0;
   auto decoded_instruction = jde::decode(buffer, length_in_bytes);
@@ -181,6 +188,6 @@ disassemble::instructions disassemble::disassemble(uint8_t *buffer, size_t lengt
   return jdi::instructions{disassembled_instructions, 0};
 }
 
-disassemble::instructions disassemble::disassemble(uint8_t *buffer, const size_t length_in_bytes) {
+auto disassemble::disassemble(uint8_t *const buffer, size_t const length_in_bytes) -> disassemble::instructions {
   return disassemble(buffer, length_in_bytes, nullptr);
 }

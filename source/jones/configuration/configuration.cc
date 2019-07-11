@@ -66,6 +66,9 @@ auto jones::configuration::get_mirror_mode(uint8_t const data) -> uint8_t {
 template auto configuration::get<uint8_t>(property property, uint8_t default_value) const -> uint8_t;
 template auto configuration::set<uint8_t>(property property, uint8_t const &value) -> void;
 
+template auto configuration::get<bool>(property property, bool default_value) const -> bool;
+template auto configuration::set<bool>(property property, bool const &value) -> void;
+
 configuration::configuration() : pimpl_(new impl()) {}
 
 auto configuration::instance() -> configuration & {

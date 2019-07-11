@@ -31,8 +31,19 @@
 namespace jones::configuration {
 
 enum class property : uint8_t {
+  //
+  // Mirroring mode that should be used by the cartridge.
+  //
   PROPERTY_MIRROR_MODE = 0,
 
+  //
+  // Whether to always show absolute addresses in disassembler output.
+  //
+  PROPERTY_DISASM_USE_ABSOLUTE_ADDRESSES,
+
+  //
+  // Number of properties defined.
+  //
   PROPERTY_COUNT
 };
 

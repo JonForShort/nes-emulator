@@ -21,6 +21,7 @@ add_dependencies (cpu boost)
 add_dependencies (cpu gsl)
 add_dependencies (cpu log)
 
+target_link_libraries (cpu configuration)
 target_link_libraries (cpu log)
 target_link_libraries (cpu memory)
 
