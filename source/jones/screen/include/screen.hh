@@ -30,11 +30,24 @@ constexpr auto screen_width = 256;
 
 constexpr auto screen_height = 240;
 
+struct pixel {
+
+  uint8_t red;
+
+  uint8_t blue;
+
+  uint8_t green;
+};
+
 class screen {
 public:
   virtual ~screen() = default;
 
-  virtual auto set_pixel(uint16_t x_position, uint16_t y_position, uint32_t pixel) -> void = 0;
+  virtual auto set_pixel(uint16_t x_position, uint16_t y_position, pixel pixel) -> void = 0;
+
+  virtual auto lock() -> void = 0;
+
+  virtual auto unlock() -> void = 0;
 
   virtual auto render() -> void = 0;
 };
