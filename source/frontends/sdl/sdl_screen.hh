@@ -33,6 +33,8 @@
 
 namespace jones::sdl {
 
+using pixel = jones::screen::pixel;
+
 class sdl_screen_listener {
 public:
   virtual ~sdl_screen_listener() = default;
@@ -50,9 +52,13 @@ public:
 
   auto uninitialize() -> void override;
 
-  auto set_pixel(uint16_t x_position, uint16_t y_position, uint32_t pixel) -> void override;
+  auto set_pixel(uint16_t x_position, uint16_t y_position, pixel pixel) -> void override;
 
   auto render() -> void override;
+
+  auto lock() -> void override;
+
+  auto unlock() -> void override;
 
   auto on_event(SDL_Event event) -> void override;
 
@@ -61,16 +67,20 @@ private:
 
   auto hide() -> void;
 
-  auto fill_with_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) -> void;
-
 private:
-  SDL_Window *window_ = nullptr;
+  SDL_Window *window_{};
 
-  SDL_Renderer *renderer_ = nullptr;
+  SDL_Renderer *renderer_{};
 
-  std::atomic<bool> is_running_ = false;
+  SDL_Surface *screen_{};
 
-  std::unique_ptr<sdl_screen_listener> listener_ = nullptr;
+  SDL_Texture *texture_{};
+
+  std::atomic<bool> is_running_{};
+
+  std::unique_ptr<sdl_screen_listener> listener_{};
+
+  uint8_t window_scale_{1};
 };
 
 } // namespace jones::sdl

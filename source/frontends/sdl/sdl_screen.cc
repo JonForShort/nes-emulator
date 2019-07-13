@@ -23,11 +23,34 @@
 //
 #include <SDL2/SDL.h>
 #include <cstdint>
+#include <string.h>
 
 #include "log.hh"
 #include "sdl_screen.hh"
 
 using namespace jones::sdl;
+
+namespace {
+
+constexpr auto sdl_bit_depth = 32;
+
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+
+constexpr auto sdl_red_mask = 0xFF000000;
+constexpr auto sdl_green_mask = 0x00FF0000;
+constexpr auto sdl_blue_mask = 0x0000FF00;
+constexpr auto sdl_alpha_mask = 0x000000FF;
+
+#else
+
+constexpr auto sdl_red_mask = 0x000000FF;
+constexpr auto sdl_green_mask = 0x0000FF00;
+constexpr auto sdl_blue_mask = 0x00FF0000;
+constexpr auto sdl_alpha_mask = 0xFF000000;
+
+#endif
+
+} // namespace
 
 sdl_screen::sdl_screen(std::unique_ptr<sdl_screen_listener> listener)
     : listener_(std::move(listener)) {
@@ -51,17 +74,26 @@ auto sdl_screen::show() -> void {
     return;
   }
   SDL_Init(SDL_INIT_HAPTIC);
-  window_ = SDL_CreateWindow("Jones NES Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, jones::screen::screen_width, jones::screen::screen_height, SDL_WINDOW_OPENGL);
+  window_ = SDL_CreateWindow("Jones NES Emulator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, jones::screen::screen_width, jones::screen::screen_height, SDL_WINDOW_RESIZABLE);
   if (window_ == nullptr) {
-    LOG_ERROR << "unable to create window";
+    LOG_ERROR << SDL_GetError();
     return;
   }
-  renderer_ = SDL_CreateRenderer(window_, -1, 0);
+  renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
   if (renderer_ == nullptr) {
-    LOG_ERROR << "unable to create renderer";
+    LOG_ERROR << SDL_GetError();
     return;
   }
-  fill_with_color(0, 0, 0, 0);
+  screen_ = SDL_CreateRGBSurface(0, jones::screen::screen_width, jones::screen::screen_height, sdl_bit_depth, sdl_red_mask, sdl_green_mask, sdl_blue_mask, sdl_alpha_mask);
+  if (screen_ == nullptr) {
+    LOG_ERROR << SDL_GetError();
+    return;
+  }
+  texture_ = SDL_CreateTexture(renderer_, screen_->format->format, SDL_TEXTUREACCESS_STREAMING, jones::screen::screen_width, jones::screen::screen_height);
+  if (texture_ == nullptr) {
+    LOG_ERROR << SDL_GetError();
+    return;
+  }
   is_running_ = true;
 }
 
@@ -69,6 +101,10 @@ auto sdl_screen::hide() -> void {
   if (!is_running_) {
     LOG_DEBUG << "screen is already being hidden";
     return;
+  }
+  if (texture_ != nullptr) {
+    SDL_DestroyTexture(texture_);
+    texture_ = nullptr;
   }
   if (renderer_ != nullptr) {
     SDL_DestroyRenderer(renderer_);
@@ -78,40 +114,53 @@ auto sdl_screen::hide() -> void {
     SDL_DestroyWindow(window_);
     window_ = nullptr;
   }
+  if (screen_ != nullptr) {
+    SDL_FreeSurface(screen_);
+    screen_ = nullptr;
+  }
   is_running_ = false;
 }
 
-auto sdl_screen::set_pixel(uint16_t const x_position, uint16_t const y_position, uint32_t const pixel) -> void {
-  if (renderer_ != nullptr) {
-    const uint8_t red = (pixel & 0xFF000000U) >> 24U;
-    const uint8_t green = (pixel & 0xFF0000U) >> 16U;
-    const uint8_t blue = (pixel & 0xFF00U) >> 8U;
-    const uint8_t alpha = (pixel & 0xFFU);
-    if (SDL_SetRenderDrawColor(renderer_, red, green, blue, alpha) == -1) {
-      LOG_ERROR << SDL_GetError();
-      return;
-    }
-    if (SDL_RenderDrawPoint(renderer_, x_position, y_position) == -1) {
-      LOG_ERROR << SDL_GetError();
-      return;
+auto sdl_screen::set_pixel(uint16_t const x_position, uint16_t const y_position, pixel const pixel) -> void {
+  if (renderer_ == nullptr) {
+    return;
+  }
+  auto const scaled_x_position = x_position * window_scale_;
+  auto const scaled_y_position = y_position * window_scale_;
+
+  auto const bytes_per_pixel = screen_->format->BytesPerPixel;
+  auto const mapped_pixel = SDL_MapRGB(screen_->format, pixel.red, pixel.green, pixel.blue);
+
+  auto *const pixel_one = static_cast<uint8_t *>(screen_->pixels) + (scaled_y_position * screen_->pitch) + (x_position * bytes_per_pixel);
+  memcpy(pixel_one, &mapped_pixel, bytes_per_pixel);
+
+  for (auto i = scaled_x_position; i < scaled_x_position + window_scale_; i++) {
+    for (auto j = scaled_y_position; j < scaled_y_position + window_scale_; j++) {
+      if ((i == scaled_x_position) && (j == scaled_y_position)) {
+        continue;
+      }
+      auto *const pixel_two = static_cast<uint8_t *>(screen_->pixels) + j * screen_->pitch + i * bytes_per_pixel;
+      memcpy(pixel_two, pixel_one, bytes_per_pixel);
     }
   }
 }
 
 auto sdl_screen::render() -> void {
+  SDL_UpdateTexture(texture_, nullptr, screen_->pixels, screen_->pitch);
+  SDL_RenderClear(renderer_);
+  SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
   SDL_RenderPresent(renderer_);
 }
 
-auto sdl_screen::fill_with_color(uint8_t const r, uint8_t const g, uint8_t const b, uint8_t const a) -> void {
-  if (renderer_ != nullptr) {
-    if (SDL_SetRenderDrawColor(renderer_, r, g, b, a) == -1) {
-      LOG_ERROR << SDL_GetError();
-      return;
-    }
-    if (SDL_RenderClear(renderer_) == -1) {
-      LOG_ERROR << SDL_GetError();
-      return;
-    }
+auto sdl_screen::lock() -> void {
+  if (SDL_MUSTLOCK(screen_)) {
+    SDL_LockSurface(screen_);
+  }
+}
+
+auto sdl_screen::unlock() -> void {
+  if (SDL_MUSTLOCK(screen_)) {
+    SDL_UnlockSurface(screen_);
   }
 }
 

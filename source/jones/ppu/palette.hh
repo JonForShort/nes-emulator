@@ -50,6 +50,7 @@
 //
 
 #include "memory.hh"
+#include "screen.hh"
 
 namespace jones::ppu {
 
@@ -76,7 +77,12 @@ public:
   auto read(uint16_t address) const -> uint8_t override;
 
   auto write(uint16_t address, uint8_t data) -> void override;
+
+private:
+  std::array<uint8_t, palette_size_bytes> palette_{};
 };
+
+auto get_palette_pixel(uint8_t data) -> jones::screen::pixel;
 
 } // namespace jones::ppu
 

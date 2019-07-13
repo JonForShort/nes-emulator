@@ -30,9 +30,21 @@ namespace jones {
 
 class screen_proxy : public screen::screen {
 public:
-  auto set_pixel(uint16_t x_position, uint16_t y_position, uint32_t pixel) -> void override {
+  auto set_pixel(uint16_t const x_position, uint16_t const y_position, jones::screen::pixel const pixel) -> void override {
     if (screen_) {
       screen_->set_pixel(x_position, y_position, pixel);
+    }
+  }
+
+  auto lock() -> void override {
+    if (screen_) {
+      screen_->lock();
+    }
+  }
+
+  auto unlock() -> void override {
+    if (screen_) {
+      screen_->unlock();
     }
   }
 

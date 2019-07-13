@@ -716,6 +716,7 @@ private:
     if (control_register_.is_set(control_flag::NMI)) {
       cpu_.interrupt(interrupt_type::NMI);
     }
+    screen_->lock();
     screen_->render();
   }
 
@@ -723,6 +724,8 @@ private:
     status_register_.clear(status_flag::VERTICAL_BLANK_STARTED);
     status_register_.clear(status_flag::SPRITE_OVER_FLOW);
     status_register_.clear(status_flag::SPRITE_ZERO_HIT);
+
+    screen_->unlock();
   }
 
   auto process_state_flag_visible() -> void {
@@ -790,15 +793,9 @@ private:
     if (!is_color_transparent(pixel_color)) {
       palette_address += (palette_entries * pixel_palette) + pixel_color;
     }
-
-    screen_->set_pixel(screen_x_position, screen_y_position, get_palette_pixel(palette_address));
-  }
-
-  auto get_palette_pixel(uint16_t const address) -> uint32_t {
-    const uint16_t pixel_rgba_lower = ppu_memory_.read_word(address);
-    const uint16_t pixel_rgba_upper = ppu_memory_.read_word(address + 2);
-    const uint32_t pixel_rgba = pixel_rgba_lower | (pixel_rgba_upper << 16);
-    return pixel_rgba;
+    auto const palette = ppu_memory_.read(palette_address);
+    auto const pixel = get_palette_pixel(palette);
+    screen_->set_pixel(screen_x_position, screen_y_position, pixel);
   }
 
   auto update_frame_counters() -> void {
