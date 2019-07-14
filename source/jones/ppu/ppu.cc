@@ -75,8 +75,6 @@ constexpr auto ppu_oam_size = 256;
 
 constexpr auto ppu_oam_secondary_size = 32;
 
-constexpr auto ppu_palette_size = 32;
-
 constexpr auto ppu_tile_width = 8;
 
 constexpr auto ppu_tile_height = 8;
