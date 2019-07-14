@@ -693,8 +693,8 @@ private:
     if (!is_background_visible) {
       return;
     }
-    const uint16_t x_scroll = io_context_.vram_address.coarse_x_scroll;
-    const uint16_t y_scroll = io_context_.vram_address.coarse_y_scroll;
+    uint16_t const x_scroll = io_context_.vram_address.coarse_x_scroll;
+    uint16_t const y_scroll = io_context_.vram_address.coarse_y_scroll;
 
     ppu_attribute_address attribute_address{};
     attribute_address.high_coarse_x = bit_shift_and<uint16_t>(x_scroll, 2, 3);
@@ -702,11 +702,11 @@ private:
     attribute_address.h_name_table = io_context_.vram_address.h_nametable;
     attribute_address.v_name_table = io_context_.vram_address.v_nametable;
 
-    const uint16_t address = attribute_table_memory_begin | attribute_address.value;
-    const ppu_attribute attribute{.value = ppu_memory_.read(address)};
+    uint16_t const address = attribute_table_memory_begin | attribute_address.value;
+    ppu_attribute const attribute{.value = ppu_memory_.read(address)};
 
-    const auto is_right = io_context_.vram_address.coarse_x_scroll & (1U << 1U);
-    const auto is_bottom = io_context_.vram_address.coarse_y_scroll & (1U << 1U);
+    auto const is_right = io_context_.vram_address.coarse_x_scroll & (1U << 1U);
+    auto const is_bottom = io_context_.vram_address.coarse_y_scroll & (1U << 1U);
 
     render_context_.attribute_table = is_right ? is_bottom ? attribute.bottom_right : attribute.top_right : is_bottom ? attribute.bottom_left : attribute.top_left;
   }

@@ -267,7 +267,7 @@ private:
     push_flags();
 
     const auto interrupt_vector = interrupts_.get_vector(triggered_interrupt);
-    const auto interrupt_routine = memory_.read_word(interrupt_vector) - 4;
+    const auto interrupt_routine = memory_.read_word(interrupt_vector);
     registers_.set(register_type::PC, interrupt_routine);
 
     status_register_.set(status_flag::I);
