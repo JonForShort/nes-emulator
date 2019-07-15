@@ -36,7 +36,7 @@ class cartridge : public memory_component {
 public:
   cartridge(memory &cpu_memory, memory &ppu_memory);
 
-  ~cartridge();
+  ~cartridge() override;
 
   auto attach(const char *path) -> bool;
 

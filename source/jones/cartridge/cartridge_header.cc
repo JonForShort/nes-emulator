@@ -91,6 +91,8 @@ void cartridge_header::print(std::ostream &out) const {
   print_hex_integer(out, "which_tv_system_two: ", header.which_tv_system_two);
   print_hex_integer(out, "is_prgram_present: ", header.is_prgram_present);
   print_hex_integer(out, "has_bus_conflicts: ", header.has_bus_conflicts);
+  print_hex_integer(out, "mirror_type: ", mirror_type());
+  print_hex_integer(out, "mapper_number: ", mapper_number());
   out << "***********************************************" << std::endl;
 }
 

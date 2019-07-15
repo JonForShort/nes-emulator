@@ -129,7 +129,7 @@ private:
     const auto is_components_initialized = initialize_components();
     is_power_on_ = is_components_initialized && is_rom_loaded;
     if (is_power_on_) {
-      log_memory_mappings();
+      dump_logs();
       notify_listener(nes_listener::event::ON_POWER_ON);
       step_power_on();
     }
@@ -170,14 +170,21 @@ private:
     }
   }
 
-  auto log_memory_mappings() const -> void {
-    std::ostringstream cpu_memory_mappings;
-    cpu_memory_.print(cpu_memory_mappings);
-    LOG_DEBUG << cpu_memory_mappings.str();
+  auto dump_logs() const -> void {
+    std::ostringstream cpu_logs;
+    cpu_logs << std::endl;
+    cpu_memory_.print(cpu_logs);
+    LOG_DEBUG << cpu_logs.str();
 
-    std::ostringstream ppu_memory_mappings;
-    ppu_memory_.print(ppu_memory_mappings);
-    LOG_DEBUG << ppu_memory_mappings.str();
+    std::ostringstream ppu_logs;
+    ppu_logs << std::endl;
+    ppu_memory_.print(ppu_logs);
+    LOG_DEBUG << ppu_logs.str();
+
+    std::ostringstream cartridge_logs;
+    cartridge_logs << std::endl;
+    cartridge_.print(cartridge_logs);
+    LOG_DEBUG << cartridge_logs.str();
   }
 
   auto get_state() -> nes_state {
