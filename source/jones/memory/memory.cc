@@ -23,10 +23,27 @@
 //
 #include "memory.hh"
 
+#include <algorithm>
 #include <boost/format.hpp>
 #include <boost/static_assert.hpp>
 
 using namespace jones;
+
+namespace {
+
+auto as_raw_memory_mappable(std::vector<memory_mappable_ptr> const &memory_mappings) -> std::vector<memory_mappable *> {
+  std::vector<memory_mappable *> sorted_memory_mappings;
+  for (auto &memory_mapping_ptr : memory_mappings) {
+    sorted_memory_mappings.push_back(memory_mapping_ptr.get());
+  }
+  std::sort(sorted_memory_mappings.begin(), sorted_memory_mappings.end(),
+            [](memory_mappable const *first, memory_mappable const *second) {
+              return first->start_address() < second->start_address();
+            });
+  return sorted_memory_mappings;
+}
+
+} // namespace
 
 auto memory::peek(uint16_t const address) const -> uint8_t {
   for (const auto &i : memory_mappings_) {
@@ -73,8 +90,8 @@ auto memory::map(memory_mappable_ptr mappable) -> void {
 }
 
 auto memory::print(std::ostream &out) const -> void {
-  for (const auto &mapping : memory_mappings_) {
-    out << boost::format("[%s] : [%d$#x] - [%d$#x] : [%s]") % tag_ % mapping->start_address() % mapping->end_address() % mapping->tag();
+  for (const auto &mapping : as_raw_memory_mappable(memory_mappings_)) {
+    out << boost::format("[%s] : [%04X] - [%04X] : [%s]") % tag_ % mapping->start_address() % mapping->end_address() % mapping->tag();
     out << std::endl;
   }
 }

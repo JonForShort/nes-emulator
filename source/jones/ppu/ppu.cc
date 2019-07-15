@@ -106,6 +106,8 @@ class ppu::impl final {
 public:
   impl(memory &cpu_memory, memory &ppu_memory, cpu &cpu, screen::screen *screen)
       : cpu_memory_(cpu_memory), ppu_memory_(ppu_memory), cpu_(cpu), screen_(screen) {
+    cpu_memory_.map(std::make_unique<memory_mappable_component<ppu::impl>>(this, "ppu", 0x2000, 0x3FFF));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<ppu::impl>>(this, "ppu", 0x4014, 0x4014));
     ppu_memory_.map(std::make_unique<memory_mappable_component<name_table>>(&name_table_, "ppu name_table", name_table_memory_begin, name_table_memory_end));
     ppu_memory_.map(std::make_unique<memory_mappable_component<palette>>(&palette_, "ppu palette", palette_memory_begin, palette_memory_end));
   }

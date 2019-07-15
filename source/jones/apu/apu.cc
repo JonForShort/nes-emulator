@@ -30,8 +30,10 @@ using namespace jones;
 
 class apu::impl final {
 public:
-  explicit impl(const memory &memory) : memory_(memory) {
-    boost::ignore_unused(memory_);
+  explicit impl(memory &memory) : cpu_memory_(memory) {
+    cpu_memory_.map(std::make_unique<memory_mappable_component<apu::impl>>(this, "apu", 0x4000, 0x4013));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<apu::impl>>(this, "apu", 0x4015, 0x4015));
+    cpu_memory_.map(std::make_unique<memory_mappable_component<apu::impl>>(this, "apu", 0x4018, 0x401F));
   }
 
   auto step() -> uint8_t {
@@ -64,10 +66,10 @@ public:
   }
 
 private:
-  const memory &memory_;
+  memory &cpu_memory_;
 };
 
-apu::apu(const jones::memory &memory)
+apu::apu(memory &memory)
     : impl_(new apu::impl(memory)) {
 }
 

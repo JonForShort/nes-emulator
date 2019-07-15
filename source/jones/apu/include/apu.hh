@@ -32,7 +32,7 @@ namespace jones {
 
 class apu : public memory_component {
 public:
-  explicit apu(const memory &memory);
+  explicit apu(memory &memory);
 
   ~apu() override;
 
