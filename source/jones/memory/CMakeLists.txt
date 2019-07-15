@@ -13,6 +13,8 @@ add_library (memory STATIC ${sources})
 
 add_dependencies (memory boost)
 
+target_link_libraries (memory log)
+
 target_include_directories (memory PRIVATE ${boost-include})
 target_include_directories (memory PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

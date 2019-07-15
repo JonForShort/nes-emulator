@@ -22,6 +22,7 @@
 // SOFTWARE.
 //
 #include "memory.hh"
+#include "log.hh"
 
 #include <algorithm>
 #include <boost/format.hpp>
@@ -51,7 +52,7 @@ auto memory::peek(uint16_t const address) const -> uint8_t {
       return i->peek(address);
     }
   }
-  BOOST_STATIC_ASSERT("unexpected peek address");
+  LOG_ERROR << boost::format("memory::peek : unexpected peek address : [%s] [0x%04X]") % tag_ % address;
   return 0;
 }
 
@@ -66,7 +67,7 @@ auto memory::read(const uint16_t address) const -> uint8_t {
       return i->read(address);
     }
   }
-  BOOST_STATIC_ASSERT("unexpected read address");
+  LOG_ERROR << boost::format("memory::read : unexpected read address : [%s] [0x%04X]") % tag_ % address;
   return 0;
 }
 
@@ -82,7 +83,7 @@ auto memory::write(uint16_t const address, uint8_t const data) const -> void {
       return;
     }
   }
-  BOOST_STATIC_ASSERT("unexpected write address");
+  LOG_ERROR << boost::format("memory::write : unexpected write address : [%s] [0x%04X] = [0x%02X]") % tag_ % address % static_cast<uint16_t>(data);
 }
 
 auto memory::map(memory_mappable_ptr mappable) -> void {
