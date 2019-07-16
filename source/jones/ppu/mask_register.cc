@@ -55,19 +55,19 @@ auto flag_to_position(const mask_flag flag) -> auto {
 
 } // namespace
 
-auto mask_register::is_set(const mask_flag flag) const -> bool {
+auto mask_register::is_set(mask_flag const flag) const -> bool {
   return mask_flags_.test(flag_to_position(flag));
 }
 
-auto mask_register::set(const mask_flag flag) -> void {
+auto mask_register::set(mask_flag const flag) -> void {
   mask_flags_.set(flag_to_position(flag), true);
 }
 
-auto mask_register::clear(const mask_flag flag) -> void {
+auto mask_register::clear(mask_flag const flag) -> void {
   mask_flags_.set(flag_to_position(flag), false);
 }
 
-auto mask_register::set(const uint8_t flags) -> void {
+auto mask_register::set(uint8_t const flags) -> void {
   (0x01U & flags) ? set(mask_flag::USE_GRAYSCALE) : clear(mask_flag::USE_GRAYSCALE);
   (0x02U & flags) ? set(mask_flag::SHOW_LEFT_BACKGROUND) : clear(mask_flag::SHOW_LEFT_BACKGROUND);
   (0x04U & flags) ? set(mask_flag::SHOW_LEFT_SPRITES) : clear(mask_flag::SHOW_LEFT_SPRITES);

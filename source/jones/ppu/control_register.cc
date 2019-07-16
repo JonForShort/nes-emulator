@@ -29,7 +29,7 @@ using namespace jones::ppu;
 
 namespace {
 
-auto flag_to_position(const control_flag flag) -> auto {
+auto flag_to_position(control_flag const flag) -> auto {
   switch (flag) {
   case control_flag::NAME_TABLE_ONE:
     return 0;
@@ -52,21 +52,22 @@ auto flag_to_position(const control_flag flag) -> auto {
     return -1;
   }
 }
+
 } // namespace
 
-auto control_register::is_set(const control_flag flag) const -> bool {
+auto control_register::is_set(control_flag const flag) const -> bool {
   return control_flags_.test(flag_to_position(flag));
 }
 
-auto control_register::set(const control_flag flag) -> void {
+auto control_register::set(control_flag const flag) -> void {
   control_flags_.set(flag_to_position(flag), true);
 }
 
-auto control_register::clear(const control_flag flag) -> void {
+auto control_register::clear(control_flag const flag) -> void {
   control_flags_.set(flag_to_position(flag), false);
 }
 
-auto control_register::set(const uint8_t flags) -> void {
+auto control_register::set(uint8_t const flags) -> void {
   (0x01U & flags) ? set(control_flag::NAME_TABLE_ONE) : clear(control_flag::NAME_TABLE_ONE);
   (0x02U & flags) ? set(control_flag::NAME_TABLE_TWO) : clear(control_flag::NAME_TABLE_TWO);
   (0x04U & flags) ? set(control_flag::VRAM_INCREMENT) : clear(control_flag::VRAM_INCREMENT);

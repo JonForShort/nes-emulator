@@ -29,7 +29,7 @@ using namespace jones::ppu;
 
 namespace {
 
-uint8_t flag_to_position(const status_flag flag) {
+uint8_t flag_to_position(status_flag const flag) {
   switch (flag) {
   case status_flag::SPRITE_OVER_FLOW:
     return 5;
@@ -45,19 +45,19 @@ uint8_t flag_to_position(const status_flag flag) {
 
 } // namespace
 
-bool status_register::is_set(const status_flag flag) const {
+bool status_register::is_set(status_flag const flag) const {
   return status_flags_.test(flag_to_position(flag));
 }
 
-void status_register::set(const status_flag flag) {
+void status_register::set(status_flag const flag) {
   status_flags_.set(flag_to_position(flag), true);
 }
 
-void status_register::clear(const status_flag flag) {
+void status_register::clear(status_flag const flag) {
   status_flags_.set(flag_to_position(flag), false);
 }
 
-void status_register::set(const uint8_t flags) {
+void status_register::set(uint8_t const flags) {
   (0x20U & flags) ? set(status_flag::SPRITE_OVER_FLOW) : clear(status_flag::SPRITE_OVER_FLOW);
   (0x40U & flags) ? set(status_flag::SPRITE_ZERO_HIT) : clear(status_flag::SPRITE_ZERO_HIT);
   (0x80U & flags) ? set(status_flag::VERTICAL_BLANK_STARTED) : clear(status_flag::VERTICAL_BLANK_STARTED);

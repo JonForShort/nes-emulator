@@ -27,15 +27,15 @@
 
 using namespace jones::ppu;
 
-auto pattern_table::peek(const uint16_t address) const -> uint8_t {
+auto pattern_table::peek(uint16_t const address) const -> uint8_t {
   return read(address);
 }
 
-auto pattern_table::read(const uint16_t address) const -> uint8_t {
+auto pattern_table::read(uint16_t const address) const -> uint8_t {
   boost::ignore_unused(address);
   return 0;
 }
 
-auto pattern_table::write(const uint16_t address, const uint8_t data) -> void {
+auto pattern_table::write(uint16_t const address, uint8_t const data) -> void {
   boost::ignore_unused(address, data);
 }
