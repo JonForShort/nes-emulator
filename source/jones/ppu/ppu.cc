@@ -159,6 +159,7 @@ public:
   }
 
   auto step() -> uint8_t {
+    check_nmi_trigger();
     process_frame_state();
     update_frame_counters();
     return 1;
@@ -318,6 +319,7 @@ private:
     const auto status = (write_register & 0x1FU) | status_register_.get();
     io_context_.vram_address_latch = false;
     status_register_.clear(status_flag::VERTICAL_BLANK_STARTED);
+    check_nmi_context();
     return status;
   }
 
@@ -713,9 +715,8 @@ private:
 
   auto process_state_flag_vblank_set() -> void {
     status_register_.set(status_flag::VERTICAL_BLANK_STARTED);
-    if (control_register_.is_set(control_flag::NMI)) {
-      cpu_.interrupt(interrupt_type::NMI);
-    }
+    check_nmi_context();
+
     screen_->lock();
     screen_->render();
   }
@@ -724,8 +725,30 @@ private:
     status_register_.clear(status_flag::VERTICAL_BLANK_STARTED);
     status_register_.clear(status_flag::SPRITE_OVER_FLOW);
     status_register_.clear(status_flag::SPRITE_ZERO_HIT);
+    check_nmi_context();
 
     screen_->unlock();
+  }
+
+  auto check_nmi_context() -> void {
+    static bool previous_nmi{};
+    if (can_perform_nmi() && !previous_nmi) {
+      nmi_delay = 15;
+    }
+    previous_nmi = can_perform_nmi();
+  }
+
+  auto check_nmi_trigger() -> void {
+    if (nmi_delay > 0) {
+      nmi_delay--;
+      if (nmi_delay == 0 && can_perform_nmi()) {
+        cpu_.interrupt(interrupt_type::NMI);
+      }
+    }
+  }
+
+  auto can_perform_nmi() -> bool {
+    return status_register_.is_set(status_flag::VERTICAL_BLANK_STARTED) && control_register_.is_set(control_flag::NMI);
   }
 
   auto process_state_flag_visible() -> void {
@@ -1054,6 +1077,8 @@ private:
   ppu_render_context render_context_{};
 
   ppu_io_context io_context_{};
+
+  uint8_t nmi_delay{};
 };
 
 ppu::ppu(jones::memory &cpu_memory, jones::memory &ppu_memory, cpu &cpu, screen::screen *screen)
