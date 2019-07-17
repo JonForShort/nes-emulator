@@ -343,13 +343,17 @@ private:
   }
 
   auto read_data() -> uint8_t {
-    auto data = io_context_.vram_buffer;
-    io_context_.vram_buffer = ppu_memory_.read(io_context_.vram_address.value);
-    io_context_.vram_address.value += control_register_.is_set(control_flag::VRAM_INCREMENT) ? 32 : 1;
-    if (io_context_.vram_address.value >= palette_background_begin) {
-      data = io_context_.vram_buffer;
+    auto const vram_address = io_context_.vram_address.value;
+    auto value = ppu_memory_.read(vram_address);
+    if ((vram_address % 0x4000) < palette_background_begin) {
+      auto const vram_buffer = io_context_.vram_buffer;
+      io_context_.vram_buffer = value;
+      value = vram_buffer;
+    } else {
+      io_context_.vram_buffer = ppu_memory_.read(vram_address - 0x1000);
     }
-    return data;
+    io_context_.vram_address.value += control_register_.is_set(control_flag::VRAM_INCREMENT) ? 32 : 1;
+    return value;
   }
 
   auto read_object_attribute_memory_dma() const -> uint8_t {
