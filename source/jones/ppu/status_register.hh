@@ -32,7 +32,7 @@ namespace jones::ppu {
 //
 // https://wiki.nesdev.com/w/index.php/PPU_registers#PPUSTATUS
 //
-enum class status_flag {
+enum class status_flag : uint8_t {
 
   SPRITE_OVER_FLOW,
 
@@ -43,15 +43,15 @@ enum class status_flag {
 
 class status_register final {
 public:
-  bool is_set(status_flag flag) const;
+  auto is_set(status_flag flag) const -> bool;
 
-  void set(status_flag flag);
+  auto set(status_flag flag) -> void;
 
-  void clear(status_flag flag);
+  auto clear(status_flag flag) -> void;
 
-  void set(uint8_t flags);
+  auto set(uint8_t flags) -> void;
 
-  uint8_t get() const;
+  auto get() const -> uint8_t;
 
 private:
   std::bitset<8> status_flags_{};

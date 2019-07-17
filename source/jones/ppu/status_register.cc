@@ -29,7 +29,7 @@ using namespace jones::ppu;
 
 namespace {
 
-uint8_t flag_to_position(status_flag const flag) {
+auto flag_to_position(status_flag const flag) -> uint8_t {
   switch (flag) {
   case status_flag::SPRITE_OVER_FLOW:
     return 5;
@@ -45,25 +45,25 @@ uint8_t flag_to_position(status_flag const flag) {
 
 } // namespace
 
-bool status_register::is_set(status_flag const flag) const {
+auto status_register::is_set(status_flag const flag) const -> bool {
   return status_flags_.test(flag_to_position(flag));
 }
 
-void status_register::set(status_flag const flag) {
+auto status_register::set(status_flag const flag) -> void {
   status_flags_.set(flag_to_position(flag), true);
 }
 
-void status_register::clear(status_flag const flag) {
+auto status_register::clear(status_flag const flag) -> void {
   status_flags_.set(flag_to_position(flag), false);
 }
 
-void status_register::set(uint8_t const flags) {
+auto status_register::set(uint8_t const flags) -> void {
   (0x20U & flags) ? set(status_flag::SPRITE_OVER_FLOW) : clear(status_flag::SPRITE_OVER_FLOW);
   (0x40U & flags) ? set(status_flag::SPRITE_ZERO_HIT) : clear(status_flag::SPRITE_ZERO_HIT);
   (0x80U & flags) ? set(status_flag::VERTICAL_BLANK_STARTED) : clear(status_flag::VERTICAL_BLANK_STARTED);
 }
 
-uint8_t status_register::get() const {
+auto status_register::get() const -> uint8_t {
   return (is_set(status_flag::SPRITE_OVER_FLOW) ? 0x20U : 0x00U) |
          (is_set(status_flag::SPRITE_ZERO_HIT) ? 0x40U : 0x00U) |
          (is_set(status_flag::VERTICAL_BLANK_STARTED) ? 0x80U : 0x00U);
