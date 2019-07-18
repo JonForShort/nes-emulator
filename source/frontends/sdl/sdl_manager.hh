@@ -36,7 +36,7 @@ namespace jones::sdl {
 
 class sdl_manager final {
 public:
-  sdl_manager();
+  sdl_manager() = default;
 
   ~sdl_manager();
 
@@ -52,11 +52,11 @@ private:
   auto process_events() -> void;
 
 private:
-  std::vector<sdl_component *> components_;
+  std::vector<sdl_component *> components_{};
 
-  std::atomic<bool> is_running_;
+  std::atomic<bool> is_running_{};
 
-  std::unique_ptr<std::thread> running_thread_;
+  std::unique_ptr<std::thread> running_thread_{};
 };
 
 } // namespace jones::sdl

@@ -88,7 +88,7 @@ auto sdl_controller::uninitialize() -> void {
   is_running_ = false;
 }
 
-auto sdl_controller::on_event(const SDL_Event event) -> void {
+auto sdl_controller::on_event(SDL_Event const event) -> void {
   switch (event.type) {
   case SDL_JOYAXISMOTION: {
     const auto controller = event.jbutton.which == 0 ? controller_one_ : controller_two_;

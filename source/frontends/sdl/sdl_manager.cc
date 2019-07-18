@@ -46,8 +46,6 @@ void sdl_shutdown() {
 
 } // namespace
 
-sdl_manager::sdl_manager() : components_(), is_running_(false), running_thread_(nullptr) {}
-
 sdl_manager::~sdl_manager() {
   uninitialize();
 }
