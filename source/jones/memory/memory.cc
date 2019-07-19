@@ -61,13 +61,12 @@ auto memory::peek_word(uint16_t const address) const -> uint16_t {
          static_cast<uint16_t>(peek(address + 1) << 8U);
 }
 
-auto memory::read(const uint16_t address) const -> uint8_t {
-  for (const auto &i : memory_mappings_) {
+auto memory::read(uint16_t const address) const -> uint8_t {
+  for (auto const &i : memory_mappings_) {
     if (address >= i->start_address() && address <= i->end_address()) {
       return i->read(address);
     }
   }
-  LOG_ERROR << boost::format("memory::read : unexpected read address : [%s] [0x%04X]") % tag_ % address;
   return 0;
 }
 
@@ -77,13 +76,11 @@ auto memory::read_word(uint16_t const address) const -> uint16_t {
 }
 
 auto memory::write(uint16_t const address, uint8_t const data) const -> void {
-  for (const auto &i : memory_mappings_) {
+  for (auto const &i : memory_mappings_) {
     if (address >= i->start_address() && address <= i->end_address()) {
       i->write(address, data);
-      return;
     }
   }
-  LOG_ERROR << boost::format("memory::write : unexpected write address : [%s] [0x%04X] = [0x%02X]") % tag_ % address % static_cast<uint16_t>(data);
 }
 
 auto memory::map(memory_mappable_ptr mappable) -> void {
@@ -91,7 +88,7 @@ auto memory::map(memory_mappable_ptr mappable) -> void {
 }
 
 auto memory::print(std::ostream &out) const -> void {
-  for (const auto &mapping : as_raw_memory_mappable(memory_mappings_)) {
+  for (auto const &mapping : as_raw_memory_mappable(memory_mappings_)) {
     out << boost::format("[%s] : [%04X] - [%04X] : [%s]") % tag_ % mapping->start_address() % mapping->end_address() % mapping->tag();
     out << std::endl;
   }
