@@ -30,22 +30,34 @@ namespace jones {
 
 enum class interrupt_type : uint8_t {
 
-  // Reset
+  // Reset.
   RESET = 0,
 
-  // Non-Maskable
+  // Non-Maskable.
   NMI,
 
-  // Interrupt Request
+  // Interrupt Request.
   IRQ,
 
-  // Break
+  // Break.
   BRK,
 
-  // None
+  // None.
   NONE,
 
-  // Number of Interrupts
+  // Number of Interrupts.
+  COUNT
+};
+
+enum class interrupt_state : uint8_t {
+
+  // Set Interrupt.
+  SET = 0,
+
+  // Clear Interrupt.
+  CLEAR,
+
+  // Number of States.
   COUNT
 };
 

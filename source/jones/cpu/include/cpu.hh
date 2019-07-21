@@ -95,7 +95,7 @@ public:
 
   auto set_state(const cpu_state &state) -> void;
 
-  auto interrupt(interrupt_type interrupt) -> void;
+  auto interrupt(interrupt_type interrupt, interrupt_state state = interrupt_state::SET) -> void;
 
   auto idle(uint16_t cycles) -> void;
 

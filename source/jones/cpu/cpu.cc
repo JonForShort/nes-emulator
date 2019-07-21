@@ -223,16 +223,17 @@ public:
     registers_.set(register_type::SR, state.registers.SR);
   }
 
-  void interrupt(const interrupt_type type) {
+  void interrupt(interrupt_type const type, interrupt_state const state) {
+    auto const is_set = state == interrupt_state::SET;
     switch (type) {
     case interrupt_type::RESET:
     case interrupt_type::NMI:
-      interrupts_.set_state(type, true);
+      interrupts_.set_state(type, is_set);
       break;
     case interrupt_type::BRK:
     case interrupt_type::IRQ:
       if (!status_register_.is_set(status_flag::I)) {
-        interrupts_.set_state(type, true);
+        interrupts_.set_state(type, is_set);
       }
       break;
     default:
@@ -253,7 +254,7 @@ private:
       execute(decoded);
     } else {
       BOOST_STATIC_ASSERT("unable to step cpu; decoded invalid instruction");
-      interrupt(interrupt_type::BRK);
+      interrupt(interrupt_type::BRK, interrupt_state::SET);
     }
   }
 
@@ -355,7 +356,7 @@ private:
   void execute(const decode::instruction &instruction) {
     switch (instruction.decoded_opcode.type) {
     case opcode_type::BRK: {
-      interrupt(interrupt_type::BRK);
+      interrupt(interrupt_type::BRK, interrupt_state::SET);
       break;
     }
     case opcode_type::PHP: {
@@ -2817,8 +2818,8 @@ auto cpu::set_state(const cpu_state &state) -> void {
   return impl_->set_state(state);
 }
 
-auto cpu::interrupt(const interrupt_type interrupt) -> void {
-  return impl_->interrupt(interrupt);
+auto cpu::interrupt(interrupt_type const interrupt, interrupt_state const state) -> void {
+  return impl_->interrupt(interrupt, state);
 }
 
 auto cpu::idle(const uint16_t cycles) -> void {
