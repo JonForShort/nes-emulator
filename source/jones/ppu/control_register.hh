@@ -55,13 +55,17 @@ enum class control_flag : uint16_t {
 
 class control_register final {
 public:
+  control_register() = default;
+
+  explicit control_register(uint8_t flags);
+
   auto is_set(control_flag flag) const -> bool;
 
-  auto clear(control_flag flag) -> void;
+  auto clear(control_flag flag) -> uint8_t;
 
-  auto set(control_flag flag) -> void;
+  auto set(control_flag flag) -> uint8_t;
 
-  auto set(uint8_t flags) -> void;
+  auto set(uint8_t flags) -> uint8_t;
 
   auto get() const -> uint8_t;
 

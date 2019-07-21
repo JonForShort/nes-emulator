@@ -55,19 +55,25 @@ auto flag_to_position(control_flag const flag) -> auto {
 
 } // namespace
 
+control_register::control_register(uint8_t const flags) {
+  set(flags);
+}
+
 auto control_register::is_set(control_flag const flag) const -> bool {
   return control_flags_.test(flag_to_position(flag));
 }
 
-auto control_register::set(control_flag const flag) -> void {
+auto control_register::set(control_flag const flag) -> uint8_t {
   control_flags_.set(flag_to_position(flag), true);
+  return get();
 }
 
-auto control_register::clear(control_flag const flag) -> void {
+auto control_register::clear(control_flag const flag) -> uint8_t {
   control_flags_.set(flag_to_position(flag), false);
+  return get();
 }
 
-auto control_register::set(uint8_t const flags) -> void {
+auto control_register::set(uint8_t const flags) -> uint8_t {
   (0x01U & flags) ? set(control_flag::NAME_TABLE_ONE) : clear(control_flag::NAME_TABLE_ONE);
   (0x02U & flags) ? set(control_flag::NAME_TABLE_TWO) : clear(control_flag::NAME_TABLE_TWO);
   (0x04U & flags) ? set(control_flag::VRAM_INCREMENT) : clear(control_flag::VRAM_INCREMENT);
@@ -76,6 +82,7 @@ auto control_register::set(uint8_t const flags) -> void {
   (0x20U & flags) ? set(control_flag::SPRITE_SIZE) : clear(control_flag::SPRITE_SIZE);
   (0x40U & flags) ? set(control_flag::MASTER_SLAVE) : clear(control_flag::MASTER_SLAVE);
   (0x80U & flags) ? set(control_flag::NMI) : clear(control_flag::NMI);
+  return get();
 }
 
 auto control_register::get() const -> uint8_t {
