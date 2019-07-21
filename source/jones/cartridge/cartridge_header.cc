@@ -84,7 +84,8 @@ void cartridge_header::print(std::ostream &out) const {
   print_hex_integer(out, "lower_mapper_nibble: ", header.lower_mapper_nibble);
   print_hex_integer(out, "is_vs_unisystem: ", header.is_vs_unisystem);
   print_hex_integer(out, "is_play_choice: ", header.is_play_choice);
-  print_hex_integer(out, "version: ", header.version);
+  print_hex_integer(out, "version_raw: ", header.version);
+  print_hex_integer(out, "version_parsed: ", version());
   print_hex_integer(out, "upper_mapper_nibble: ", header.upper_mapper_nibble);
   print_hex_integer(out, "prgram_size: ", header.prgram_size);
   print_hex_integer(out, "which_tv_system_one: ", header.which_tv_system_one);
@@ -100,7 +101,7 @@ bool cartridge_header::valid() const {
   return header.constants == magic_number;
 }
 
-size_t cartridge_header::version() const {
+uint8_t cartridge_header::version() const {
   return (header.version == 2) ? 2 : 1;
 }
 
@@ -108,8 +109,8 @@ uint16_t cartridge_header::prgrom_offset() const {
   return sizeof(header) + (header.has_trainer == 0 ? 0 : (sizeof(uint8_t) * 512));
 }
 
-uint16_t cartridge_header::prgrom_size() const {
-  return static_cast<uint16_t>(prgrom_count() * 16384);
+uint32_t cartridge_header::prgrom_size() const {
+  return prgrom_count() * 16384;
 }
 
 uint8_t cartridge_header::prgrom_count() const {

@@ -56,7 +56,7 @@ mapper_mmc1::mapper_mmc1(const mapper_view &mapper_view) : mapper(mapper_view), 
   mapper_view.ppu_memory().map(std::make_unique<memory_mappable_component<mapper_mmc1>>(this, "mapper_mmc1", 0x0000, 0x1FFF));
 }
 
-auto mapper_mmc1::get_prg_bank_offset(const int16_t index) const -> uint16_t {
+auto mapper_mmc1::get_prg_bank_offset(const int index) const -> uint16_t {
   auto adjusted_index = index;
   if (adjusted_index >= 0x80) {
     adjusted_index -= 0x100;
@@ -69,7 +69,7 @@ auto mapper_mmc1::get_prg_bank_offset(const int16_t index) const -> uint16_t {
   return offset;
 }
 
-auto mapper_mmc1::get_chr_bank_offset(const int16_t index) const -> uint16_t {
+auto mapper_mmc1::get_chr_bank_offset(const int index) const -> uint16_t {
   auto adjusted_index = index;
   if (adjusted_index >= 0x80) {
     adjusted_index -= 0x100;

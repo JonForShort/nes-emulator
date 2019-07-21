@@ -37,7 +37,10 @@ int main(int argc, char *argv[]) {
 
   try {
     po::options_description desc{"Options"};
-    desc.add_options()("help,h", "Help screen")("file,f", po::value<std::string>(&file_argument)->required(), "file path to rom")("output,o", po::value<std::string>(&output_argument)->default_value("out"), "directory path to write output");
+    desc.add_options()
+    ("help,h", "Help screen")
+    ("file,f", po::value<std::string>(&file_argument)->required(), "file path to rom")
+    ("output,o", po::value<std::string>(&output_argument)->default_value("out"), "directory path to write output");
 
     po::variables_map vm;
     po::store(parse_command_line(argc, argv, desc), vm);

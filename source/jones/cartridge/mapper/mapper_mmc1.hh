@@ -44,9 +44,9 @@ public:
   auto write(uint16_t address, uint8_t data) -> void override;
 
 private:
-  auto get_prg_bank_offset(int16_t index) const -> uint16_t;
+  auto get_prg_bank_offset(int index) const -> uint16_t;
 
-  auto get_chr_bank_offset(int16_t index) const -> uint16_t;
+  auto get_chr_bank_offset(int index) const -> uint16_t;
 
   auto update_offsets() -> void;
 
@@ -81,11 +81,11 @@ private:
 
   uint8_t *prg_rom_{};
 
-  uint16_t prg_rom_size_{};
+  uint32_t prg_rom_size_{};
 
   uint8_t *chr_rom_{};
 
-  uint16_t chr_rom_size_{};
+  uint32_t chr_rom_size_{};
 
   std::vector<uint8_t> chr_ram_{};
 

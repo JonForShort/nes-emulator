@@ -41,11 +41,11 @@ public:
 
   auto valid() const -> bool override;
 
-  auto version() const -> size_t override;
+  auto version() const -> uint8_t override;
 
   auto prgrom_offset() const -> uint16_t override;
 
-  auto prgrom_size() const -> uint16_t override;
+  auto prgrom_size() const -> uint32_t override;
 
   auto prgrom_count() const -> uint8_t override;
 

@@ -36,11 +36,11 @@ public:
 
   virtual auto valid() const -> bool = 0;
 
-  virtual auto version() const -> size_t = 0;
+  virtual auto version() const -> uint8_t = 0;
 
   virtual auto prgrom_offset() const -> uint16_t = 0;
 
-  virtual auto prgrom_size() const -> uint16_t = 0;
+  virtual auto prgrom_size() const -> uint32_t = 0;
 
   virtual auto prgrom_count() const -> uint8_t = 0;
 
