@@ -45,22 +45,29 @@ auto flag_to_position(status_flag const flag) -> uint8_t {
 
 } // namespace
 
+status_register::status_register(uint8_t flags) {
+  set(flags);
+}
+
 auto status_register::is_set(status_flag const flag) const -> bool {
   return status_flags_.test(flag_to_position(flag));
 }
 
-auto status_register::set(status_flag const flag) -> void {
+auto status_register::set(status_flag const flag) -> uint8_t {
   status_flags_.set(flag_to_position(flag), true);
+  return get();
 }
 
-auto status_register::clear(status_flag const flag) -> void {
+auto status_register::clear(status_flag const flag) -> uint8_t {
   status_flags_.set(flag_to_position(flag), false);
+  return get();
 }
 
-auto status_register::set(uint8_t const flags) -> void {
+auto status_register::set(uint8_t const flags) -> uint8_t {
   (0x20U & flags) ? set(status_flag::SPRITE_OVER_FLOW) : clear(status_flag::SPRITE_OVER_FLOW);
   (0x40U & flags) ? set(status_flag::SPRITE_ZERO_HIT) : clear(status_flag::SPRITE_ZERO_HIT);
   (0x80U & flags) ? set(status_flag::VERTICAL_BLANK_STARTED) : clear(status_flag::VERTICAL_BLANK_STARTED);
+  return get();
 }
 
 auto status_register::get() const -> uint8_t {

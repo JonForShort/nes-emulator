@@ -43,13 +43,17 @@ enum class status_flag : uint8_t {
 
 class status_register final {
 public:
+  status_register() = default;
+
+  explicit status_register(uint8_t flags);
+
   auto is_set(status_flag flag) const -> bool;
 
-  auto set(status_flag flag) -> void;
+  auto set(status_flag flag) -> uint8_t;
 
-  auto clear(status_flag flag) -> void;
+  auto clear(status_flag flag) -> uint8_t;
 
-  auto set(uint8_t flags) -> void;
+  auto set(uint8_t flags) -> uint8_t;
 
   auto get() const -> uint8_t;
 
