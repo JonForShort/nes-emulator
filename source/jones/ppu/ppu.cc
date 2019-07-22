@@ -93,6 +93,8 @@ constexpr auto ppu_scanline_postrender = 240;
 
 constexpr auto ppu_scanline_vblank = 241;
 
+constexpr auto ppu_vblank_cycle_delay = 3;
+
 constexpr inline bool is_color_transparent(const uint32_t color) {
   return color == 0;
 }
@@ -386,15 +388,22 @@ private:
   }
 
   auto peek_status() const -> uint8_t {
-    return status_register_.get();
+    if (auto const status = status_register_.get();
+        frame_current_scanline_ == ppu_scanline_vblank &&
+        frame_current_cycle_ < ppu_vblank_cycle_delay) {
+      return status_register{status}.clear(status_flag::VERTICAL_BLANK_STARTED);
+    } else {
+      return status;
+    }
   }
 
   auto peek_data() const -> uint8_t {
-    auto data = io_context_.vram_buffer;
-    if (io_context_.vram_address.value >= palette_background_begin) {
-      data = io_context_.vram_buffer;
+    if (auto const address = io_context_.vram_address.value;
+        (address % 0x4000) < palette_background_begin) {
+      return io_context_.vram_buffer;
+    } else {
+      return ppu_memory_.read(address);
     }
-    return data;
   }
 
   auto peek_object_attribute_memory_dma() const -> uint8_t {
