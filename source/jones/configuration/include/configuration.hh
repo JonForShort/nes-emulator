@@ -42,6 +42,11 @@ enum class property : uint8_t {
   PROPERTY_DISASM_USE_ABSOLUTE_ADDRESSES,
 
   //
+  // Model of the NES to run.
+  //
+  PROPERTY_NES_MODEL,
+
+  //
   // Number of properties defined.
   //
   PROPERTY_COUNT
@@ -57,6 +62,14 @@ enum class mirror_mode : uint8_t {
   MIRROR_MODE_HORIZONTAL,
 
   MIRROR_MODE_COUNT
+};
+
+enum class nes_model : uint8_t {
+  NES_MODEL_NTSC = 0,
+
+  NES_MODEL_PAL,
+
+  NES_MODEL_COUNT
 };
 
 auto get_mirror_mode(uint8_t data) -> uint8_t;
