@@ -21,26 +21,54 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <memory>
+#ifndef JONES_CARTRIDGE_MAPPER_MAPPER_CNROM_HH
+#define JONES_CARTRIDGE_MAPPER_MAPPER_CNROM_HH
+
+#include <cstdint>
+#include <vector>
 
 #include "mapper.hh"
-#include "mapper_cnrom.hh"
-#include "mapper_mmc1.hh"
-#include "mapper_nrom.hh"
-#include "mapper_unsupported.hh"
 
-using namespace jones;
+namespace jones {
 
-std::unique_ptr<mapper> mapper_factory::get(const mapper_view &mapper_view) {
-  const auto mapper_number = mapper_view.cartridge().header()->mapper_number();
-  switch (mapper_number) {
-  case 0:
-    return std::make_unique<mapper_nrom>(mapper_view);
-  case 1:
-    return std::make_unique<mapper_mmc1>(mapper_view);
-  case 3:
-    return std::make_unique<mapper_cnrom>(mapper_view);
-  default:
-    return std::make_unique<mapper_unsupported>(mapper_view);
-  }
-}
+class mapper_cnrom : public mapper {
+public:
+  explicit mapper_cnrom(const mapper_view &mapper_view);
+
+  ~mapper_cnrom() override = default;
+
+  auto peek(uint16_t address) const -> uint8_t override;
+
+  auto read(uint16_t address) const -> uint8_t override;
+
+  auto write(uint16_t address, uint8_t data) -> void override;
+
+private:
+  auto initialize_chrrom() -> void;
+
+  auto read_prg(uint16_t address) const -> uint8_t;
+
+  auto read_chr(uint16_t address) const -> uint8_t;
+
+  auto write_chr(uint16_t address, uint8_t data) -> void;
+
+  auto write_chr_bank(uint16_t address, uint8_t data) -> void;
+
+  auto read_sram(uint16_t address) const -> uint8_t;
+
+  auto write_sram(uint16_t address, uint8_t data) -> void;
+
+  uint8_t *const prgrom_{};
+
+  uint16_t const prgrom_size_{};
+
+  std::vector<uint8_t> chrom_{};
+
+  uint32_t chr_bank_{};
+
+  std::vector<uint8_t> sram_{};
+};
+
+} // namespace jones
+
+#endif // JONES_CARTRIDGE_MAPPER_MAPPER_CNROM_HH
