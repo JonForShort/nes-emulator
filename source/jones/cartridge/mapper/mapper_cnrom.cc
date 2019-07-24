@@ -38,13 +38,13 @@ mapper_cnrom::mapper_cnrom(const mapper_view &mapper_view)
 }
 
 auto mapper_cnrom::initialize_chrrom() -> void {
-  auto const &header = get_cartridge().header();
-  if (header->chrrom_size() == 0) {
+  if (auto const &header = get_cartridge().header();
+      header->chrrom_size() == 0) {
     chrom_.assign(8192, 0);
   } else {
     chrom_.resize(header->chrrom_size());
-    auto const chrrom_begin = get_cartridge().address() + get_cartridge().header()->chrrom_offset();
-    auto const chrrom_end = get_cartridge().address() + get_cartridge().header()->chrrom_offset() + get_cartridge().header()->chrrom_size();
+    auto const chrrom_begin = get_cartridge().address() + header->chrrom_offset();
+    auto const chrrom_end = chrrom_begin + header->chrrom_size();
     std::copy(chrrom_begin, chrrom_end, chrom_.begin());
   }
 }
@@ -81,8 +81,7 @@ auto mapper_cnrom::read_prg(const uint16_t address) const -> uint8_t {
     auto const prg_bank = (prgrom_size_ / 0x4000) - 1;
     auto const offset = address - 0xC000;
     return prgrom_[(prg_bank * 0x4000) + offset];
-  }
-  if (address >= 0x8000) {
+  } else if (address >= 0x8000) {
     return prgrom_[address - 0x8000];
   }
   return 0;
