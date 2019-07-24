@@ -863,10 +863,9 @@ private:
   auto update_scanline_counter() -> void {
     if (frame_current_cycle_ == 0) {
       frame_current_scanline_ += 1;
-      if (frame_current_scanline_ < ppu_max_scanlines) {
-        return;
+      if (frame_current_scanline_ >= ppu_max_scanlines) {
+        frame_current_scanline_ = 0;
       }
-      frame_current_scanline_ = 0;
     }
   }
 
@@ -883,19 +882,11 @@ private:
 
     scanline[1] |= static_cast<uint32_t>(ppu_frame_state::STATE_FLAG_VBLANK_CLEAR);
 
-    for (auto i = 1; i <= 256; i++) {
-      if (i % 8 == 1) {
-        scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_NT_BYTE);
-      }
-      if (i % 8 == 3) {
-        scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_AT_BYTE);
-      }
-      if (i % 8 == 5) {
-        scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_BG_LOW_BYTE);
-      }
-      if (i % 8 == 7) {
-        scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_BG_HIGH_BYTE);
-      }
+    for (auto i = 1; i <= 256; i += 8) {
+      scanline[i + 0] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_NT_BYTE);
+      scanline[i + 2] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_AT_BYTE);
+      scanline[i + 4] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_BG_LOW_BYTE);
+      scanline[i + 6] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_BG_HIGH_BYTE);
     }
 
     for (auto i = 2; i <= 257; i++) {
@@ -903,16 +894,12 @@ private:
       scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_REG_SPRITE_SHIFT);
     }
 
-    for (auto i = 9; i <= 257; i++) {
-      if (i % 8 == 1) {
-        scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_REG_BG_RELOAD);
-      }
+    for (auto i = 9; i <= 257; i += 8) {
+      scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_REG_BG_RELOAD);
     }
 
-    for (auto i = 8; i <= 256; i++) {
-      if (i % 8 == 0) {
-        scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_LOOPY_INC_HORI_V);
-      }
+    for (auto i = 8; i <= 256; i += 8) {
+      scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_LOOPY_INC_HORI_V);
     }
 
     scanline[256] |= static_cast<uint32_t>(ppu_frame_state::STATE_LOOPY_INC_VERT_V);
@@ -975,19 +962,11 @@ private:
         scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_FLAG_VISIBLE);
       }
 
-      for (auto i = 1; i <= 256; i++) {
-        if (i % 8 == 1) {
-          scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_NT_BYTE);
-        }
-        if (i % 8 == 3) {
-          scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_AT_BYTE);
-        }
-        if (i % 8 == 5) {
-          scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_BG_LOW_BYTE);
-        }
-        if (i % 8 == 7) {
-          scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_BG_HIGH_BYTE);
-        }
+      for (auto i = 1; i <= 256; i += 8) {
+        scanline[i + 0] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_NT_BYTE);
+        scanline[i + 2] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_AT_BYTE);
+        scanline[i + 4] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_BG_LOW_BYTE);
+        scanline[i + 6] |= static_cast<uint32_t>(ppu_frame_state::STATE_VRAM_FETCH_BG_HIGH_BYTE);
       }
 
       for (auto i = 2; i <= 257; i++) {
@@ -995,16 +974,12 @@ private:
         scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_REG_SPRITE_SHIFT);
       }
 
-      for (auto i = 9; i <= 257; i++) {
-        if (i % 8 == 1) {
-          scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_REG_BG_RELOAD);
-        }
+      for (auto i = 9; i <= 257; i += 8) {
+        scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_REG_BG_RELOAD);
       }
 
-      for (auto i = 8; i <= 256; i++) {
-        if (i % 8 == 0) {
-          scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_LOOPY_INC_HORI_V);
-        }
+      for (auto i = 8; i <= 256; i += 8) {
+        scanline[i] |= static_cast<uint32_t>(ppu_frame_state::STATE_LOOPY_INC_HORI_V);
       }
 
       scanline[256] |= static_cast<uint32_t>(ppu_frame_state::STATE_LOOPY_INC_VERT_V);
