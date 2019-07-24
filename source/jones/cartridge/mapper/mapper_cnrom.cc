@@ -31,7 +31,8 @@ using namespace jones;
 mapper_cnrom::mapper_cnrom(const mapper_view &mapper_view)
     : mapper(mapper_view),
       prgrom_(get_cartridge().address() + get_cartridge().header()->prgrom_offset()),
-      prgrom_size_(get_cartridge().header()->prgrom_size()) {
+      prgrom_size_(get_cartridge().header()->prgrom_size()),
+      sram_(0x2000, 0) {
   initialize_chrrom();
   mapper_view.cpu_memory().map(std::make_unique<memory_mappable_component<mapper_cnrom>>(this, "mapper_cnrom", 0x6000, 0xFFFF));
   mapper_view.ppu_memory().map(std::make_unique<memory_mappable_component<mapper_cnrom>>(this, "mapper_cnrom", 0x0000, 0x1FFF));
