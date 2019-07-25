@@ -66,25 +66,25 @@ private:
     NROM_VERTICAL
   };
 
-  static nrom_type resolve_type(const mapped_cartridge &cartridge) {
+  static auto resolve_type(const mapped_cartridge &cartridge) -> nrom_type {
     const auto prgrom_count = cartridge.header()->prgrom_count();
     return prgrom_count == 1 ? nrom_type::NROM_128 : nrom_type::NROM_256;
   }
 
-  static nrom_mirroring_type resolve_mirroring_type(const mapped_cartridge &cartridge) {
+  static auto resolve_mirroring_type(const mapped_cartridge &cartridge) -> nrom_mirroring_type {
     const auto mirroring = cartridge.header()->has_mirroring();
     return mirroring ? nrom_mirroring_type::NROM_VERTICAL : nrom_mirroring_type::NROM_HORIZONAL;
   }
 
-  const nrom_type type_{};
+  nrom_type const type_{};
 
-  const nrom_mirroring_type mirroring_type_{};
+  nrom_mirroring_type const mirroring_type_{};
 
-  const bool use_chrram{};
+  bool const use_chrram{};
 
   uint8_t *const prgrom_{};
 
-  const uint16_t prgrom_size_{};
+  uint16_t const prgrom_size_{};
 
   std::vector<uint8_t> chrram_{};
 

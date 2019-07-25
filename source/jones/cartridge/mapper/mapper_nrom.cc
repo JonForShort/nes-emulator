@@ -60,7 +60,7 @@ auto mapper_nrom::read(uint16_t const address) const -> uint8_t {
   return 0;
 }
 
-auto mapper_nrom::write(const uint16_t address, const uint8_t data) -> void {
+auto mapper_nrom::write(uint16_t const address, uint8_t const data) -> void {
   if (address < 0x2000) {
     return write_chr(address, data);
   } else if (address >= 0x8000) {
@@ -71,7 +71,7 @@ auto mapper_nrom::write(const uint16_t address, const uint8_t data) -> void {
   BOOST_STATIC_ASSERT("unexpected write for mapper nrom");
 }
 
-uint8_t mapper_nrom::read_prg(const uint16_t address) const {
+auto mapper_nrom::read_prg(uint16_t const address) const -> uint8_t {
   switch (type_) {
   case nrom_type::NROM_128: {
     const auto offset = address - 0x8000;
@@ -91,12 +91,12 @@ uint8_t mapper_nrom::read_prg(const uint16_t address) const {
   return 0;
 }
 
-void mapper_nrom::write_prg(const uint16_t address, const uint8_t data) {
+auto mapper_nrom::write_prg(uint16_t const address, uint8_t const data) -> void {
   boost::ignore_unused(address, data);
   BOOST_STATIC_ASSERT("unable to write to prg rom");
 }
 
-uint8_t mapper_nrom::read_chr(const uint16_t address) const {
+auto mapper_nrom::read_chr(const uint16_t address) const -> uint8_t {
   if (use_chrram) {
     return chrram_[address];
   } else {
@@ -104,7 +104,7 @@ uint8_t mapper_nrom::read_chr(const uint16_t address) const {
   }
 }
 
-void mapper_nrom::write_chr(const uint16_t address, const uint8_t data) {
+auto mapper_nrom::write_chr(uint16_t const address, uint8_t const data) -> void {
   if (use_chrram) {
     chrram_[address] = data;
   } else {
@@ -112,10 +112,10 @@ void mapper_nrom::write_chr(const uint16_t address, const uint8_t data) {
   }
 }
 
-auto mapper_nrom::read_sram(const uint16_t address) const -> uint8_t {
+auto mapper_nrom::read_sram(uint16_t const address) const -> uint8_t {
   return sram_[address - 0x6000];
 }
 
-auto mapper_nrom::write_sram(const uint16_t address, const uint8_t data) -> void {
+auto mapper_nrom::write_sram(uint16_t const address, uint8_t const data) -> void {
   sram_[address - 0x6000] = data;
 }
