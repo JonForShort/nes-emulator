@@ -45,7 +45,7 @@ auto flag_to_position(control_flag const flag) -> auto {
     return 5;
   case control_flag::MASTER_SLAVE:
     return 6;
-  case control_flag::NMI:
+  case control_flag::GENERATE_NMI_ON_VBLANK:
     return 7;
   default:
     BOOST_STATIC_ASSERT("unexpected flag for control register");
@@ -81,7 +81,7 @@ auto control_register::set(uint8_t const flags) -> uint8_t {
   (0x10U & flags) ? set(control_flag::BACKGROUND_TABLE) : clear(control_flag::BACKGROUND_TABLE);
   (0x20U & flags) ? set(control_flag::SPRITE_SIZE) : clear(control_flag::SPRITE_SIZE);
   (0x40U & flags) ? set(control_flag::MASTER_SLAVE) : clear(control_flag::MASTER_SLAVE);
-  (0x80U & flags) ? set(control_flag::NMI) : clear(control_flag::NMI);
+  (0x80U & flags) ? set(control_flag::GENERATE_NMI_ON_VBLANK) : clear(control_flag::GENERATE_NMI_ON_VBLANK);
   return get();
 }
 
@@ -93,5 +93,5 @@ auto control_register::get() const -> uint8_t {
          (is_set(control_flag::BACKGROUND_TABLE) ? 0x10U : 0x00U) |
          (is_set(control_flag::SPRITE_SIZE) ? 0x20U : 0x00U) |
          (is_set(control_flag::MASTER_SLAVE) ? 0x40U : 0x00U) |
-         (is_set(control_flag::NMI) ? 0x80U : 0x00U);
+         (is_set(control_flag::GENERATE_NMI_ON_VBLANK) ? 0x80U : 0x00U);
 }

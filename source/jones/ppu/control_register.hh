@@ -48,7 +48,7 @@ enum class control_flag : uint16_t {
 
   MASTER_SLAVE,
 
-  NMI,
+  GENERATE_NMI_ON_VBLANK,
 
   COUNT
 };
@@ -59,7 +59,7 @@ public:
 
   explicit control_register(uint8_t flags);
 
-  auto is_set(control_flag flag) const -> bool;
+  [[nodiscard]] auto is_set(control_flag flag) const -> bool;
 
   auto clear(control_flag flag) -> uint8_t;
 
@@ -67,7 +67,7 @@ public:
 
   auto set(uint8_t flags) -> uint8_t;
 
-  auto get() const -> uint8_t;
+  [[nodiscard]] auto get() const -> uint8_t;
 
 private:
   static constexpr auto control_flag_count = static_cast<uint16_t>(control_flag::COUNT);

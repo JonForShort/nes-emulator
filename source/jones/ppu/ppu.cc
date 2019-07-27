@@ -23,7 +23,6 @@
 //
 #include <array>
 #include <boost/assert.hpp>
-#include <boost/core/ignore_unused.hpp>
 #include <boost/static_assert.hpp>
 
 #include "bit_utils.hh"
@@ -128,7 +127,7 @@ public:
     //
   }
 
-  auto peek(const uint16_t address) const -> uint8_t {
+  [[nodiscard]] auto peek(const uint16_t address) const -> uint8_t {
     if (address >= 0x2000 && address <= 0x3FFF) {
       return peek_registers(address);
     } else if (address == 0x4014) {
@@ -307,12 +306,12 @@ private:
     return -1;
   }
 
-  auto read_control() const -> uint8_t {
+  [[nodiscard]] auto read_control() const -> uint8_t {
     BOOST_STATIC_ASSERT("read unexpected for control");
     return control_register_.get();
   }
 
-  auto read_mask() const -> uint8_t {
+  [[nodiscard]] auto read_mask() const -> uint8_t {
     BOOST_STATIC_ASSERT("read unexpected for mask");
     return mask_register_.get();
   }
@@ -325,21 +324,21 @@ private:
     return status;
   }
 
-  auto read_object_attribute_memory_address() const -> uint8_t {
+  [[nodiscard]] auto read_object_attribute_memory_address() const -> uint8_t {
     BOOST_STATIC_ASSERT("read unexpected for oam address");
     return oam_address_;
   }
 
-  auto read_object_attribute_memory_data() const -> uint8_t {
+  [[nodiscard]] auto read_object_attribute_memory_data() const -> uint8_t {
     return oam_data_[oam_address_];
   }
 
-  auto read_scroll() const -> uint8_t {
+  [[nodiscard]] auto read_scroll() const -> uint8_t {
     BOOST_STATIC_ASSERT("read unexpected for scroll");
     return 0;
   }
 
-  auto read_address() const -> uint8_t {
+  [[nodiscard]] auto read_address() const -> uint8_t {
     BOOST_STATIC_ASSERT("read unexpected for address");
     return 0;
   }
@@ -358,12 +357,12 @@ private:
     return value;
   }
 
-  auto read_object_attribute_memory_dma() const -> uint8_t {
+  [[nodiscard]] auto read_object_attribute_memory_dma() const -> uint8_t {
     BOOST_STATIC_ASSERT("read unexpected for oam dma");
     return 0;
   }
 
-  auto peek_registers(const uint16_t address) const -> uint8_t {
+  [[nodiscard]] auto peek_registers(const uint16_t address) const -> uint8_t {
     BOOST_ASSERT_MSG(address >= 0x2000 && address <= 0x3FFF, "peek unexpected address for ppu");
     const auto address_offset = (address - 0x2000);
     switch (address_offset % 8) {
@@ -387,7 +386,7 @@ private:
     return -1;
   }
 
-  auto peek_status() const -> uint8_t {
+  [[nodiscard]] auto peek_status() const -> uint8_t {
     if (auto const status = status_register_.get();
         frame_current_scanline_ == ppu_scanline_vblank &&
         frame_current_cycle_ < ppu_vblank_cycle_delay) {
@@ -397,7 +396,7 @@ private:
     }
   }
 
-  auto peek_data() const -> uint8_t {
+  [[nodiscard]] auto peek_data() const -> uint8_t {
     if (auto const address = io_context_.vram_address.value;
         (address % 0x4000) < palette_background_begin) {
       return io_context_.vram_buffer;
@@ -406,7 +405,7 @@ private:
     }
   }
 
-  auto peek_object_attribute_memory_dma() const -> uint8_t {
+  [[nodiscard]] auto peek_object_attribute_memory_dma() const -> uint8_t {
     return read_object_attribute_memory_address();
   }
 
@@ -529,12 +528,12 @@ private:
   }
 
   auto process_state_evaluate_sprite() -> void {
-    const auto is_sprites_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
+    auto const is_sprites_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
     if (!is_sprites_visible) {
       return;
     }
-    const auto sprite_height = control_register_.is_set(control_flag::SPRITE_SIZE) ? (2 * ppu_tile_height) : ppu_tile_height;
-    const auto sprites = reinterpret_cast<ppu_sprite *>(oam_data_.data());
+    auto const sprite_height = control_register_.is_set(control_flag::SPRITE_SIZE) ? (2 * ppu_tile_height) : ppu_tile_height;
+    auto const sprites = reinterpret_cast<ppu_sprite *>(oam_data_.data());
 
     render_context_.sprite_zero_evaluated = false;
 
@@ -575,7 +574,7 @@ private:
   }
 
   auto process_state_secondary_oam_clear() -> void {
-    const auto is_sprites_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
+    auto const is_sprites_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
     if (!is_sprites_visible) {
       return;
     }
@@ -583,7 +582,7 @@ private:
   }
 
   auto process_state_loopy_set_vert_v() -> void {
-    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    auto const is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
     if (!is_background_visible) {
       return;
     }
@@ -593,7 +592,7 @@ private:
   }
 
   auto process_state_loopy_set_hori_v() -> void {
-    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    auto const is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
     if (!is_background_visible) {
       return;
     }
@@ -612,7 +611,7 @@ private:
   }
 
   auto process_state_vram_fetch_bg_low_byte() -> void {
-    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    auto const is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
     if (!is_background_visible) {
       return;
     }
@@ -622,7 +621,7 @@ private:
   }
 
   auto process_state_reg_bg_reload() -> void {
-    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    auto const is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
     if (!is_background_visible) {
       return;
     }
@@ -632,7 +631,7 @@ private:
   }
 
   auto process_state_reg_sprite_shift() -> void {
-    const auto is_sprites_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
+    auto const is_sprites_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
     if (!is_sprites_visible) {
       return;
     }
@@ -650,7 +649,7 @@ private:
   }
 
   auto process_state_reg_bg_shift() -> void {
-    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    auto const is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
     if (!is_background_visible) {
       return;
     }
@@ -659,13 +658,13 @@ private:
     render_context_.attribute_table_shift_low <<= 1U;
     render_context_.attribute_table_shift_high <<= 1U;
 
-    const auto attribute_latch = render_context_.attribute_table_latch;
+    auto const attribute_latch = render_context_.attribute_table_latch;
     render_context_.attribute_table_shift_low |= bit_shift_and<uint8_t>(attribute_latch, 0, 1);
     render_context_.attribute_table_shift_high |= bit_shift_and<uint8_t>(attribute_latch, 1, 1);
   }
 
   auto process_state_loopy_inc_hori_v() -> void {
-    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    auto const is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
     if (!is_background_visible) {
       return;
     }
@@ -745,7 +744,7 @@ private:
 
   auto check_nmi_context() -> void {
     static bool previous_nmi{};
-    if (can_perform_nmi() && !previous_nmi) {
+    if (!previous_nmi && can_perform_nmi()) {
       nmi_delay = 15;
     }
     previous_nmi = can_perform_nmi();
@@ -761,12 +760,13 @@ private:
   }
 
   auto can_perform_nmi() -> bool {
-    return status_register_.is_set(status_flag::VERTICAL_BLANK_STARTED) && control_register_.is_set(control_flag::NMI);
+    return status_register_.is_set(status_flag::VERTICAL_BLANK_STARTED) &&
+           control_register_.is_set(control_flag::GENERATE_NMI_ON_VBLANK);
   }
 
   auto process_state_flag_visible() -> void {
-    const auto screen_x_position = frame_current_cycle_ - 2;
-    const auto screen_y_position = frame_current_scanline_;
+    auto const screen_x_position = frame_current_cycle_ - 2;
+    auto const screen_y_position = frame_current_scanline_;
 
     uint8_t background_palette = 0x00;
     uint16_t background_color = 0x0000;
@@ -842,10 +842,9 @@ private:
 
   auto update_cycle_counter() -> void {
     frame_current_cycle_ += 1;
-    if (frame_current_cycle_ <= ppu_max_cycles) {
-      return;
+    if (frame_current_cycle_ > ppu_max_cycles) {
+      frame_current_cycle_ = 0;
     }
-    frame_current_cycle_ = 0;
   }
 
   auto update_frame_counter() -> void {
