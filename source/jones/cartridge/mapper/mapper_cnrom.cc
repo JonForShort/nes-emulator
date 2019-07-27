@@ -28,7 +28,7 @@
 
 using namespace jones;
 
-mapper_cnrom::mapper_cnrom(const mapper_view &mapper_view)
+mapper_cnrom::mapper_cnrom(mapper_view const &mapper_view)
     : mapper(mapper_view),
       prgrom_(get_cartridge().address() + get_cartridge().header()->prgrom_offset()),
       prgrom_size_(get_cartridge().header()->prgrom_size()),
@@ -66,7 +66,7 @@ auto mapper_cnrom::read(uint16_t const address) const -> uint8_t {
   return 0;
 }
 
-auto mapper_cnrom::write(const uint16_t address, const uint8_t data) -> void {
+auto mapper_cnrom::write(uint16_t const address, uint8_t const data) -> void {
   if (address < 0x2000) {
     return write_chr(address, data);
   } else if (address >= 0x8000) {
@@ -77,7 +77,7 @@ auto mapper_cnrom::write(const uint16_t address, const uint8_t data) -> void {
   BOOST_STATIC_ASSERT("unexpected write for mapper nrom");
 }
 
-auto mapper_cnrom::read_prg(const uint16_t address) const -> uint8_t {
+auto mapper_cnrom::read_prg(uint16_t const address) const -> uint8_t {
   if (address >= 0xC000) {
     auto const prg_bank = (prgrom_size_ / 0x4000) - 1;
     auto const offset = address - 0xC000;
@@ -88,24 +88,24 @@ auto mapper_cnrom::read_prg(const uint16_t address) const -> uint8_t {
   return 0;
 }
 
-auto mapper_cnrom::read_chr(const uint16_t address) const -> uint8_t {
+auto mapper_cnrom::read_chr(uint16_t const address) const -> uint8_t {
   return chrom_[address];
 }
 
-auto mapper_cnrom::write_chr(const uint16_t address, const uint8_t data) -> void {
+auto mapper_cnrom::write_chr(uint16_t const address, uint8_t const data) -> void {
   auto const offset = chr_bank_ * 0x2000 + address;
   chrom_[offset] = data;
 }
 
-auto mapper_cnrom::write_chr_bank(uint16_t address, uint8_t data) -> void {
+auto mapper_cnrom::write_chr_bank(uint16_t const address, uint8_t const data) -> void {
   boost::ignore_unused(address);
   chr_bank_ = static_cast<uint32_t>(data & 0x3U);
 }
 
-auto mapper_cnrom::read_sram(const uint16_t address) const -> uint8_t {
+auto mapper_cnrom::read_sram(uint16_t const address) const -> uint8_t {
   return sram_[address - 0x6000];
 }
 
-auto mapper_cnrom::write_sram(const uint16_t address, const uint8_t data) -> void {
+auto mapper_cnrom::write_sram(uint16_t const address, uint8_t const data) -> void {
   sram_[address - 0x6000] = data;
 }

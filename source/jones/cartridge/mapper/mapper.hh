@@ -39,14 +39,14 @@ public:
 
   ~mapper() override = default;
 
-  auto peek(uint16_t address) const -> uint8_t override = 0;
+  [[nodiscard]] auto peek(uint16_t address) const -> uint8_t override = 0;
 
-  auto read(uint16_t address) const -> uint8_t override = 0;
+  [[nodiscard]] auto read(uint16_t address) const -> uint8_t override = 0;
 
   auto write(uint16_t address, uint8_t data) -> void override = 0;
 
 protected:
-  const mapped_cartridge &get_cartridge() const {
+  [[nodiscard]] auto get_cartridge() const -> const mapped_cartridge & {
     return mapper_view_.cartridge();
   }
 

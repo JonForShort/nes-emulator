@@ -30,7 +30,8 @@ using namespace jones;
 
 namespace jc = jones::configuration;
 
-mapper_mmc1::mapper_mmc1(const mapper_view &mapper_view) : mapper(mapper_view), shift_register_(0x10) {
+mapper_mmc1::mapper_mmc1(mapper_view const &mapper_view)
+    : mapper(mapper_view), shift_register_(0x10) {
   const auto &cartridge = mapper_view.cartridge();
 
   prg_rom_size_ = cartridge.header()->prgrom_size();
@@ -56,7 +57,7 @@ mapper_mmc1::mapper_mmc1(const mapper_view &mapper_view) : mapper(mapper_view), 
   mapper_view.ppu_memory().map(std::make_unique<memory_mappable_component<mapper_mmc1>>(this, "mapper_mmc1", 0x0000, 0x1FFF));
 }
 
-auto mapper_mmc1::get_prg_bank_offset(const int index) const -> uint16_t {
+auto mapper_mmc1::get_prg_bank_offset(int const index) const -> uint16_t {
   auto adjusted_index = index;
   if (adjusted_index >= 0x80) {
     adjusted_index -= 0x100;
@@ -69,7 +70,7 @@ auto mapper_mmc1::get_prg_bank_offset(const int index) const -> uint16_t {
   return offset;
 }
 
-auto mapper_mmc1::get_chr_bank_offset(const int index) const -> uint16_t {
+auto mapper_mmc1::get_chr_bank_offset(int const index) const -> uint16_t {
   auto adjusted_index = index;
   if (adjusted_index >= 0x80) {
     adjusted_index -= 0x100;
@@ -119,7 +120,7 @@ auto mapper_mmc1::peek(uint16_t const address) const -> uint8_t {
   return read(address);
 }
 
-auto mapper_mmc1::read(const uint16_t address) const -> uint8_t {
+auto mapper_mmc1::read(uint16_t const address) const -> uint8_t {
   if (address < 0x2000) {
     const auto bank = address / 0x1000;
     const auto offset = address % 0x1000;
@@ -141,7 +142,7 @@ auto mapper_mmc1::read(const uint16_t address) const -> uint8_t {
   return 0;
 }
 
-auto mapper_mmc1::write(const uint16_t address, const uint8_t data) -> void {
+auto mapper_mmc1::write(uint16_t const address, uint8_t const data) -> void {
   if (address < 0x2000) {
     const auto bank = address / 0x1000;
     const auto offset = address % 0x1000;
@@ -158,7 +159,7 @@ auto mapper_mmc1::write(const uint16_t address, const uint8_t data) -> void {
   BOOST_STATIC_ASSERT("unexpected read for mmc1 mapper");
 }
 
-auto mapper_mmc1::load_register(const uint16_t address, const uint8_t data) -> void {
+auto mapper_mmc1::load_register(uint16_t const address, uint8_t const data) -> void {
   if ((data & 0x80U) == 0x80U) {
     shift_register_ = 0x10U;
     write_control_register(control_register_ | 0x0CU);
@@ -173,7 +174,7 @@ auto mapper_mmc1::load_register(const uint16_t address, const uint8_t data) -> v
   }
 }
 
-auto mapper_mmc1::write_register(const uint16_t address, const uint8_t data) -> void {
+auto mapper_mmc1::write_register(uint16_t const address, uint8_t const data) -> void {
   if (address <= 0x9FFF) {
     write_control_register(data);
   } else if (address <= 0xBFFF) {

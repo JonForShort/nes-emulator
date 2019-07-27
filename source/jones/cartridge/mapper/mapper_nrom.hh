@@ -33,26 +33,26 @@ namespace jones {
 
 class mapper_nrom : public mapper {
 public:
-  mapper_nrom(const mapper_view &mapper_view);
+  explicit mapper_nrom(mapper_view const &mapper_view);
 
   ~mapper_nrom() override = default;
 
-  auto peek(uint16_t address) const -> uint8_t override;
+  [[nodiscard]] auto peek(uint16_t address) const -> uint8_t override;
 
-  auto read(uint16_t address) const -> uint8_t override;
+  [[nodiscard]] auto read(uint16_t address) const -> uint8_t override;
 
   auto write(uint16_t address, uint8_t data) -> void override;
 
 private:
-  auto read_prg(uint16_t address) const -> uint8_t;
+  [[nodiscard]] auto read_prg(uint16_t address) const -> uint8_t;
 
   auto write_prg(uint16_t address, uint8_t data) -> void;
 
-  auto read_chr(uint16_t address) const -> uint8_t;
+  [[nodiscard]] auto read_chr(uint16_t address) const -> uint8_t;
 
   auto write_chr(uint16_t address, uint8_t data) -> void;
 
-  auto read_sram(uint16_t address) const -> uint8_t;
+  [[nodiscard]] auto read_sram(uint16_t address) const -> uint8_t;
 
   auto write_sram(uint16_t address, uint8_t data) -> void;
 
@@ -66,12 +66,12 @@ private:
     NROM_VERTICAL
   };
 
-  static auto resolve_type(const mapped_cartridge &cartridge) -> nrom_type {
+  static auto resolve_type(mapped_cartridge const &cartridge) -> nrom_type {
     const auto prgrom_count = cartridge.header()->prgrom_count();
     return prgrom_count == 1 ? nrom_type::NROM_128 : nrom_type::NROM_256;
   }
 
-  static auto resolve_mirroring_type(const mapped_cartridge &cartridge) -> nrom_mirroring_type {
+  static auto resolve_mirroring_type(mapped_cartridge const &cartridge) -> nrom_mirroring_type {
     const auto mirroring = cartridge.header()->has_mirroring();
     return mirroring ? nrom_mirroring_type::NROM_VERTICAL : nrom_mirroring_type::NROM_HORIZONAL;
   }

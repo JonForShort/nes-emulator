@@ -24,7 +24,7 @@
 #ifndef JONES_CARTRIDGE_MAPPERS_MAPPER_VIEW_HH
 #define JONES_CARTRIDGE_MAPPERS_MAPPER_VIEW_HH
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
 namespace jones {
@@ -35,20 +35,20 @@ class memory;
 
 class mapper_view {
 public:
-  mapper_view(const mapped_cartridge &cartridge, memory &cpu_memory, memory &ppu_memory)
+  mapper_view(mapped_cartridge const &cartridge, memory &cpu_memory, memory &ppu_memory)
       : cartridge_(cartridge), cpu_memory_(cpu_memory), ppu_memory_(ppu_memory) {}
 
   ~mapper_view() = default;
 
-  auto cartridge() const -> auto & {
+  [[nodiscard]] auto cartridge() const -> auto & {
     return cartridge_;
   }
 
-  auto cpu_memory() const -> auto & {
+  [[nodiscard]] auto cpu_memory() const -> auto & {
     return cpu_memory_;
   }
 
-  auto ppu_memory() const -> auto & {
+  [[nodiscard]] auto ppu_memory() const -> auto & {
     return ppu_memory_;
   }
 

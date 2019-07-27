@@ -40,7 +40,7 @@ namespace jc = jones::configuration;
 
 class file_mapped_cartridge final : public mapped_cartridge {
 public:
-  explicit file_mapped_cartridge(const char *file_path)
+  explicit file_mapped_cartridge(char const *file_path)
       : header_(create_cartridge_header(file_path)),
         mapped_region_(map_cartridge_file(file_path)) {
     if (valid()) {
@@ -51,36 +51,36 @@ public:
 
   ~file_mapped_cartridge() override = default;
 
-  size_t size() const override {
+  [[nodiscard]] auto size() const -> size_t override {
     return mapped_region_.get_size();
   }
 
-  uint8_t *address() const override {
+  [[nodiscard]] auto address() const -> uint8_t * override {
     return static_cast<uint8_t *>(mapped_region_.get_address());
   }
 
-  bool valid() const override {
+  [[nodiscard]] auto valid() const -> bool override {
     return header() != nullptr && header()->valid();
   }
 
-  mapped_cartridge_header *header() const override {
+  [[nodiscard]] auto header() const -> mapped_cartridge_header * override {
     return header_.get();
   }
 
 private:
-  static ip::mapped_region map_cartridge_file(const char *file_path) {
+  static auto map_cartridge_file(char const *file_path) -> ip::mapped_region {
     const ip::file_mapping mapped_file(file_path, ip::mode_t::read_only);
     return ip::mapped_region(mapped_file, ip::mode_t::read_only);
   }
 
-  static std::unique_ptr<cartridge_header> create_cartridge_header(const char *file_path) {
+  static auto create_cartridge_header(char const *file_path) -> std::unique_ptr<cartridge_header> {
     std::ifstream file = std::ifstream(file_path, std::ifstream::binary);
     return std::make_unique<cartridge_header>(std::move(file));
   }
 
-  const std::unique_ptr<cartridge_header> header_;
+  std::unique_ptr<cartridge_header> const header_;
 
-  const ip::mapped_region mapped_region_;
+  ip::mapped_region const mapped_region_;
 };
 
 class cartridge::impl {
@@ -89,7 +89,7 @@ public:
 
   ~impl() = default;
 
-  bool attach(char const *const file_path) {
+  auto attach(char const *const file_path) -> bool {
     if (file_path == nullptr) {
       cartridge_.reset();
       mapper_view_.reset();
@@ -108,13 +108,13 @@ public:
     return false;
   }
 
-  void print(std::ostream &out) const {
+  auto print(std::ostream &out) const -> void {
     if (cartridge_) {
       cartridge_->header()->print(out);
     }
   }
 
-  void dump_prg(std::ostream &out) {
+  auto dump_prg(std::ostream &out) -> void {
     if (cartridge_) {
       const auto base_address = reinterpret_cast<char *>(cartridge_->header()->prgrom_offset() + cartridge_->address());
       const auto size = cartridge_->header()->prgrom_size();
@@ -122,7 +122,7 @@ public:
     }
   }
 
-  void dump_chr(std::ostream &out) {
+  auto dump_chr(std::ostream &out) -> void {
     if (cartridge_) {
       const auto base_address = reinterpret_cast<char *>(cartridge_->header()->chrrom_offset() + cartridge_->address());
       const auto size = cartridge_->header()->prgrom_size();
@@ -130,21 +130,21 @@ public:
     }
   }
 
-  uint8_t peek(uint16_t const address) const {
+  [[nodiscard]] auto peek(uint16_t const address) const -> uint8_t {
     if (cartridge_mapper_ != nullptr) {
       return cartridge_mapper_->peek(address);
     }
     return 0;
   }
 
-  uint8_t read(uint16_t const address) const {
+  [[nodiscard]] auto read(uint16_t const address) const -> uint8_t {
     if (cartridge_mapper_ != nullptr) {
       return cartridge_mapper_->read(address);
     }
     return 0;
   }
 
-  void write(uint16_t const address, const uint8_t data) const {
+  auto write(uint16_t const address, const uint8_t data) const -> void {
     if (cartridge_mapper_ != nullptr) {
       return cartridge_mapper_->write(address, data);
     }

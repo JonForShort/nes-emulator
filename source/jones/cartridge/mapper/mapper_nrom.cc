@@ -28,7 +28,7 @@
 
 using namespace jones;
 
-mapper_nrom::mapper_nrom(const mapper_view &mapper_view)
+mapper_nrom::mapper_nrom(mapper_view const &mapper_view)
     : mapper(mapper_view),
       type_(resolve_type(mapper_view.cartridge())),
       mirroring_type_(resolve_mirroring_type(mapper_view.cartridge())),

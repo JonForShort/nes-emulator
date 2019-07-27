@@ -37,16 +37,16 @@ public:
 
   ~mapper_mmc1() override = default;
 
-  auto peek(uint16_t address) const -> uint8_t override;
+  [[nodiscard]] auto peek(uint16_t address) const -> uint8_t override;
 
-  auto read(uint16_t address) const -> uint8_t override;
+  [[nodiscard]] auto read(uint16_t address) const -> uint8_t override;
 
   auto write(uint16_t address, uint8_t data) -> void override;
 
 private:
-  auto get_prg_bank_offset(int index) const -> uint16_t;
+  [[nodiscard]] auto get_prg_bank_offset(int index) const -> uint16_t;
 
-  auto get_chr_bank_offset(int index) const -> uint16_t;
+  [[nodiscard]] auto get_chr_bank_offset(int index) const -> uint16_t;
 
   auto update_offsets() -> void;
 

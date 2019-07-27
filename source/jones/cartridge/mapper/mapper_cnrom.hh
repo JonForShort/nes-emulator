@@ -37,24 +37,24 @@ public:
 
   ~mapper_cnrom() override = default;
 
-  auto peek(uint16_t address) const -> uint8_t override;
+  [[nodiscard]] auto peek(uint16_t address) const -> uint8_t override;
 
-  auto read(uint16_t address) const -> uint8_t override;
+  [[nodiscard]] auto read(uint16_t address) const -> uint8_t override;
 
   auto write(uint16_t address, uint8_t data) -> void override;
 
 private:
   auto initialize_chrrom() -> void;
 
-  auto read_prg(uint16_t address) const -> uint8_t;
+  [[nodiscard]] auto read_prg(uint16_t address) const -> uint8_t;
 
-  auto read_chr(uint16_t address) const -> uint8_t;
+  [[nodiscard]] auto read_chr(uint16_t address) const -> uint8_t;
 
   auto write_chr(uint16_t address, uint8_t data) -> void;
 
   auto write_chr_bank(uint16_t address, uint8_t data) -> void;
 
-  auto read_sram(uint16_t address) const -> uint8_t;
+  [[nodiscard]] auto read_sram(uint16_t address) const -> uint8_t;
 
   auto write_sram(uint16_t address, uint8_t data) -> void;
 
