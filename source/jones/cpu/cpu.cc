@@ -2150,24 +2150,22 @@ private:
   void execute_bit(const decode::instruction &instruction) {
     switch (instruction.decoded_addressing_mode) {
     case addressing_mode_type::ZERO_PAGE: {
-      const auto operand = get_zero_page_address(instruction);
-      const auto address = memory_.read(operand);
-      const auto address_bits = std::bitset<8>(address);
-      address_bits.test(6) ? status_register_.set(status_flag::V) : status_register_.clear(status_flag::V);
-      address_bits.test(7) ? status_register_.set(status_flag::N) : status_register_.clear(status_flag::N);
-      (address & registers_.get(register_type::AC)) ? status_register_.clear(status_flag::Z) : status_register_.set(status_flag::Z);
-      registers_.set(register_type::SR, status_register_.get());
+      auto const address = get_zero_page_address(instruction);
+      auto const value = memory_.read(address);
+      auto const bits = std::bitset<8>(value);
+      bits.test(6) ? status_register_.set(status_flag::V) : status_register_.clear(status_flag::V);
+      bits.test(7) ? status_register_.set(status_flag::N) : status_register_.clear(status_flag::N);
+      update_status_flag_z(value & registers_.get(register_type::AC));
       cycles_ += 3;
       break;
     }
     case addressing_mode_type::ABSOLUTE: {
-      const auto operand = get_absolute_address(instruction);
-      const auto address = memory_.read(operand);
-      const auto address_bits = std::bitset<8>(address);
-      address_bits.test(6) ? status_register_.set(status_flag::V) : status_register_.clear(status_flag::V);
-      address_bits.test(7) ? status_register_.set(status_flag::N) : status_register_.clear(status_flag::N);
-      (address & registers_.get(register_type::AC)) ? status_register_.clear(status_flag::Z) : status_register_.set(status_flag::Z);
-      registers_.set(register_type::SR, status_register_.get());
+      auto const address = get_absolute_address(instruction);
+      auto const value = memory_.read(address);
+      auto const bits = std::bitset<8>(value);
+      bits.test(6) ? status_register_.set(status_flag::V) : status_register_.clear(status_flag::V);
+      bits.test(7) ? status_register_.set(status_flag::N) : status_register_.clear(status_flag::N);
+      update_status_flag_z(value & registers_.get(register_type::AC));
       cycles_ += 4;
       break;
     }
@@ -2657,7 +2655,7 @@ private:
 
   void update_status_flag_z(const uint8_t binary) {
     const auto bits = std::bitset<8>(binary);
-    status_register_.set(status_flag::Z, !bits.any());
+    status_register_.set(status_flag::Z, bits.none());
     registers_.set(register_type::SR, status_register_.get());
   }
 
@@ -2671,56 +2669,56 @@ private:
     registers_.set(register_type::SR, status_register_.get());
   }
 
-  uint16_t get_zero_page_address(const decode::instruction &instruction) const {
+  [[nodiscard]] auto get_zero_page_address(const decode::instruction &instruction) const -> uint16_t {
     return std::get<uint8_t>(instruction.decoded_operand.value) & 0xFFU;
   }
 
-  uint16_t get_zero_page_x_address(const decode::instruction &instruction) const {
+  [[nodiscard]] auto get_zero_page_x_address(const decode::instruction &instruction) const -> uint16_t {
     const auto address = std::get<uint8_t>(instruction.decoded_operand.value);
     const auto x_register = registers_.get(register_type::X);
     return static_cast<uint16_t>(address + x_register) & 0xFFU;
   }
 
-  uint16_t get_zero_page_y_address(const decode::instruction &instruction) const {
+  [[nodiscard]] auto get_zero_page_y_address(const decode::instruction &instruction) const -> uint16_t {
     const auto address = std::get<uint8_t>(instruction.decoded_operand.value);
     const auto y_register = registers_.get(register_type::Y);
     return static_cast<uint16_t>(address + y_register) & 0xFFU;
   }
 
-  uint16_t get_absolute_address(const decode::instruction &instruction) const {
+  [[nodiscard]] auto get_absolute_address(const decode::instruction &instruction) const -> uint16_t {
     return std::get<uint16_t>(instruction.decoded_operand.value);
   }
 
-  uint16_t get_absolute_y_address(const decode::instruction &instruction) const {
+  [[nodiscard]] auto get_absolute_y_address(const decode::instruction &instruction) const -> uint16_t {
     auto is_page_crossed = false;
     return get_absolute_y_address(instruction, is_page_crossed);
   }
 
-  uint16_t get_absolute_y_address(const decode::instruction &instruction, bool &is_page_crossed) const {
+  auto get_absolute_y_address(const decode::instruction &instruction, bool &is_page_crossed) const -> uint16_t {
     const auto address = std::get<uint16_t>(instruction.decoded_operand.value);
     const auto y_register = registers_.get(register_type::Y);
     is_page_crossed = (static_cast<uint16_t>(address + y_register) & 0xFFU) < y_register;
     return address + y_register;
   }
 
-  uint16_t get_absolute_x_address(const decode::instruction &instruction) const {
+  [[nodiscard]] auto get_absolute_x_address(const decode::instruction &instruction) const -> uint16_t {
     auto is_page_crossed = false;
     return get_absolute_x_address(instruction, is_page_crossed);
   }
 
-  uint16_t get_absolute_x_address(const decode::instruction &instruction, bool &is_page_crossed) const {
+  auto get_absolute_x_address(const decode::instruction &instruction, bool &is_page_crossed) const -> uint16_t {
     const auto address = std::get<uint16_t>(instruction.decoded_operand.value);
     const auto x_register = registers_.get(register_type::X);
     is_page_crossed = (static_cast<uint16_t>(address + x_register) & 0xFFU) < x_register;
     return address + x_register;
   }
 
-  uint16_t get_indexed_indirect_address(const decode::instruction &instruction) const {
+  [[nodiscard]] auto get_indexed_indirect_address(const decode::instruction &instruction) const -> uint16_t {
     auto is_page_crossed = false;
     return get_indexed_indirect_address(instruction, is_page_crossed);
   }
 
-  uint16_t get_indexed_indirect_address(const decode::instruction &instruction, bool &is_page_crossed) const {
+  auto get_indexed_indirect_address(const decode::instruction &instruction, bool &is_page_crossed) const -> uint16_t {
     const auto operand = std::get<uint8_t>(instruction.decoded_operand.value);
     const auto x_register = registers_.get(register_type::X);
     const auto address = static_cast<uint16_t>(operand + x_register) & 0xFFU;
@@ -2728,12 +2726,12 @@ private:
     return get_indirect_address(address);
   }
 
-  uint16_t get_indirect_indexed_address(const decode::instruction &instruction) const {
+  [[nodiscard]] auto get_indirect_indexed_address(const decode::instruction &instruction) const -> uint16_t {
     auto is_page_crossed = false;
     return get_indirect_indexed_address(instruction, is_page_crossed);
   }
 
-  uint16_t get_indirect_indexed_address(const decode::instruction &instruction, bool &is_page_crossed) const {
+  auto get_indirect_indexed_address(const decode::instruction &instruction, bool &is_page_crossed) const -> uint16_t {
     const auto operand = std::get<uint8_t>(instruction.decoded_operand.value);
     const auto address = get_indirect_address(operand);
     const auto y_register = registers_.get(register_type::Y);
@@ -2741,11 +2739,11 @@ private:
     return address + y_register;
   }
 
-  uint16_t get_indirect_address(const decode::instruction &instruction) const {
+  [[nodiscard]] auto get_indirect_address(const decode::instruction &instruction) const -> uint16_t {
     return get_indirect_address(std::get<uint16_t>(instruction.decoded_operand.value));
   }
 
-  uint16_t get_indirect_address(const uint16_t address) const {
+  [[nodiscard]] auto get_indirect_address(const uint16_t address) const -> uint16_t {
     const auto address_page = address & 0xFF00U;
     const auto address_high = (address + 1U) & 0xFFU;
     const auto indirect_address_low = memory_.read(address);
@@ -2753,11 +2751,11 @@ private:
     return indirect_address_low | (indirect_address_high << 8U);
   }
 
-  uint8_t get_immediate(const decode::instruction &instruction) const {
+  [[nodiscard]] auto get_immediate(const decode::instruction &instruction) const -> uint8_t {
     return std::get<uint8_t>(instruction.decoded_operand.value);
   }
 
-  uint16_t get_relative_address(const decode::instruction &instruction) const {
+  [[nodiscard]] auto get_relative_address(const decode::instruction &instruction) const -> uint16_t {
     const int8_t address_offset = std::get<uint8_t>(instruction.decoded_operand.value);
     return registers_.get(register_type::PC) + address_offset;
   }

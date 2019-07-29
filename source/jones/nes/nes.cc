@@ -188,8 +188,8 @@ private:
   }
 
   auto get_state() -> nes_state {
-    const auto ppu_state = ppu_.get_state();
-    const auto cpu_state = cpu_.get_state();
+    auto const ppu_state = ppu_.get_state();
+    auto const cpu_state = cpu_.get_state();
 
     nes_state state{};
 
