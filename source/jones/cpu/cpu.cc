@@ -21,8 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#include <boost/assert.hpp>
-#include <boost/core/ignore_unused.hpp>
+#include <boost/coroutine2/all.hpp>
 #include <boost/format.hpp>
 
 #include "cpu.hh"
@@ -37,19 +36,22 @@
 
 using namespace jones;
 
+using coroutine = boost::coroutines2::coroutine<uint64_t>;
+
 class cpu::impl final {
 public:
-  explicit impl(const memory &memory) : memory_(memory) {}
+  explicit impl(memory const &memory) : memory_(memory) {}
 
   void initialize() {
     reset();
   }
 
   void uninitialize() {
+    // nothing to do.
   }
 
-  uint8_t step() {
-    const auto initial_cycles = cycles_;
+  auto step() -> uint8_t {
+    auto const initial_cycles = cycles_;
     if (idle_cycles_ > 0) {
       idle_cycles_ -= 1;
       cycles_ += 1;
@@ -77,16 +79,16 @@ public:
     memory_.write(0x4017, 0x00);
     memory_.write(0x4015, 0x00);
 
-    const auto interrupt_vector = interrupts_.get_vector(interrupt_type::RESET);
-    const auto interrupt_routine = memory_.read_word(interrupt_vector);
+    auto const interrupt_vector = interrupts_.get_vector(interrupt_type::RESET);
+    auto const interrupt_routine = memory_.read_word(interrupt_vector);
     registers_.set(register_type::PC, interrupt_routine);
   }
 
-  auto peek(uint16_t const address) const -> uint8_t {
+  [[nodiscard]] auto peek(uint16_t const address) const -> uint8_t {
     return memory_.peek(address);
   }
 
-  auto read(uint16_t const address) const -> uint8_t {
+  [[nodiscard]] auto read(uint16_t const address) const -> uint8_t {
     return memory_.read(address);
   }
 
@@ -94,7 +96,7 @@ public:
     memory_.write(address, data);
   }
 
-  cpu_state get_state() const {
+  [[nodiscard]] auto get_state() const -> cpu_state {
 
     class listener : public disassemble::disassemble_listener {
     public:
@@ -116,11 +118,11 @@ public:
       }
 
     private:
-      const registers &registers_;
+      registers const &registers_;
     };
 
     auto fetched = fetch();
-    auto disassembled = disassemble::disassemble(&fetched[0], fetched.size(), std::make_unique<listener>(registers_));
+    auto const disassembled = disassemble::disassemble(&fetched[0], fetched.size(), std::make_unique<listener>(registers_));
 
     cpu_state current_cpu_state;
     current_cpu_state.instruction.instruction = disassembled.instructions[0].opcode + disassembled.instructions[0].operand;
@@ -134,74 +136,74 @@ public:
     current_cpu_state.registers.SR = registers_.get(register_type::SR);
 
     auto instruction_binary = disassembled.instructions[0].binary;
-    auto decoded = decode::decode(instruction_binary.data(), instruction_binary.size());
+    auto const decoded = decode::decode(instruction_binary.data(), instruction_binary.size());
 
     switch (decoded.decoded_addressing_mode) {
     case addressing_mode_type::ZERO_PAGE: {
-      const auto address = get_zero_page_address(decoded);
+      auto const address = get_zero_page_address(decoded);
       current_cpu_state.instruction.memory.address = address;
       current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = false;
       break;
     }
     case addressing_mode_type::ZERO_PAGE_X: {
-      const auto address = get_zero_page_x_address(decoded);
+      auto const address = get_zero_page_x_address(decoded);
       current_cpu_state.instruction.memory.address = address;
       current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
       break;
     }
     case addressing_mode_type::ZERO_PAGE_Y: {
-      const auto address = get_zero_page_y_address(decoded);
+      auto const address = get_zero_page_y_address(decoded);
       current_cpu_state.instruction.memory.address = address;
       current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
       break;
     }
     case addressing_mode_type::ABSOLUTE: {
-      const auto address = get_absolute_address(decoded);
+      auto const address = get_absolute_address(decoded);
       current_cpu_state.instruction.memory.address = address;
       current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = false;
       break;
     }
     case addressing_mode_type::ABSOLUTE_X: {
-      const auto address = get_absolute_x_address(decoded);
+      auto const address = get_absolute_x_address(decoded);
       current_cpu_state.instruction.memory.address = address;
       current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
       break;
     }
     case addressing_mode_type::ABSOLUTE_Y: {
-      const auto address = get_absolute_y_address(decoded);
+      auto const address = get_absolute_y_address(decoded);
       current_cpu_state.instruction.memory.address = address;
       current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
       break;
     }
     case addressing_mode_type::INDEXED_INDIRECT: {
-      const auto address = get_indexed_indirect_address(decoded);
+      auto const address = get_indexed_indirect_address(decoded);
       current_cpu_state.instruction.memory.address = address;
       current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
       break;
     }
     case addressing_mode_type::INDIRECT_INDEXED: {
-      const auto address = get_indirect_indexed_address(decoded);
+      auto const address = get_indirect_indexed_address(decoded);
       current_cpu_state.instruction.memory.address = address;
       current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
       break;
     }
     case addressing_mode_type::RELATIVE: {
-      const auto address = get_relative_address(decoded) + decoded.encoded_length_in_bytes;
+      auto const address = get_relative_address(decoded) + decoded.encoded_length_in_bytes;
       current_cpu_state.instruction.memory.address = address;
       current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = false;
       break;
     }
     case addressing_mode_type::INDIRECT: {
-      const auto address = get_indirect_address(decoded);
+      auto const address = get_indirect_address(decoded);
       current_cpu_state.instruction.memory.address = address;
       current_cpu_state.instruction.memory.value = memory_.peek(address);
       current_cpu_state.instruction.memory.is_indirect = true;
@@ -214,7 +216,7 @@ public:
     return current_cpu_state;
   }
 
-  auto set_state(const cpu_state &state) -> void {
+  auto set_state(cpu_state const &state) -> void {
     registers_.set(register_type::PC, state.registers.PC);
     registers_.set(register_type::SP, state.registers.SP);
     registers_.set(register_type::AC, state.registers.A);
@@ -223,7 +225,7 @@ public:
     registers_.set(register_type::SR, state.registers.SR);
   }
 
-  void interrupt(interrupt_type const type, interrupt_state const state) {
+  auto interrupt(interrupt_type const type, interrupt_state const state) -> void {
     auto const is_set = state == interrupt_state::SET;
     switch (type) {
     case interrupt_type::RESET:
@@ -241,12 +243,12 @@ public:
     }
   }
 
-  void idle(const uint16_t cycles) {
+  auto idle(uint16_t const cycles) -> void {
     idle_cycles_ += cycles;
   }
 
 private:
-  void step_execute() {
+  auto step_execute() -> void {
     const auto fetched = fetch();
     const auto decoded = decode(fetched);
     if (decoded.decoded_result == decode::result::SUCCESS) {
@@ -258,7 +260,7 @@ private:
     }
   }
 
-  void step_interrupt() {
+  auto step_interrupt() -> void {
     const auto triggered_interrupt = interrupts_.get_triggered();
     if (triggered_interrupt == interrupt_type::NONE) {
       return;
@@ -279,49 +281,49 @@ private:
     cycles_ += 7;
   }
 
-  void push(const uint8_t value) {
+  auto push(uint8_t const value) -> void {
     memory_.write(get_stack_pointer(), value);
     registers_.decrement(register_type::SP);
   }
 
-  uint8_t pull() {
+  auto pull() -> uint8_t {
     registers_.increment(register_type::SP);
     return memory_.read(get_stack_pointer());
   }
 
-  void push_flags() {
+  auto push_flags() -> void {
     const uint8_t flags = 0x10U | status_register_.get();
     push(flags);
   }
 
-  void pull_flags() {
-    const uint8_t flags = (pull() & 0xEFU) | 0x20U;
+  auto pull_flags() -> void {
+    uint8_t const flags = (pull() & 0xEFU) | 0x20U;
     status_register_.set(flags);
     registers_.set(register_type::SR, status_register_.get());
   }
 
-  void push_pc() {
-    const uint16_t pc = registers_.get(register_type::PC);
+  auto push_pc() -> void {
+    uint16_t const pc = registers_.get(register_type::PC);
     push(pc >> 8U);
     push(pc);
   }
 
-  void pull_pc() {
-    const uint16_t low_byte = pull();
-    const uint16_t high_byte = pull() << 8U;
+  auto pull_pc() -> void {
+    uint16_t const low_byte = pull();
+    uint16_t const high_byte = pull() << 8U;
     registers_.set(register_type::PC, (low_byte | high_byte));
   }
 
-  uint16_t get_stack_pointer() const {
+  [[nodiscard]] auto get_stack_pointer() const -> uint16_t {
     return stack_pointer_base | registers_.get(register_type::SP);
   }
 
-  decode::instruction decode(const std::vector<uint8_t> &bytes) const {
+  [[nodiscard]] auto decode(std::vector<uint8_t> const &bytes) const -> decode::instruction {
     BOOST_ASSERT_MSG(!bytes.empty(), "unexpected decode operation; bytes is empty");
     return decode::decode(const_cast<uint8_t *>(&bytes[0]), bytes.size());
   }
 
-  std::vector<uint8_t> fetch() const {
+  [[nodiscard]] auto fetch() const -> std::vector<uint8_t> {
     const uint16_t pc = registers_.get(register_type::PC);
     uint8_t byte = memory_.read(pc);
     const auto decoded = decode::decode(&byte, sizeof(byte));
@@ -2719,9 +2721,9 @@ private:
   }
 
   auto get_indexed_indirect_address(const decode::instruction &instruction, bool &is_page_crossed) const -> uint16_t {
-    const auto operand = std::get<uint8_t>(instruction.decoded_operand.value);
-    const auto x_register = registers_.get(register_type::X);
-    const auto address = static_cast<uint16_t>(operand + x_register) & 0xFFU;
+    auto const operand = std::get<uint8_t>(instruction.decoded_operand.value);
+    auto const x_register = registers_.get(register_type::X);
+    auto const address = static_cast<uint16_t>(operand + x_register) & 0xFFU;
     is_page_crossed = address < x_register;
     return get_indirect_address(address);
   }
@@ -2732,9 +2734,9 @@ private:
   }
 
   auto get_indirect_indexed_address(const decode::instruction &instruction, bool &is_page_crossed) const -> uint16_t {
-    const auto operand = std::get<uint8_t>(instruction.decoded_operand.value);
-    const auto address = get_indirect_address(operand);
-    const auto y_register = registers_.get(register_type::Y);
+    auto const operand = std::get<uint8_t>(instruction.decoded_operand.value);
+    auto const address = get_indirect_address(operand);
+    auto const y_register = registers_.get(register_type::Y);
     is_page_crossed = (static_cast<uint16_t>(address + y_register) & 0xFFU) < y_register;
     return address + y_register;
   }
@@ -2744,10 +2746,10 @@ private:
   }
 
   [[nodiscard]] auto get_indirect_address(const uint16_t address) const -> uint16_t {
-    const auto address_page = address & 0xFF00U;
-    const auto address_high = (address + 1U) & 0xFFU;
-    const auto indirect_address_low = memory_.read(address);
-    const auto indirect_address_high = memory_.read(address_page | address_high);
+    auto const address_page = address & 0xFF00U;
+    auto const address_high = (address + 1U) & 0xFFU;
+    auto const indirect_address_low = memory_.read(address);
+    auto const indirect_address_high = memory_.read(address_page | address_high);
     return indirect_address_low | (indirect_address_high << 8U);
   }
 
