@@ -100,11 +100,11 @@ public:
 
     class listener : public disassemble::disassemble_listener {
     public:
-      explicit listener(const registers &registers) : registers_(registers) {}
+      explicit listener(registers const &registers) : registers_(registers) {}
 
       ~listener() override = default;
 
-      void on_decoded(decode::instruction &instruction) override {
+      auto on_decoded(decode::instruction &instruction) -> void override {
         if (instruction.decoded_addressing_mode == addressing_mode_type::RELATIVE) {
           const int8_t address_relative = std::get<uint8_t>(instruction.decoded_operand.value);
           const uint16_t address_absolute = registers_.get(register_type::PC) + address_relative + instruction.encoded_length_in_bytes;
@@ -113,7 +113,7 @@ public:
         }
       }
 
-      void on_disassembled(disassemble::instruction &instruction) override {
+      auto on_disassembled(disassemble::instruction &instruction) -> void override {
         boost::ignore_unused(instruction);
       }
 
@@ -249,8 +249,8 @@ public:
 
 private:
   auto step_execute() -> void {
-    const auto fetched = fetch();
-    const auto decoded = decode(fetched);
+    auto const fetched = fetch();
+    auto const decoded = decode(fetched);
     if (decoded.decoded_result == decode::result::SUCCESS) {
       registers_.increment_by(register_type::PC, decoded.encoded_length_in_bytes);
       execute(decoded);
@@ -261,7 +261,7 @@ private:
   }
 
   auto step_interrupt() -> void {
-    const auto triggered_interrupt = interrupts_.get_triggered();
+    auto const triggered_interrupt = interrupts_.get_triggered();
     if (triggered_interrupt == interrupt_type::NONE) {
       return;
     }
@@ -269,8 +269,8 @@ private:
     push_pc();
     push_flags();
 
-    const auto interrupt_vector = interrupts_.get_vector(triggered_interrupt);
-    const auto interrupt_routine = memory_.read_word(interrupt_vector);
+    auto const interrupt_vector = interrupts_.get_vector(triggered_interrupt);
+    auto const interrupt_routine = memory_.read_word(interrupt_vector);
     registers_.set(register_type::PC, interrupt_routine);
 
     status_register_.set(status_flag::I);
@@ -355,7 +355,7 @@ private:
     return result;
   }
 
-  void execute(const decode::instruction &instruction) {
+  auto execute(decode::instruction const &instruction) -> void {
     switch (instruction.decoded_opcode.type) {
     case opcode_type::BRK: {
       interrupt(interrupt_type::BRK, interrupt_state::SET);
@@ -619,53 +619,53 @@ private:
     }
   }
 
-  void execute_rra(const decode::instruction &instruction) {
+  auto execute_rra(decode::instruction const &instruction) -> void {
     switch (instruction.decoded_addressing_mode) {
     case addressing_mode_type::ZERO_PAGE: {
-      const auto address = get_zero_page_address(instruction);
-      const auto value = memory_.read(address);
+      auto const address = get_zero_page_address(instruction);
+      auto const value = memory_.read(address);
       memory_.write(address, execute_rra(value));
       cycles_ += 5;
       break;
     }
     case addressing_mode_type::ZERO_PAGE_X: {
-      const auto address = get_zero_page_x_address(instruction);
-      const auto value = memory_.read(address);
+      auto const address = get_zero_page_x_address(instruction);
+      auto const value = memory_.read(address);
       memory_.write(address, execute_rra(value));
       cycles_ += 6;
       break;
     }
     case addressing_mode_type::ABSOLUTE: {
-      const auto address = get_absolute_address(instruction);
-      const auto value = memory_.read(address);
+      auto const address = get_absolute_address(instruction);
+      auto const value = memory_.read(address);
       memory_.write(address, execute_rra(value));
       cycles_ += 6;
       break;
     }
     case addressing_mode_type::ABSOLUTE_X: {
-      const auto address = get_absolute_x_address(instruction);
-      const auto value = memory_.read(address);
+      auto const address = get_absolute_x_address(instruction);
+      auto const value = memory_.read(address);
       memory_.write(address, execute_rra(value));
       cycles_ += 7;
       break;
     }
     case addressing_mode_type::ABSOLUTE_Y: {
-      const auto address = get_absolute_y_address(instruction);
-      const auto value = memory_.read(address);
+      auto const address = get_absolute_y_address(instruction);
+      auto const value = memory_.read(address);
       memory_.write(address, execute_rra(value));
       cycles_ += 7;
       break;
     }
     case addressing_mode_type::INDEXED_INDIRECT: {
-      const auto address = get_indexed_indirect_address(instruction);
-      const auto value = memory_.read(address);
+      auto const address = get_indexed_indirect_address(instruction);
+      auto const value = memory_.read(address);
       memory_.write(address, execute_rra(value));
       cycles_ += 8;
       break;
     }
     case addressing_mode_type::INDIRECT_INDEXED: {
-      const auto address = get_indirect_indexed_address(instruction);
-      const auto value = memory_.read(address);
+      auto const address = get_indirect_indexed_address(instruction);
+      auto const value = memory_.read(address);
       memory_.write(address, execute_rra(value));
       cycles_ += 8;
       break;
@@ -677,16 +677,16 @@ private:
     }
   }
 
-  uint8_t execute_rra(const uint8_t value) {
-    const auto is_carry_set = status_register_.is_set(status_flag::C);
-    const auto shifted_value = static_cast<uint8_t>(value >> 0x1U) | (is_carry_set ? 1U << 7U : 0U);
+  auto execute_rra(const uint8_t value) -> uint8_t {
+    auto const is_carry_set = status_register_.is_set(status_flag::C);
+    auto const shifted_value = static_cast<uint8_t>(value >> 0x1U) | (is_carry_set ? 1U << 7U : 0U);
 
-    const auto ac_register = registers_.get(register_type::AC);
-    const auto addition = static_cast<uint16_t>(ac_register + shifted_value + ((value & 0x1U) ? 1 : 0));
+    auto const ac_register = registers_.get(register_type::AC);
+    auto const addition = static_cast<uint16_t>(ac_register + shifted_value + ((value & 0x1U) ? 1 : 0));
 
     registers_.set(register_type::AC, addition & 0xFFU);
 
-    const auto caused_overflow = (static_cast<uint16_t>(ac_register ^ shifted_value) & 0x80U) == 0 &&
+    auto const caused_overflow = (static_cast<uint16_t>(ac_register ^ shifted_value) & 0x80U) == 0 &&
                                  (static_cast<uint16_t>(ac_register ^ registers_.get(register_type::AC)) & 0x80U) != 0;
 
     update_status_flag_c(addition > 0xFFU);
@@ -695,7 +695,7 @@ private:
     return shifted_value;
   }
 
-  void execute_sre(const decode::instruction &instruction) {
+  auto execute_sre(decode::instruction const &instruction) -> void {
     switch (instruction.decoded_addressing_mode) {
     case addressing_mode_type::ZERO_PAGE: {
       const auto address = get_zero_page_address(instruction);
