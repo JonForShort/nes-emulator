@@ -47,7 +47,7 @@ auto as_raw_memory_mappable(std::vector<memory_mappable_ptr> const &memory_mappi
 } // namespace
 
 auto memory::peek(uint16_t const address) const -> uint8_t {
-  for (const auto &i : memory_mappings_) {
+  for (auto const &i : memory_mappings_) {
     if (address >= i->start_address() && address <= i->end_address()) {
       return i->peek(address);
     }

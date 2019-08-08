@@ -44,7 +44,7 @@ public:
       : header_(create_cartridge_header(file_path)),
         mapped_region_(map_cartridge_file(file_path)) {
     if (valid()) {
-      const auto mirror = header_->mirror_type();
+      auto const mirror = header_->mirror_type();
       jc::configuration::instance().set(jc::property::PROPERTY_MIRROR_MODE, mirror);
     }
   }
@@ -116,16 +116,16 @@ public:
 
   auto dump_prg(std::ostream &out) -> void {
     if (cartridge_) {
-      const auto base_address = reinterpret_cast<char *>(cartridge_->header()->prgrom_offset() + cartridge_->address());
-      const auto size = cartridge_->header()->prgrom_size();
+      auto const base_address = reinterpret_cast<char *>(cartridge_->header()->prgrom_offset() + cartridge_->address());
+      auto const size = cartridge_->header()->prgrom_size();
       out.write(base_address, size);
     }
   }
 
   auto dump_chr(std::ostream &out) -> void {
     if (cartridge_) {
-      const auto base_address = reinterpret_cast<char *>(cartridge_->header()->chrrom_offset() + cartridge_->address());
-      const auto size = cartridge_->header()->prgrom_size();
+      auto const base_address = reinterpret_cast<char *>(cartridge_->header()->chrrom_offset() + cartridge_->address());
+      auto const size = cartridge_->header()->prgrom_size();
       out.write(base_address, size);
     }
   }

@@ -125,8 +125,8 @@ private:
   }
 
   auto turn_power_on() -> bool {
-    const auto is_rom_loaded = cartridge_.attach(rom_path_.c_str());
-    const auto is_components_initialized = initialize_components();
+    auto const is_rom_loaded = cartridge_.attach(rom_path_.c_str());
+    auto const is_components_initialized = initialize_components();
     is_power_on_ = is_components_initialized && is_rom_loaded;
     if (is_power_on_) {
       dump_logs();
@@ -152,9 +152,9 @@ private:
   }
 
   auto turn_power_off() -> bool {
-    const auto is_components_uninitialized = uninitialize_components();
-    const auto is_cartridge_detached = cartridge_.attach(nullptr);
-    const auto is_power_off = is_components_uninitialized && is_cartridge_detached;
+    auto const is_components_uninitialized = uninitialize_components();
+    auto const is_cartridge_detached = cartridge_.attach(nullptr);
+    auto const is_power_off = is_components_uninitialized && is_cartridge_detached;
     if (is_power_off) {
       is_power_on_ = false;
       notify_listener(nes_listener::event::ON_POWER_OFF);
@@ -233,9 +233,9 @@ private:
   }
 
   auto step() -> void {
-    const auto cpu_cycles = cpu_.step();
-    const auto ppu_cycles = cpu_cycles * 3;
-    const auto apu_cycles = cpu_cycles;
+    auto const cpu_cycles = cpu_.step();
+    auto const ppu_cycles = cpu_cycles * 3;
+    auto const apu_cycles = cpu_cycles;
     for (auto i = 0; i < ppu_cycles; i++) {
       ppu_.step();
     }

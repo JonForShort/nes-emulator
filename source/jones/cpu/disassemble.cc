@@ -138,8 +138,8 @@ auto disassemble_operand_register(jde::operand const &decoded_operand, addressin
 }
 
 auto disassemble_operand(jde::instruction const &decoded_instruction) -> std::string {
-  const auto &decoded_addressing_mode = decoded_instruction.decoded_addressing_mode;
-  const auto &decoded_operand = decoded_instruction.decoded_operand;
+  auto const &decoded_addressing_mode = decoded_instruction.decoded_addressing_mode;
+  auto const &decoded_operand = decoded_instruction.decoded_operand;
   switch (decoded_operand.type) {
   case operand_type::IMMEDIATE:
     return disassemble_operand_immediate(decoded_operand);
@@ -166,8 +166,8 @@ auto disassemble::disassemble(uint8_t *const buffer, size_t const length_in_byte
   }
 
   while (jde::is_valid(decoded_instruction)) {
-    const auto opcode_string = disassemble_opcode(decoded_instruction);
-    const auto operand_string = disassemble_operand(decoded_instruction);
+    auto const opcode_string = disassemble_opcode(decoded_instruction);
+    auto const operand_string = disassemble_operand(decoded_instruction);
 
     jdi::instruction disassembled_instruction = jdi::instruction();
     disassembled_instruction.address = buffer_offset;

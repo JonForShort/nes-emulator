@@ -74,14 +74,14 @@ auto mapper_nrom::write(uint16_t const address, uint8_t const data) -> void {
 auto mapper_nrom::read_prg(uint16_t const address) const -> uint8_t {
   switch (type_) {
   case nrom_type::NROM_128: {
-    const auto offset = address - 0x8000;
-    const auto index = offset >= prgrom_size_ ? offset - prgrom_size_ : offset;
-    const auto data = prgrom_[index];
+    auto const offset = address - 0x8000;
+    auto const index = offset >= prgrom_size_ ? offset - prgrom_size_ : offset;
+    auto const data = prgrom_[index];
     return data;
   }
   case nrom_type::NROM_256: {
-    const auto offset = address - 0x8000;
-    const auto data = prgrom_[offset];
+    auto const offset = address - 0x8000;
+    auto const data = prgrom_[offset];
     return data;
   }
   default:

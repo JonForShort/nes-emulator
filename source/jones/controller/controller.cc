@@ -141,7 +141,7 @@ public:
     boost::ignore_unused(address);
     uint8_t data = 0;
     if (index_ < 8) {
-      const auto button_state = button_states_.find(position_to_button(index_));
+      auto const button_state = button_states_.find(position_to_button(index_));
       if (button_state != button_states_.end() && button_state->second == button_state::BUTTON_STATE_DOWN) {
         data = 1;
       }
@@ -150,7 +150,7 @@ public:
   }
 
   auto read(const uint16_t address) -> uint8_t {
-    const auto data = peek(address);
+    auto const data = peek(address);
     index_++;
     update_button_index();
     return data;

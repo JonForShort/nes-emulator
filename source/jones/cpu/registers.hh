@@ -93,13 +93,13 @@ public:
 
   void increment_by(const register_type type, const uint16_t value) {
     const uint8_t index = get_index(type);
-    const auto old_value = registers_.at(index);
+    auto const old_value = registers_.at(index);
     registers_.at(index) = old_value + value;
   }
 
   void decrement(const register_type type) {
     const uint8_t index = get_index(type);
-    const auto old_value = registers_.at(index);
+    auto const old_value = registers_.at(index);
     registers_.at(index) = old_value - 1;
   }
 

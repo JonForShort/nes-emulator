@@ -48,11 +48,11 @@ void check_instruction_no_operand(const jde::instruction &instruction) {
 }
 
 void check_disassemble(uint8_t *buffer, size_t length_in_bytes, const char *expected) {
-  const auto instructions = jdi::disassemble(buffer, length_in_bytes);
+  auto const instructions = jdi::disassemble(buffer, length_in_bytes);
   BOOST_CHECK(instructions.instructions.size() == 1);
 
-  const auto &first_instruction = instructions.instructions[0];
-  const auto disassembled = first_instruction.opcode + first_instruction.operand;
+  auto const &first_instruction = instructions.instructions[0];
+  auto const disassembled = first_instruction.opcode + first_instruction.operand;
   BOOST_CHECK(disassembled == expected);
 }
 
@@ -545,7 +545,7 @@ BOOST_AUTO_TEST_CASE(disassemble_0x3B_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_invalid_instruction_too_small) {
   uint8_t empty_instruction[] = {};
-  const auto instruction = jde::decode(empty_instruction, sizeof(empty_instruction));
+  auto const instruction = jde::decode(empty_instruction, sizeof(empty_instruction));
   check_instruction_invalid(instruction);
 }
 
@@ -554,7 +554,7 @@ BOOST_AUTO_TEST_CASE(decode_invalid_instruction_too_small) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x00_brk_instruction_valid) {
   uint8_t brk_instruction[] = {0x00, 0xFF};
-  const auto instruction = jde::decode(brk_instruction, sizeof(brk_instruction));
+  auto const instruction = jde::decode(brk_instruction, sizeof(brk_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::BRK);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x00);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::IMMEDIATE);
@@ -566,7 +566,7 @@ BOOST_AUTO_TEST_CASE(decode_0x00_brk_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x01_ora_instruction_valid) {
   uint8_t ora_instruction[] = {0x01, 0xFF};
-  const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
+  auto const instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ORA);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x01);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
@@ -578,7 +578,7 @@ BOOST_AUTO_TEST_CASE(decode_0x01_ora_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x01_ora_instruction_invalid_too_small) {
   uint8_t ora_instruction[] = {0x01};
-  const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
+  auto const instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
   check_instruction_invalid(instruction);
 }
 
@@ -587,7 +587,7 @@ BOOST_AUTO_TEST_CASE(decode_0x01_ora_instruction_invalid_too_small) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x02_stp_instruction_valid) {
   uint8_t stp_instruction[] = {0x02};
-  const auto instruction = jde::decode(stp_instruction, sizeof(stp_instruction));
+  auto const instruction = jde::decode(stp_instruction, sizeof(stp_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::STP);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x02);
   check_instruction_no_operand(instruction);
@@ -598,7 +598,7 @@ BOOST_AUTO_TEST_CASE(decode_0x02_stp_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x03_slo_instruction_valid) {
   uint8_t slo_instruction[] = {0x03, 0xFF};
-  const auto instruction = jde::decode(slo_instruction, sizeof(slo_instruction));
+  auto const instruction = jde::decode(slo_instruction, sizeof(slo_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::SLO);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x03);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
@@ -610,7 +610,7 @@ BOOST_AUTO_TEST_CASE(decode_0x03_slo_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x03_slo_instruction_invalid_too_small) {
   uint8_t slo_instruction[] = {0x03};
-  const auto instruction = jde::decode(slo_instruction, sizeof(slo_instruction));
+  auto const instruction = jde::decode(slo_instruction, sizeof(slo_instruction));
   check_instruction_invalid(instruction);
 }
 
@@ -619,7 +619,7 @@ BOOST_AUTO_TEST_CASE(decode_0x03_slo_instruction_invalid_too_small) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x04_nop_instruction_valid) {
   uint8_t nop_instruction[] = {0x04, 0xFF};
-  const auto instruction = jde::decode(nop_instruction, sizeof(nop_instruction));
+  auto const instruction = jde::decode(nop_instruction, sizeof(nop_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::NOP);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x04);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
@@ -631,7 +631,7 @@ BOOST_AUTO_TEST_CASE(decode_0x04_nop_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x04_nop_instruction_invalid_too_small) {
   uint8_t nop_instruction[] = {0x04};
-  const auto instruction = jde::decode(nop_instruction, sizeof(nop_instruction));
+  auto const instruction = jde::decode(nop_instruction, sizeof(nop_instruction));
   check_instruction_invalid(instruction);
 }
 
@@ -640,7 +640,7 @@ BOOST_AUTO_TEST_CASE(decode_0x04_nop_instruction_invalid_too_small) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x05_ora_instruction_valid) {
   uint8_t ora_instruction[] = {0x05, 0xFF};
-  const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
+  auto const instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ORA);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x05);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
@@ -652,7 +652,7 @@ BOOST_AUTO_TEST_CASE(decode_0x05_ora_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x05_ora_instruction_invalid_too_small) {
   uint8_t ora_instruction[] = {0x05};
-  const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
+  auto const instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
   check_instruction_invalid(instruction);
 }
 
@@ -661,7 +661,7 @@ BOOST_AUTO_TEST_CASE(decode_0x05_ora_instruction_invalid_too_small) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x06_asl_instruction_valid) {
   uint8_t asl_instruction[] = {0x06, 0xFF};
-  const auto instruction = jde::decode(asl_instruction, sizeof(asl_instruction));
+  auto const instruction = jde::decode(asl_instruction, sizeof(asl_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ASL);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x06);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
@@ -673,7 +673,7 @@ BOOST_AUTO_TEST_CASE(decode_0x06_asl_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x06_asl_instruction_invalid_too_small) {
   uint8_t asl_instruction[] = {0x06};
-  const auto instruction = jde::decode(asl_instruction, sizeof(asl_instruction));
+  auto const instruction = jde::decode(asl_instruction, sizeof(asl_instruction));
   check_instruction_invalid(instruction);
 }
 
@@ -682,7 +682,7 @@ BOOST_AUTO_TEST_CASE(decode_0x06_asl_instruction_invalid_too_small) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x07_slo_instruction_valid) {
   uint8_t slo_instruction[] = {0x07, 0xFF};
-  const auto instruction = jde::decode(slo_instruction, sizeof(slo_instruction));
+  auto const instruction = jde::decode(slo_instruction, sizeof(slo_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::SLO);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x07);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
@@ -694,7 +694,7 @@ BOOST_AUTO_TEST_CASE(decode_0x07_slo_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x07_slo_instruction_invalid_too_small) {
   uint8_t slo_instruction[] = {0x07};
-  const auto instruction = jde::decode(slo_instruction, sizeof(slo_instruction));
+  auto const instruction = jde::decode(slo_instruction, sizeof(slo_instruction));
   check_instruction_invalid(instruction);
 }
 
@@ -703,7 +703,7 @@ BOOST_AUTO_TEST_CASE(decode_0x07_slo_instruction_invalid_too_small) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x08_php_instruction_valid) {
   uint8_t php_instruction[] = {0x08, 0xFF};
-  const auto instruction = jde::decode(php_instruction, sizeof(php_instruction));
+  auto const instruction = jde::decode(php_instruction, sizeof(php_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::PHP);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x08);
   check_instruction_no_operand(instruction);
@@ -714,7 +714,7 @@ BOOST_AUTO_TEST_CASE(decode_0x08_php_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x09_ora_instruction_invalid_too_small) {
   uint8_t ora_instruction[] = {0x09};
-  const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
+  auto const instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
   check_instruction_invalid(instruction);
 }
 
@@ -723,7 +723,7 @@ BOOST_AUTO_TEST_CASE(decode_0x09_ora_instruction_invalid_too_small) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x09_ora_instruction_valid) {
   uint8_t ora_instruction[] = {0x09, 0xFF};
-  const auto instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
+  auto const instruction = jde::decode(ora_instruction, sizeof(ora_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ORA);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x09);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::IMMEDIATE);
@@ -735,7 +735,7 @@ BOOST_AUTO_TEST_CASE(decode_0x09_ora_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x0A_asl_instruction_valid) {
   uint8_t asl_instruction[] = {0x0A};
-  const auto instruction = jde::decode(asl_instruction, sizeof(asl_instruction));
+  auto const instruction = jde::decode(asl_instruction, sizeof(asl_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ASL);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x0A);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::REGISTER);
@@ -746,7 +746,7 @@ BOOST_AUTO_TEST_CASE(decode_0x0A_asl_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x0B_anc_instruction_valid) {
   uint8_t anc_instruction[] = {0x0B, 0xFF};
-  const auto instruction = jde::decode(anc_instruction, sizeof(anc_instruction));
+  auto const instruction = jde::decode(anc_instruction, sizeof(anc_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ANC);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x0B);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::IMMEDIATE);
@@ -758,7 +758,7 @@ BOOST_AUTO_TEST_CASE(decode_0x0B_anc_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x0C_nop_instruction_valid) {
   uint8_t nop_instruction[] = {0x0C, 0xFF, 0xEE};
-  const auto instruction = jde::decode(nop_instruction, sizeof(nop_instruction));
+  auto const instruction = jde::decode(nop_instruction, sizeof(nop_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::NOP);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x0C);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
@@ -770,7 +770,7 @@ BOOST_AUTO_TEST_CASE(decode_0x0C_nop_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x0D_ora_instruction_valid) {
   uint8_t binary_instruction[] = {0x0D, 0xFF, 0xEE};
-  const auto instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
+  auto const instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ORA);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x0D);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
@@ -782,7 +782,7 @@ BOOST_AUTO_TEST_CASE(decode_0x0D_ora_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x0E_asl_instruction_valid) {
   uint8_t binary_instruction[] = {0x0E, 0xFF, 0xEE};
-  const auto instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
+  auto const instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ASL);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x0E);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
@@ -794,7 +794,7 @@ BOOST_AUTO_TEST_CASE(decode_0x0E_asl_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x0F_instruction_valid) {
   uint8_t binary_instruction[] = {0x0F, 0xFF, 0xEE};
-  const auto instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
+  auto const instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::SLO);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x0F);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
@@ -806,7 +806,7 @@ BOOST_AUTO_TEST_CASE(decode_0x0F_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x10_instruction_valid) {
   uint8_t binary_instruction[] = {0x10, 0xFF};
-  const auto instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
+  auto const instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::BPL);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x10);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
@@ -818,7 +818,7 @@ BOOST_AUTO_TEST_CASE(decode_0x10_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x11_instruction_valid) {
   uint8_t binary_instruction[] = {0x11, 0xFF};
-  const auto instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
+  auto const instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::ORA);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x11);
   BOOST_CHECK(instruction.decoded_operand.type == operand_type::MEMORY);
@@ -830,7 +830,7 @@ BOOST_AUTO_TEST_CASE(decode_0x11_instruction_valid) {
 //
 BOOST_AUTO_TEST_CASE(decode_0x12_instruction_valid) {
   uint8_t binary_instruction[] = {0x12};
-  const auto instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
+  auto const instruction = jde::decode(binary_instruction, sizeof(binary_instruction));
   BOOST_CHECK(instruction.decoded_opcode.type == opcode_type::STP);
   BOOST_CHECK(instruction.decoded_opcode.value == 0x12);
   check_instruction_no_operand(instruction);

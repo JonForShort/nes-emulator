@@ -40,10 +40,10 @@ constexpr uint16_t mirror_table_mapping[][4]{
 };
 
 constexpr auto get_address_offset(uint16_t const address, uint8_t const mirror) {
-  const auto relative = (address - name_table_memory_begin) % name_table_max_size;
-  const auto table = (relative / name_table_size);
-  const auto offset = (relative % name_table_size);
-  const auto absolute = name_table_memory_begin + mirror_table_mapping[mirror][table] * name_table_size + offset;
+  auto const relative = (address - name_table_memory_begin) % name_table_max_size;
+  auto const table = (relative / name_table_size);
+  auto const offset = (relative % name_table_size);
+  auto const absolute = name_table_memory_begin + mirror_table_mapping[mirror][table] * name_table_size + offset;
   return absolute % (name_table_size * 2);
 }
 
@@ -58,11 +58,11 @@ auto name_table::peek(uint16_t const address) const -> uint8_t {
 }
 
 auto name_table::read(uint16_t const address) const -> uint8_t {
-  const auto adjusted_address = get_address_offset(address, get_mirror_mode());
+  auto const adjusted_address = get_address_offset(address, get_mirror_mode());
   return name_table_[adjusted_address];
 }
 
 auto name_table::write(uint16_t const address, uint8_t const data) -> void {
-  const auto adjusted_address = get_address_offset(address, get_mirror_mode());
+  auto const adjusted_address = get_address_offset(address, get_mirror_mode());
   name_table_[adjusted_address] = data;
 }

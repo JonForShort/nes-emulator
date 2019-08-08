@@ -50,8 +50,8 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
     //
     return create_empty_instruction(result::ERROR_INVALID);
   }
-  const auto opcode = buffer[0];
-  const auto instruction = instruction_set[opcode];
+  auto const opcode = buffer[0];
+  auto const instruction = instruction_set[opcode];
   if (length_in_bytes < instruction.length) {
     //
     // buffer is smaller than expected size
@@ -61,7 +61,7 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
         instruction.length == 2 ? result::ERROR_REQUIRES_TWO_BYTES   :
         instruction.length == 3 ? result::ERROR_REQUIRES_THREE_BYTES : result::ERROR_INVALID);
   }
-  const auto instruction_length = instruction.length;
+  auto const instruction_length = instruction.length;
   decode::instruction decoded_instruction = create_empty_instruction(result::SUCCESS);
   std::memcpy(decoded_instruction.encoded.data(), buffer, instruction_length);
   decoded_instruction.encoded_length_in_bytes = instruction_length;

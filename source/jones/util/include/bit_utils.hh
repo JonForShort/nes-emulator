@@ -54,9 +54,9 @@ constexpr inline auto bit_shift_set(T &data, T const shift, T const bits, T cons
 template <typename T>
 constexpr inline auto bit_reverse(T const value) -> T {
   auto reversed = 0;
-  const auto length = sizeof(value) * 8;
+  auto const length = sizeof(value) * 8;
   for (size_t index = 0; index < length; index++) {
-    const auto b = (value >> (length - index - 1U)) & 0x01;
+    auto const b = (value >> (length - index - 1U)) & 0x01;
     reversed |= b << index;
   }
   return reversed;

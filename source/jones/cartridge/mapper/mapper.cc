@@ -32,7 +32,7 @@
 using namespace jones;
 
 auto mapper_factory::get(mapper_view const &mapper_view) -> std::unique_ptr<mapper> {
-  const auto mapper_number = mapper_view.cartridge().header()->mapper_number();
+  auto const mapper_number = mapper_view.cartridge().header()->mapper_number();
   switch (mapper_number) {
   case 0:
     return std::make_unique<mapper_nrom>(mapper_view);

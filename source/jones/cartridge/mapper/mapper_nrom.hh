@@ -67,12 +67,12 @@ private:
   };
 
   static auto resolve_type(mapped_cartridge const &cartridge) -> nrom_type {
-    const auto prgrom_count = cartridge.header()->prgrom_count();
+    auto const prgrom_count = cartridge.header()->prgrom_count();
     return prgrom_count == 1 ? nrom_type::NROM_128 : nrom_type::NROM_256;
   }
 
   static auto resolve_mirroring_type(mapped_cartridge const &cartridge) -> nrom_mirroring_type {
-    const auto mirroring = cartridge.header()->has_mirroring();
+    auto const mirroring = cartridge.header()->has_mirroring();
     return mirroring ? nrom_mirroring_type::NROM_VERTICAL : nrom_mirroring_type::NROM_HORIZONAL;
   }
 

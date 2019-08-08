@@ -39,12 +39,12 @@ public:
   }
 
   auto read(uint16_t const address) const -> uint8_t {
-    const auto read_address = address % 0x0800U;
+    auto const read_address = address % 0x0800U;
     return ram_[read_address];
   }
 
   auto write(uint16_t const address, uint8_t const data) -> void {
-    const auto write_address = address % 0x0800U;
+    auto const write_address = address % 0x0800U;
     ram_[write_address] = data;
   }
 

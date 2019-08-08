@@ -37,7 +37,7 @@ public:
 
   template <typename T>
   auto get(property const property, T const default_value) const -> T {
-    const auto found_property = properties_.find(property);
+    auto const found_property = properties_.find(property);
     if (found_property == properties_.end()) {
       return default_value;
     }

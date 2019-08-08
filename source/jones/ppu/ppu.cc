@@ -183,7 +183,7 @@ private:
   auto write_registers(const uint16_t address, const uint8_t data) -> void {
     BOOST_ASSERT_MSG(address >= 0x2000 && address <= 0x3FFF, "write unexpected address for ppu");
     write_register = data;
-    const auto address_offset = (address - 0x2000);
+    auto const address_offset = (address - 0x2000);
     switch (address_offset % 8) {
     case 0:
       write_control(data);
@@ -276,7 +276,7 @@ private:
       address++;
     }
     cpu_.idle(ppu_dma_cycles);
-    const auto cpu_cycles = cpu_.get_state().cycles;
+    auto const cpu_cycles = cpu_.get_state().cycles;
     if (cpu_cycles % 2 == 1) {
       cpu_.idle(1);
     }
@@ -284,7 +284,7 @@ private:
 
   auto read_registers(const uint16_t address) -> uint8_t {
     BOOST_ASSERT_MSG(address >= 0x2000 && address <= 0x3FFF, "read unexpected address for ppu");
-    const auto address_offset = (address - 0x2000);
+    auto const address_offset = (address - 0x2000);
     switch (address_offset % 8) {
     case 0:
       return read_control();
@@ -317,7 +317,7 @@ private:
   }
 
   auto read_status() -> uint8_t {
-    const auto status = (write_register & 0x1FU) | status_register_.get();
+    auto const status = (write_register & 0x1FU) | status_register_.get();
     io_context_.vram_address_latch = false;
     status_register_.clear(status_flag::VERTICAL_BLANK_STARTED);
     check_nmi_context();
@@ -364,7 +364,7 @@ private:
 
   [[nodiscard]] auto peek_registers(const uint16_t address) const -> uint8_t {
     BOOST_ASSERT_MSG(address >= 0x2000 && address <= 0x3FFF, "peek unexpected address for ppu");
-    const auto address_offset = (address - 0x2000);
+    auto const address_offset = (address - 0x2000);
     switch (address_offset % 8) {
     case 0:
       return read_control();
@@ -410,7 +410,7 @@ private:
   }
 
   auto process_frame_state() -> void {
-    const auto state = current_frame_state();
+    auto const state = current_frame_state();
     if (is_frame_state_set(state, ppu_frame_state::STATE_FLAG_VISIBLE)) {
       process_state_flag_visible();
     }
@@ -470,12 +470,12 @@ private:
   }
 
   auto process_state_vram_fetch_sprite_byte() -> void {
-    const auto is_sprites_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
+    auto const is_sprites_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
     if (!is_sprites_visible) {
       return;
     }
-    const auto current_counter = render_context_.sprite_counter;
-    const auto current_sprite = reinterpret_cast<ppu_sprite *>(&oam_data_[current_counter]);
+    auto const current_counter = render_context_.sprite_counter;
+    auto const current_sprite = reinterpret_cast<ppu_sprite *>(&oam_data_[current_counter]);
     render_context_.sprite_attribute_latches[current_counter] = current_sprite->attributes.value;
     render_context_.sprite_x_position_counters[current_counter] = current_sprite->x;
 
@@ -488,8 +488,8 @@ private:
       render_context_.sprite_zero_fetched = render_context_.sprite_zero_evaluated;
     }
 
-    const auto sprite_height = control_register_.is_set(control_flag::SPRITE_SIZE) ? (2 * ppu_tile_height) : ppu_tile_height;
-    const auto y = frame_current_scanline_ - current_sprite->y;
+    auto const sprite_height = control_register_.is_set(control_flag::SPRITE_SIZE) ? (2 * ppu_tile_height) : ppu_tile_height;
+    auto const y = frame_current_scanline_ - current_sprite->y;
 
     uint16_t sprite_address;
     uint16_t sprite_tile;
@@ -541,7 +541,7 @@ private:
     for (auto oam_index = 0, sprites_found = 0; sprite_count < ppu_max_sprites; sprite_count++) {
       oam_secondary_data_[oam_index] = sprites[sprite_count].y;
 
-      const auto y = sprites[sprite_count].y;
+      auto const y = sprites[sprite_count].y;
       if (frame_current_scanline_ < y || frame_current_scanline_ >= y + sprite_height) {
         continue;
       }
@@ -562,7 +562,7 @@ private:
 
     auto sprite_overflow = 0;
     while (sprite_count++ < ppu_max_sprites) {
-      const auto y = sprites[sprite_count].values[sprite_overflow];
+      auto const y = sprites[sprite_count].values[sprite_overflow];
       if ((frame_current_scanline_ >= y) && (frame_current_scanline_ < y + sprite_height)) {
         status_register_.set(status_flag::SPRITE_OVER_FLOW);
         sprite_overflow += 3;
@@ -601,7 +601,7 @@ private:
   }
 
   auto process_state_vram_fetch_bg_high_byte() -> void {
-    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    auto const is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
     if (!is_background_visible) {
       return;
     }
@@ -675,7 +675,7 @@ private:
   }
 
   auto process_state_loopy_inc_vert_v() -> void {
-    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    auto const is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
     if (!is_background_visible) {
       return;
     }
@@ -691,7 +691,7 @@ private:
   }
 
   auto process_state_vram_fetch_nt_byte() -> void {
-    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    auto const is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
     if (!is_background_visible) {
       return;
     }
@@ -703,7 +703,7 @@ private:
   }
 
   auto process_state_vram_fetch_at_byte() -> void {
-    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    auto const is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
     if (!is_background_visible) {
       return;
     }
@@ -771,15 +771,15 @@ private:
     uint8_t background_palette = 0x00;
     uint16_t background_color = 0x0000;
 
-    const auto is_background_clipped = !(mask_register_.is_set(mask_flag::SHOW_LEFT_BACKGROUND)) && (screen_x_position < ppu_tile_width);
-    const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+    auto const is_background_clipped = !(mask_register_.is_set(mask_flag::SHOW_LEFT_BACKGROUND)) && (screen_x_position < ppu_tile_width);
+    auto const is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
     if (is_background_visible && !is_background_clipped) {
-      const auto background_palette_low = bit_shift_and<uint8_t>(render_context_.attribute_table_shift_low, 7 - io_context_.fine_x_scroll, 1);
-      const auto background_palette_high = bit_shift_and<uint8_t>(render_context_.attribute_table_shift_high, 7 - io_context_.fine_x_scroll, 1);
+      auto const background_palette_low = bit_shift_and<uint8_t>(render_context_.attribute_table_shift_low, 7 - io_context_.fine_x_scroll, 1);
+      auto const background_palette_high = bit_shift_and<uint8_t>(render_context_.attribute_table_shift_high, 7 - io_context_.fine_x_scroll, 1);
       background_palette = background_palette_low | (background_palette_high << 1);
 
-      const auto background_color_low = bit_shift_and<uint16_t>(render_context_.background_shift_low, 15 - io_context_.fine_x_scroll, 1);
-      const auto background_color_high = bit_shift_and<uint16_t>(render_context_.background_shift_high, 15 - io_context_.fine_x_scroll, 1);
+      auto const background_color_low = bit_shift_and<uint16_t>(render_context_.background_shift_low, 15 - io_context_.fine_x_scroll, 1);
+      auto const background_color_high = bit_shift_and<uint16_t>(render_context_.background_shift_high, 15 - io_context_.fine_x_scroll, 1);
       background_color = background_color_low | (background_color_high << 1);
     }
 
@@ -787,16 +787,16 @@ private:
 
     uint16_t sprite_color = 0x0000;
 
-    const auto is_sprite_clipped = !(mask_register_.is_set(mask_flag::SHOW_LEFT_SPRITES)) && (screen_x_position < ppu_tile_width);
-    const auto is_sprite_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
+    auto const is_sprite_clipped = !(mask_register_.is_set(mask_flag::SHOW_LEFT_SPRITES)) && (screen_x_position < ppu_tile_width);
+    auto const is_sprite_visible = mask_register_.is_set(mask_flag::SHOW_SPRITES);
     if (is_sprite_visible && !is_sprite_clipped) {
       for (auto i = 0; i < ppu_sprites_per_line; i++) {
         if (render_context_.sprite_x_position_counters[i] > 0) {
           continue;
         }
-        const auto sprite_color_low = bit_shift_and<uint8_t>(render_context_.sprite_shift_low[i], 7, 1);
-        const auto sprite_color_high = bit_shift_and<uint8_t>(render_context_.sprite_shift_high[i], 7, 1);
-        const auto possible_sprite_color = sprite_color_low | (sprite_color_high << 1);
+        auto const sprite_color_low = bit_shift_and<uint8_t>(render_context_.sprite_shift_low[i], 7, 1);
+        auto const sprite_color_high = bit_shift_and<uint8_t>(render_context_.sprite_shift_high[i], 7, 1);
+        auto const possible_sprite_color = sprite_color_low | (sprite_color_high << 1);
         if (is_color_transparent(possible_sprite_color)) {
           continue;
         }
@@ -822,8 +822,8 @@ private:
       background_has_priority = false;
     }
 
-    const auto pixel_color = background_has_priority ? background_color : sprite_color;
-    const auto pixel_palette = background_has_priority ? background_palette : sprite_attributes.palette;
+    auto const pixel_color = background_has_priority ? background_color : sprite_color;
+    auto const pixel_palette = background_has_priority ? background_palette : sprite_attributes.palette;
 
     auto palette_address = background_has_priority ? palette_background_begin : palette_sprite_begin;
     if (!is_color_transparent(pixel_color)) {
@@ -851,8 +851,8 @@ private:
     if (frame_current_cycle_ == ppu_max_cycles &&
         frame_current_scanline_ == ppu_scanline_visible_end) {
       frame_current_frame_ += 1;
-      const auto is_odd_frame = frame_current_frame_ % 2 == 1;
-      const auto is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
+      auto const is_odd_frame = frame_current_frame_ % 2 == 1;
+      auto const is_background_visible = mask_register_.is_set(mask_flag::SHOW_BACKGROUND);
       if (is_odd_frame && is_background_visible) {
         frame_current_cycle_ += 1;
       }
@@ -869,7 +869,7 @@ private:
   }
 
   auto initialize_frame_scanlines() -> void {
-    const auto scanline_cycles = std::vector<ppu_frame_state_mask>(ppu_num_cycles, 0);
+    auto const scanline_cycles = std::vector<ppu_frame_state_mask>(ppu_num_cycles, 0);
     frame_scanlines_ = std::vector<ppu_frame_cycles>(ppu_max_scanlines, scanline_cycles);
   }
 
