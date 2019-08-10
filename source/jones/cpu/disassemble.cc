@@ -43,7 +43,7 @@ auto use_absolute_addresses() -> bool {
   return jco::configuration::instance().get<bool>(jco::property::PROPERTY_DISASM_USE_ABSOLUTE_ADDRESSES, false);
 }
 
-auto disassemble_opcode(const jde::instruction &decoded_instruction) -> std::string {
+auto disassemble_opcode(jde::instruction const &decoded_instruction) -> std::string {
   return instruction_set[decoded_instruction.decoded_opcode.value].mnemonic;
 }
 

@@ -31,7 +31,7 @@ using namespace jones;
 
 namespace {
 
-decode::instruction create_empty_instruction(const decode::result result) {
+decode::instruction create_empty_instruction(decode::result const result) {
   return decode::instruction{
       .encoded = {},
       .encoded_length_in_bytes = 0,
@@ -43,7 +43,7 @@ decode::instruction create_empty_instruction(const decode::result result) {
 
 } // namespace
 
-decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
+auto decode::decode(uint8_t *const buffer, size_t const length_in_bytes) -> decode::instruction {
   if (length_in_bytes < 1) {
     //
     // buffer is not sufficient size to hold an instruction
@@ -57,9 +57,7 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
     // buffer is smaller than expected size
     //
     return create_empty_instruction(
-        instruction.length == 1 ? result::ERROR_REQUIRES_ONE_BYTE    :
-        instruction.length == 2 ? result::ERROR_REQUIRES_TWO_BYTES   :
-        instruction.length == 3 ? result::ERROR_REQUIRES_THREE_BYTES : result::ERROR_INVALID);
+        instruction.length == 1 ? result::ERROR_REQUIRES_ONE_BYTE : instruction.length == 2 ? result::ERROR_REQUIRES_TWO_BYTES : instruction.length == 3 ? result::ERROR_REQUIRES_THREE_BYTES : result::ERROR_INVALID);
   }
   auto const instruction_length = instruction.length;
   decode::instruction decoded_instruction = create_empty_instruction(result::SUCCESS);
@@ -109,7 +107,7 @@ decode::instruction decode::decode(uint8_t *buffer, size_t length_in_bytes) {
   return decoded_instruction;
 }
 
-bool decode::is_valid(const decode::instruction &decoded_instruction) {
+auto decode::is_valid(decode::instruction const &decoded_instruction) -> bool {
   return !(decoded_instruction.decoded_opcode.type == opcode_type::INVALID) &&
          !(decoded_instruction.decoded_operand.type == operand_type::INVALID);
 }

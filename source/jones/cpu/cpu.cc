@@ -42,11 +42,11 @@ class cpu::impl final {
 public:
   explicit impl(memory const &memory) : memory_(memory) {}
 
-  void initialize() {
+  auto initialize() -> void {
     reset();
   }
 
-  void uninitialize() {
+  auto uninitialize() -> void {
     // nothing to do.
   }
 
@@ -62,7 +62,7 @@ public:
     return cycles_ - initial_cycles;
   }
 
-  void reset() {
+  auto reset() -> void {
     status_register_.set(status_flag::I);
 
     registers_.set(register_type::AC, 0x00);
