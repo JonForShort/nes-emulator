@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+#include <atomic>
 #include <boost/coroutine2/all.hpp>
 #include <boost/format.hpp>
 
@@ -43,21 +44,22 @@ public:
   explicit impl(memory const &memory) : memory_(memory) {}
 
   auto initialize() -> void {
+    initialize_coroutines();
     reset();
   }
 
   auto uninitialize() -> void {
-    // nothing to do.
+    uninitialize_coroutines();
   }
 
   auto step() -> uint8_t {
     auto const initial_cycles = cycles_;
     if (idle_cycles_ > 0) {
-      idle_cycles_ -= 1;
-      cycles_ += 1;
+      cycles_ += step_idle_->operator()().get();
+    } else if (is_interrupt_pending()) {
+      cycles_ += step_interrupt_->operator()().get();
     } else {
-      step_interrupt();
-      step_execute();
+      cycles_ += step_execute_->operator()().get();
     }
     return cycles_ - initial_cycles;
   }
@@ -248,37 +250,51 @@ public:
   }
 
 private:
-  auto step_execute() -> void {
-    auto const fetched = fetch();
-    auto const decoded = decode(fetched);
-    if (decoded.decoded_result == decode::result::SUCCESS) {
-      registers_.increment_by(register_type::PC, decoded.encoded_length_in_bytes);
-      execute(decoded);
-    } else {
-      BOOST_STATIC_ASSERT("unable to step cpu; decoded invalid instruction");
-      interrupt(interrupt_type::BRK, interrupt_state::SET);
+  auto is_interrupt_pending() -> bool {
+    return interrupts_.get_triggered() != interrupt_type::NONE;
+  }
+
+  auto step_idle(coroutine::push_type &yield) -> void {
+    yield(0);
+    while (is_running_) {
+      idle_cycles_ -= 1;
+      yield(1);
     }
   }
 
-  auto step_interrupt() -> void {
-    auto const triggered_interrupt = interrupts_.get_triggered();
-    if (triggered_interrupt == interrupt_type::NONE) {
-      return;
+  auto step_execute(coroutine::push_type &yield) -> void {
+    yield(0);
+    while (is_running_) {
+      auto const fetched = fetch();
+      auto const decoded = decode(fetched);
+      if (decoded.decoded_result == decode::result::SUCCESS) {
+        registers_.increment_by(register_type::PC, decoded.encoded_length_in_bytes);
+        execute(decoded);
+      } else {
+        BOOST_STATIC_ASSERT("unable to step cpu; decoded invalid instruction");
+        interrupt(interrupt_type::BRK, interrupt_state::SET);
+      }
+      yield(0);
     }
+  }
 
-    push_pc();
-    push_flags();
-
-    auto const interrupt_vector = interrupts_.get_vector(triggered_interrupt);
-    auto const interrupt_routine = memory_.read_word(interrupt_vector);
-    registers_.set(register_type::PC, interrupt_routine);
-
-    status_register_.set(status_flag::I);
-    registers_.set(register_type::SR, status_register_.get());
-
-    interrupts_.set_state(triggered_interrupt, false);
-
-    cycles_ += 7;
+  auto step_interrupt(coroutine::push_type &yield) -> void {
+    yield(0);
+    while (is_running_) {
+      auto const triggered_interrupt = interrupts_.get_triggered();
+      if (triggered_interrupt == interrupt_type::NONE) {
+        return;
+      }
+      push_pc();
+      push_flags();
+      auto const interrupt_vector = interrupts_.get_vector(triggered_interrupt);
+      auto const interrupt_routine = memory_.read_word(interrupt_vector);
+      registers_.set(register_type::PC, interrupt_routine);
+      status_register_.set(status_flag::I);
+      registers_.set(register_type::SR, status_register_.get());
+      interrupts_.set_state(triggered_interrupt, false);
+      yield(7);
+    }
   }
 
   auto push(uint8_t const value) -> void {
@@ -2762,10 +2778,24 @@ private:
     return registers_.get(register_type::PC) + address_offset;
   }
 
+  auto initialize_coroutines() -> void {
+    is_running_ = true;
+    step_idle_ = std::make_unique<coroutine::pull_type>(std::bind(&impl::step_idle, this, std::placeholders::_1));
+    step_execute_ = std::make_unique<coroutine::pull_type>(std::bind(&impl::step_execute, this, std::placeholders::_1));
+    step_interrupt_ = std::make_unique<coroutine::pull_type>(std::bind(&impl::step_interrupt, this, std::placeholders::_1));
+  }
+
+  auto uninitialize_coroutines() -> void {
+    is_running_ = false;
+    step_idle_.reset();
+    step_execute_.reset();
+    step_interrupt_.reset();
+  }
+
 private:
   static constexpr uint16_t stack_pointer_base = 0x100U;
 
-  const memory &memory_;
+  memory const &memory_;
 
   status_register status_register_{};
 
@@ -2776,9 +2806,17 @@ private:
   uint64_t cycles_{};
 
   uint16_t idle_cycles_{};
+
+  std::atomic<bool> is_running_{};
+
+  std::unique_ptr<coroutine::pull_type> step_idle_;
+
+  std::unique_ptr<coroutine::pull_type> step_execute_;
+
+  std::unique_ptr<coroutine::pull_type> step_interrupt_;
 };
 
-cpu::cpu(const memory &memory) : impl_(new impl(memory)) {}
+cpu::cpu(memory const &memory) : impl_(new impl(memory)) {}
 
 cpu::~cpu() = default;
 
