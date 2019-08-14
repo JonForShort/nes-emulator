@@ -39,6 +39,14 @@ using namespace jones;
 
 using coroutine = boost::coroutines2::coroutine<uint64_t>;
 
+namespace {
+
+inline auto co_await(coroutine::pull_type &coroutine) -> auto {
+  return coroutine()().get();
+}
+
+} // namespace
+
 class cpu::impl final {
 public:
   explicit impl(memory const &memory) : memory_(memory) {}
@@ -55,11 +63,11 @@ public:
   auto step() -> uint8_t {
     auto const initial_cycles = cycles_;
     if (idle_cycles_ > 0) {
-      cycles_ += step_idle_->operator()().get();
+      cycles_ += co_await(*step_idle_);
     } else if (is_interrupt_pending()) {
-      cycles_ += step_interrupt_->operator()().get();
+      cycles_ += co_await(*step_interrupt_);
     } else {
-      cycles_ += step_execute_->operator()().get();
+      cycles_ += co_await(*step_execute_);
     }
     return cycles_ - initial_cycles;
   }
@@ -254,16 +262,16 @@ private:
     return interrupts_.get_triggered() != interrupt_type::NONE;
   }
 
-  auto step_idle(coroutine::push_type &yield) -> void {
-    yield(0);
+  auto step_idle(coroutine::push_type &co_yield) -> void {
+    co_yield(0);
     while (is_running_) {
       idle_cycles_ -= 1;
-      yield(1);
+      co_yield(1);
     }
   }
 
-  auto step_execute(coroutine::push_type &yield) -> void {
-    yield(0);
+  auto step_execute(coroutine::push_type &co_yield) -> void {
+    co_yield(0);
     while (is_running_) {
       auto const fetched = fetch();
       auto const decoded = decode(fetched);
@@ -274,12 +282,12 @@ private:
         BOOST_STATIC_ASSERT("unable to step cpu; decoded invalid instruction");
         interrupt(interrupt_type::BRK, interrupt_state::SET);
       }
-      yield(0);
+      co_yield(0);
     }
   }
 
-  auto step_interrupt(coroutine::push_type &yield) -> void {
-    yield(0);
+  auto step_interrupt(coroutine::push_type &co_yield) -> void {
+    co_yield(0);
     while (is_running_) {
       auto const triggered_interrupt = interrupts_.get_triggered();
       if (triggered_interrupt == interrupt_type::NONE) {
@@ -293,7 +301,7 @@ private:
       status_register_.set(status_flag::I);
       registers_.set(register_type::SR, status_register_.get());
       interrupts_.set_state(triggered_interrupt, false);
-      yield(7);
+      co_yield(7);
     }
   }
 
