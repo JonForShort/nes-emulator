@@ -85,11 +85,11 @@ public:
     is_running_ = false;
   }
 
-  auto controller_one() const -> controller::controller_ptr {
+  [[nodiscard]] auto controller_one() const -> controller::controller_ptr {
     return controller_one_.get();
   }
 
-  auto controller_two() const -> controller::controller_ptr {
+  [[nodiscard]] auto controller_two() const -> controller::controller_ptr {
     return controller_two_.get();
   }
 
