@@ -36,7 +36,7 @@ struct instruction {
   opcode_type opcode;
   const char *mnemonic;
   uint8_t length;
-  uint8_t cycles;
+  uint8_t max_cycles;
   bool has_cross_page_penalty;
   addressing_mode_type addressing_mode;
 };
