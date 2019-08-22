@@ -25,6 +25,7 @@
 #define JONES_CPU_DISASSEMBLE_INTERNAL_HH
 
 #include <cstdint>
+#include <memory>
 
 #include "decode.hh"
 #include "disassemble.hh"
