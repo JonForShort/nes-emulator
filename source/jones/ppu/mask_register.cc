@@ -29,7 +29,7 @@ using namespace jones::ppu;
 
 namespace {
 
-auto flag_to_position(const mask_flag flag) -> auto {
+auto flag_to_position(mask_flag const flag) -> auto {
   switch (flag) {
   case mask_flag::USE_GRAYSCALE:
     return 0;

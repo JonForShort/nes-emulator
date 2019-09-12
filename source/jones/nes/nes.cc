@@ -70,7 +70,7 @@ public:
     return true;
   }
 
-  auto run(const size_t step_limit) -> void {
+  auto run(size_t const step_limit) -> void {
     is_running_ = true;
     notify_listener(nes_listener::event::ON_RUN_STARTED);
     for (size_t step_count = 0; is_running_ && (step_count < step_limit || step_limit == 0); step_count++) {
@@ -97,15 +97,15 @@ public:
     screen_->attach_screen(std::move(screen));
   }
 
-  auto read(const uint16_t address) -> uint8_t {
+  auto read(uint16_t const address) -> uint8_t {
     return cpu_.read(address);
   }
 
-  auto write(const uint16_t address, const uint8_t data) -> void {
+  auto write(uint16_t const address, uint8_t const data) -> void {
     cpu_.write(address, data);
   }
 
-  auto set_listener(nes_listener *listener) -> void {
+  auto set_listener(nes_listener *const listener) -> void {
     listener_ = listener;
   }
 
@@ -162,7 +162,7 @@ private:
     return true;
   }
 
-  auto notify_listener(const nes_listener::event &event) -> void {
+  auto notify_listener(nes_listener::event const &event) -> void {
     if (listener_ != nullptr) {
       auto state = get_state();
       listener_->on_event(event, state);
@@ -215,7 +215,7 @@ private:
     return state;
   }
 
-  auto set_state(const nes_state &state) -> void {
+  auto set_state(nes_state const &state) -> void {
     auto cpu_state = cpu_.get_state();
     cpu_state.registers.PC = state.cpu.registers.PC;
     cpu_state.registers.SP = state.cpu.registers.SP;
@@ -274,7 +274,7 @@ private:
   nes_listener *listener_{};
 };
 
-nes::nes(const char *rom_path) noexcept
+nes::nes(char const *rom_path) noexcept
     : pimpl_(std::make_unique<impl>(rom_path)) {
 }
 
@@ -288,7 +288,7 @@ auto nes::reset() -> bool {
   return pimpl_->reset();
 }
 
-auto nes::run(const size_t cycle_count) -> void {
+auto nes::run(size_t const cycle_count) -> void {
   return pimpl_->run(cycle_count);
 }
 
@@ -310,22 +310,22 @@ auto nes::attach_screen(std::unique_ptr<screen::screen> screen) -> void {
 
 class debugger::impl final {
 public:
-  explicit impl(const nes &nes) : nes_(nes) {}
+  explicit impl(nes const &nes) : nes_(nes) {}
 
-  auto read(const uint16_t address) -> uint8_t {
+  auto read(uint16_t const address) -> uint8_t {
     return nes_.pimpl_->read(address);
   }
 
-  auto write(uint16_t address, uint8_t data) -> void {
+  auto write(uint16_t const address, uint8_t const data) -> void {
     nes_.pimpl_->write(address, data);
   }
 
-  auto set_listener(jones::nes_listener *listener) -> void {
+  auto set_listener(jones::nes_listener *const listener) -> void {
     nes_.pimpl_->set_listener(listener);
   }
 
 private:
-  const nes &nes_;
+  nes const &nes_;
 };
 
 debugger::debugger(const nes &nes) : impl_(new debugger::impl(nes)) {
@@ -336,14 +336,14 @@ debugger::debugger(const nes &nes) : impl_(new debugger::impl(nes)) {
 
 debugger::~debugger() = default;
 
-auto debugger::read(const uint16_t address) -> uint8_t {
+auto debugger::read(uint16_t const address) -> uint8_t {
   return impl_->read(address);
 }
 
-auto debugger::write(uint16_t address, uint8_t data) -> void {
+auto debugger::write(uint16_t const address, uint8_t const data) -> void {
   impl_->write(address, data);
 }
 
-auto debugger::set_listener(jones::nes_listener *listener) -> void {
+auto debugger::set_listener(jones::nes_listener *const listener) -> void {
   impl_->set_listener(listener);
 }

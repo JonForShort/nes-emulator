@@ -76,7 +76,7 @@ auto palette::write(uint16_t const address, uint8_t const data) -> void {
   palette_[offset] = data;
 }
 
-auto jones::ppu::get_palette_pixel(uint8_t data) -> pixel {
+auto jones::ppu::get_palette_pixel(uint8_t const data) -> pixel {
   palette_entry entry{};
   entry.value = data;
   return ppu_palette[entry.luma][entry.chroma];
