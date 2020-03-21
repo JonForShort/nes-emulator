@@ -35,3 +35,19 @@
         path = external/gzip/source
         url = https://github.com/thejunkjon/external-gzip.git
         ignore = dirty
+
+[submodule "external/spdlog/source"]
+	path = external/spdlog/source
+	url = https://github.com/gabime/spdlog.git
+        ignore = dirty
+
+[submodule "external/wasm/emsdk/source"]
+	path = external/wasm/emsdk/source
+	url = https://github.com/emscripten-core/emsdk.git
+        ignore = dirty
+
+[submodule "external/wasm/emscripten/source"]
+	path = external/wasm/emscripten/source
+	url = https://github.com/emscripten-core/emscripten.git
+        ignore = dirty
+
