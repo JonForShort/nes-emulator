@@ -2,11 +2,15 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
+JONES_ROOT_DIR=${SCRIPT_DIR}/..
+
 JONES_OUT_DIR=${SCRIPT_DIR}/../out/jones
 
 JONES_BUILD_DIR=${SCRIPT_DIR}/../build
 
 JONES_CMAKE_DIR=${SCRIPT_DIR}/../cmake
+
+JONES_EXTERNAL_DIR=${SCRIPT_DIR}/../external
 
 jones() {
 

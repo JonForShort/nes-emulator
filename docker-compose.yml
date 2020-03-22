@@ -1,0 +1,14 @@
+version: '3'
+services:
+  jones:
+    depends_on:
+      - 'emsdk'
+    build:
+      dockerfile: 'cm/Dockerfile'
+      context: .
+    volumes:
+      - '.:/build'
+  emsdk:
+    build:
+      dockerfile: 'Dockerfile'
+      context: 'external/wasm/emsdk/source/docker'
