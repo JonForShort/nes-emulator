@@ -7,7 +7,8 @@ services:
       dockerfile: 'cm/Dockerfile'
       context: .
     volumes:
-      - '.:/build'
+      - '.:/jones'
+    working_dir: '/jones'
   emsdk:
     build:
       dockerfile: 'Dockerfile'

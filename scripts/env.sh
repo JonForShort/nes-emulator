@@ -91,3 +91,5 @@ jones_test_code_coverage() {
     echo ${CODE_COVERAGE_FILE}
     echo ""
 }
+
+"$@"
