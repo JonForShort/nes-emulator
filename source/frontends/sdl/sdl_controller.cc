@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2019
+// Copyright 2019-2020
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ using controller_state = jones::controller::controller_state;
 
 namespace {
 
-const button button_mapping[] = {
+button const button_mapping[] = {
     button::BUTTON_A,
     button::BUTTON_B,
     button::BUTTON_A,
@@ -45,7 +45,7 @@ const button button_mapping[] = {
     button::BUTTON_START,
 };
 
-const auto button_axis_offset = 100;
+auto const button_axis_offset = 100;
 
 } // namespace
 
@@ -91,21 +91,21 @@ auto sdl_controller::uninitialize() -> void {
 auto sdl_controller::on_event(SDL_Event const event) -> void {
   switch (event.type) {
   case SDL_JOYAXISMOTION: {
-    const auto controller = event.jbutton.which == 0 ? controller_one_ : controller_two_;
-    const auto is_button_pushed = event.jaxis.value < (SDL_JOYSTICK_AXIS_MIN + button_axis_offset) || event.jaxis.value > (SDL_JOYSTICK_AXIS_MAX - button_axis_offset);
-    const auto is_button_released = event.jaxis.value > -button_axis_offset && event.jaxis.value < button_axis_offset;
+    auto const controller = event.jbutton.which == 0 ? controller_one_ : controller_two_;
+    auto const is_button_pushed = event.jaxis.value < (SDL_JOYSTICK_AXIS_MIN + button_axis_offset) || event.jaxis.value > (SDL_JOYSTICK_AXIS_MAX - button_axis_offset);
+    auto const is_button_released = event.jaxis.value > -button_axis_offset && event.jaxis.value < button_axis_offset;
     if (is_button_pushed) {
       if (event.jaxis.axis == 0) {
-        const auto button = event.jaxis.value > 0 ? button::BUTTON_RIGHT : button::BUTTON_LEFT;
+        auto const button = event.jaxis.value > 0 ? button::BUTTON_RIGHT : button::BUTTON_LEFT;
         controller->set_button_state(button, button_state::BUTTON_STATE_DOWN);
       }
       if (event.jaxis.axis == 1) {
-        const auto button = event.jaxis.value > 0 ? button::BUTTON_DOWN : button::BUTTON_UP;
+        auto const button = event.jaxis.value > 0 ? button::BUTTON_DOWN : button::BUTTON_UP;
         controller->set_button_state(button, button_state::BUTTON_STATE_DOWN);
       }
     }
     if (is_button_released) {
-      for (auto button : {button::BUTTON_UP, button::BUTTON_DOWN, button::BUTTON_LEFT, button::BUTTON_RIGHT}) {
+      for (auto const button : {button::BUTTON_UP, button::BUTTON_DOWN, button::BUTTON_LEFT, button::BUTTON_RIGHT}) {
         if (controller->get_button_state(button) == button_state::BUTTON_STATE_DOWN) {
           controller->set_button_state(button, button_state::BUTTON_STATE_UP);
         }
@@ -115,9 +115,9 @@ auto sdl_controller::on_event(SDL_Event const event) -> void {
   }
   case SDL_JOYBUTTONUP:
   case SDL_JOYBUTTONDOWN: {
-    const auto controller = event.jbutton.which == 0 ? controller_one_ : controller_two_;
-    const auto button_state = event.jbutton.state == SDL_PRESSED ? button_state::BUTTON_STATE_DOWN : button_state::BUTTON_STATE_UP;
-    const auto button = button_mapping[event.jbutton.button];
+    auto const controller = event.jbutton.which == 0 ? controller_one_ : controller_two_;
+    auto const button_state = event.jbutton.state == SDL_PRESSED ? button_state::BUTTON_STATE_DOWN : button_state::BUTTON_STATE_UP;
+    auto const button = button_mapping[event.jbutton.button];
     controller->set_button_state(button, button_state);
     break;
   }

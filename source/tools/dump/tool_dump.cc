@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2019
+// Copyright 2019-2020
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -71,8 +71,8 @@ void dump_code(const fs::path &root_path, const jo::cartridge &rom) {
   const ip::file_mapping mapped_file(prgrom_path.string().c_str(), ip::mode_t::read_only);
   const ip::mapped_region mapped_region(mapped_file, ip::mode_t::read_only);
 
-  const auto &disassembled_code = jd::disassemble(static_cast<uint8_t *>(mapped_region.get_address()), mapped_region.get_size());
-  const auto &disassembled_instructions = disassembled_code.instructions;
+  auto const &disassembled_code = jd::disassemble(static_cast<uint8_t *>(mapped_region.get_address()), mapped_region.get_size());
+  auto const &disassembled_instructions = disassembled_code.instructions;
   for (auto instruction : disassembled_instructions) {
     auto instruction_address = instruction.address;
     code_file << "   " << to_hex_string(reinterpret_cast<uint8_t *>(&instruction_address), sizeof(instruction.address), 5, false);

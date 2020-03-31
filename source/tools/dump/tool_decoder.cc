@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2019
+// Copyright 2019-2020
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -52,16 +52,16 @@ void tool::decode_chrrom(const uint8_t *base_address, const size_t length_in_byt
   BOOST_ASSERT(length_in_bytes % 8 == 0);
   auto file_count = 0;
   for (size_t i = 0; i < length_in_bytes;) {
-    const auto file_path = build_file_path(out_path, file_count++);
+    auto const file_path = build_file_path(out_path, file_count++);
     jones::tool::image_writer writer;
     writer.size(pixels_per_tile, pixels_per_tile);
     for (auto r = 0; r < pixels_per_tile; r++) {
-      const uint8_t first_layer = base_address[i++];
-      const uint8_t second_layer = base_address[i++];
+      uint8_t const first_layer = base_address[i++];
+      uint8_t const second_layer = base_address[i++];
       for (auto b = 0; b < pixels_per_tile; b++) {
-        const uint8_t first_layer_value = (first_layer & (1 << b)) != 0 ? 1 : 0;
-        const uint8_t second_layer_value = (second_layer & (1 << b)) != 0 ? 2 : 0;
-        const uint8_t value = first_layer_value + second_layer_value;
+        uint8_t const first_layer_value = (first_layer & (1 << b)) != 0 ? 1 : 0;
+        uint8_t const second_layer_value = (second_layer & (1 << b)) != 0 ? 2 : 0;
+        uint8_t const value = first_layer_value + second_layer_value;
         writer.set_pixel(tile_palette[value], b, r);
       }
     }

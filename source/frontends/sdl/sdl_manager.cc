@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2019
+// Copyright 2019-2020
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -55,7 +55,7 @@ void sdl_manager::initialize() {
     LOG_DEBUG << "screen is already being shown";
     return;
   }
-  for (auto component : components_) {
+  for (auto const component : components_) {
     component->initialize();
   }
   running_thread_ = std::make_unique<std::thread>([this]() {
@@ -83,7 +83,7 @@ void sdl_manager::uninitialize() {
 void sdl_manager::process_events() {
   SDL_Event events;
   while (SDL_PollEvent(&events)) {
-    for (auto component : components_) {
+    for (auto const component : components_) {
       component->on_event(events);
     }
     if (events.type == SDL_QUIT) {
