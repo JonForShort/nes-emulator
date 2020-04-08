@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2019
+// Copyright 2019-2020
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,15 +40,15 @@ namespace fs = boost::filesystem;
 using format = boost::format;
 
 BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
-  const auto argc = bt::framework::master_test_suite().argc;
+  auto const argc = bt::framework::master_test_suite().argc;
   if (argc <= 1) {
     BOOST_CHECK_MESSAGE(false, "missing required test arguments");
     return;
   }
-  const auto argv = bt::framework::master_test_suite().argv;
-  const auto file_path = argv[1];
+  auto const argv = bt::framework::master_test_suite().argv;
+  auto const file_path = argv[1];
 
-  const fs::path trace_path = fs::temp_directory_path() / fs::unique_path();
+  fs::path const trace_path = fs::temp_directory_path() / fs::unique_path();
 
   LOG_DEBUG << "test arguments : "
             << "binary [" << file_path << "] "
