@@ -13,9 +13,9 @@ steps:
   submodules: true
 
 - script: |
-    . scripts/env.sh && jones_build
+    ./scripts/env.sh jones_build
   displayName: 'Build'
 
 - script: |
-    . scripts/env.sh && jones_test_cm
+    ./scripts/env.sh jones_test_cm
   displayName: 'Test'
