@@ -92,4 +92,16 @@ jones_test_code_coverage() {
     echo ""
 }
 
+jones_setup_environment() {
+
+    echo JONES_UID=$(id -u $USER):$(id -g $USER) > .env
+}
+
+jones_update_submodules() {(
+
+    git submodule update --recursive --remote
+)}
+
+jones_setup_environment
+
 "$@"

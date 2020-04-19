@@ -10,6 +10,7 @@ services:
       - '.:/jones'
     working_dir: '/jones'
     tty: true
+    user: $JONES_UID
   emsdk:
     build:
       dockerfile: 'Dockerfile'
