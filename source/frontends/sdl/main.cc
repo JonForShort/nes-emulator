@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2017-2019
+// Copyright 2017-2020
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -67,17 +67,20 @@ int main(int argc, char *argv[]) {
   const fs::path file_path(file_argument);
   if (!fs::exists(file_path)) {
     std::cerr << "file path does not exist; please check path" << std::endl;
+    std::cerr << "> [" << file_argument << "]" << std::endl;
     return -2;
   }
 
   if (fs::is_directory(file_path)) {
     std::cerr << "file path is a directory; please check path" << std::endl;
+    std::cerr << "> [" << file_argument << "]" << std::endl;
     return -3;
   }
 
   jones::nes nes(file_path.string().c_str());
   if (!nes.power()) {
     std::cerr << "rom file is not valid; please check file" << std::endl;
+    std::cerr << "> [" << file_argument << "]" << std::endl;
     return -4;
   }
 
