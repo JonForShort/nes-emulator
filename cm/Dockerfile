@@ -9,3 +9,12 @@ RUN apt update && \
     apt autoclean -y && \
     apt remove -y && \
     apt autoremove -y
+
+RUN groupadd --gid 1000 jones && \
+    useradd --uid 1000 --gid jones --shell /bin/bash --create-home jones
+
+ENV HOME /home/jones
+
+USER jones
+
+WORKDIR /home/jones
