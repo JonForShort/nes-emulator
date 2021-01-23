@@ -53,6 +53,17 @@ jones_build() {
     popd
 }
 
+jones_build_cm() {
+
+    pushd ${JONES_ROOT_DIR}
+
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
+
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones ./scripts/env.sh jones_build
+
+    popd
+}
+
 jones_test() {
 
     jones_build "$@"
@@ -64,7 +75,13 @@ jones_test() {
 
 jones_test_cm() {
 
-    IS_CM_BUILD=1 jones_test "$@"
+    pushd ${JONES_ROOT_DIR}
+
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
+
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run -e IS_CM_BUILD=1 jones ./scripts/env.sh jones_test "$@"
+
+    popd
 }
 
 jones_test_asan() {

@@ -13,5 +13,7 @@ services:
     user: $JONES_UID
   emsdk:
     build:
-      dockerfile: 'Dockerfile'
-      context: 'external/wasm/emsdk/source/docker'
+      dockerfile: 'docker/Dockerfile'
+      context: 'external/wasm/emsdk/source'
+      args:
+        - EMSCRIPTEN_VERSION=2.0.12
