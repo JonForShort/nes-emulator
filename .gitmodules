@@ -1,30 +1,37 @@
 [submodule "external/sdl/source"]
         path = external/sdl/source
         url = https://github.com/thejunkjon/external-sdl.git
+        ignore = dirty
 
 [submodule "external/ncurses/source"]
         path = external/ncurses/source
         url = https://github.com/thejunkjon/external-ncurses.git
+        ignore = dirty
 
 [submodule "external/capstone/source"]
         path = external/capstone/source
         url = https://github.com/thejunkjon/external-capstone.git
+        ignore = dirty
 
 [submodule "external/sndio/source"]
         path = external/sndio/source
         url = https://github.com/thejunkjon/external-sndio.git
+        ignore = dirty
 
 [submodule "external/boost/source"]
         path = external/boost/source
         url = https://github.com/thejunkjon/external-boost.git
+        ignore = dirty
 
 [submodule "external/png/source"]
         path = external/png/source
         url = https://github.com/thejunkjon/external-libpng.git
+        ignore = dirty
 
 [submodule "external/gsl/source"]
         path = external/gsl/source
         url = https://github.com/Microsoft/GSL.git
+        ignore = dirty
 
 [submodule "external/zlib/source"]
         path = external/zlib/source
@@ -50,4 +57,3 @@
 	path = external/wasm/emscripten/source
 	url = https://github.com/emscripten-core/emscripten.git
         ignore = dirty
-
