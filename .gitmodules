@@ -57,3 +57,8 @@
 	path = external/wasm/emscripten/source
 	url = https://github.com/emscripten-core/emscripten.git
         ignore = dirty
+
+[submodule "external/cppcoro/source"]
+	path = external/cppcoro/source
+	url = git@github.com:JonForShort/cppcoro.git
+        ignore = dirty
