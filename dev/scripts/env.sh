@@ -2,7 +2,7 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-JONES_ROOT_DIR=${SCRIPT_DIR}/..
+JONES_ROOT_DIR=${SCRIPT_DIR}/../..
 
 JONES_OUT_DIR=${SCRIPT_DIR}/../out/jones
 
@@ -118,6 +118,19 @@ jones_update_submodules() {(
 
     git submodule update --recursive --remote
 )}
+
+jones_setup_vscode() {
+
+    mkdir -p ${JONES_ROOT_DIR}/.vscode
+
+    pushd ${JONES_ROOT_DIR}/.vscode
+
+    ln -s $(realpath --relative-to=${JONES_ROOT_DIR}/.vscode ${JONES_ROOT_DIR}/dev/vscode)/launch.json launch.json
+
+    ln -s $(realpath --relative-to=${JONES_ROOT_DIR}/.vscode ${JONES_ROOT_DIR}/dev/vscode)/tasks.json tasks.json
+
+    popd
+}
 
 jones_setup_environment
 

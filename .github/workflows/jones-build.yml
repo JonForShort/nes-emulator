@@ -17,10 +17,10 @@ jobs:
         submodules: true
 
     - name: Build Jones Project
-      run:  ./scripts/env.sh jones_build_cm
+      run:  ./dev/scripts/env.sh jones_build_cm
 
     - name: Run Unit Tests
-      run:  ./scripts/env.sh jones_test_cm
+      run:  ./dev/scripts/env.sh jones_test_cm
 
     - name: Archive Artifacts
       uses: actions/upload-artifact@v2

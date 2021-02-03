@@ -1,0 +1,44 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Test Suite Traces",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/jones/bin/test_suite_traces",
+            "args": [
+                "${workspaceFolder}/test/traces"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Launch Test Rom",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/jones/bin/jones",
+            "args": [
+                "--file",
+                "${workspaceFolder}/test/roms/sample/sample.nes"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}
