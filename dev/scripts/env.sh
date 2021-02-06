@@ -4,13 +4,13 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 JONES_ROOT_DIR=${SCRIPT_DIR}/../..
 
-JONES_OUT_DIR=${SCRIPT_DIR}/../out/jones
+JONES_OUT_DIR=${JONES_ROOT_DIR}/out/jones
 
-JONES_BUILD_DIR=${SCRIPT_DIR}/../build
+JONES_BUILD_DIR=${JONES_ROOT_DIR}/build
 
-JONES_CMAKE_DIR=${SCRIPT_DIR}/../cmake
+JONES_CMAKE_DIR=${JONES_ROOT_DIR}/cmake
 
-JONES_EXTERNAL_DIR=${SCRIPT_DIR}/../external
+JONES_EXTERNAL_DIR=${JONES_ROOT_DIR}/external
 
 jones() {
 
@@ -59,7 +59,7 @@ jones_build_cm() {
 
     COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
 
-    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones ./scripts/env.sh jones_build
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones ./dev/scripts/env.sh jones_build
 
     popd
 }
@@ -79,7 +79,7 @@ jones_test_cm() {
 
     COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
 
-    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run -e IS_CM_BUILD=1 jones ./scripts/env.sh jones_test "$@"
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run -e IS_CM_BUILD=1 jones ./dev/scripts/env.sh jones_test "$@"
 
     popd
 }

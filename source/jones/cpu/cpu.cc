@@ -279,7 +279,6 @@ private:
       } else {
         BOOST_STATIC_ASSERT("unable to step cpu; decoded invalid instruction");
         interrupt(interrupt_type::BRK, interrupt_state::SET);
-        co_yield(0);
       }
     }
   }
@@ -292,14 +291,22 @@ private:
         co_return;
       }
       push_pc();
+      co_yield 2;
+
       push_flags();
+      co_yield 1;
+
       auto const interrupt_vector = interrupts_.get_vector(triggered_interrupt);
       auto const interrupt_routine = memory_.read_word(interrupt_vector);
+      co_yield 2;
+
       registers_.set(register_type::PC, interrupt_routine);
       status_register_.set(status_flag::I);
+      co_yield 1;
+
       registers_.set(register_type::SR, status_register_.get());
       interrupts_.set_state(triggered_interrupt, false);
-      co_yield 7;
+      co_yield 1;
     }
   }
 
@@ -579,7 +586,7 @@ private:
   }
 
   auto execute_noop() -> cpu_step {
-    co_yield(0);
+    co_yield 0;
   }
 
   auto execute_rra(decode::instruction const &instruction) -> cpu_step {
@@ -635,7 +642,6 @@ private:
     }
     default: {
       BOOST_STATIC_ASSERT("unexpected addressing mode for execute RRA");
-      co_yield 0;
       break;
     }
     }
@@ -712,7 +718,6 @@ private:
     }
     default: {
       BOOST_STATIC_ASSERT("unexpected addressing mode for execute SRE");
-      co_yield 0;
       break;
     }
     }
@@ -781,7 +786,6 @@ private:
     }
     default: {
       BOOST_STATIC_ASSERT("unexpected addressing mode for execute RLA");
-      co_yield 0;
       break;
     }
     }
@@ -844,7 +848,6 @@ private:
     }
     default: {
       BOOST_STATIC_ASSERT("unexpected addressing mode for execute SLO");
-      co_yield 0;
       break;
     }
     }
@@ -921,7 +924,6 @@ private:
     }
     default: {
       BOOST_STATIC_ASSERT("unexpected addressing mode for execute ISC");
-      co_yield 0;
       break;
     }
     }
@@ -995,7 +997,6 @@ private:
     }
     default: {
       BOOST_STATIC_ASSERT("unexpected addressing mode for DCP");
-      co_yield 0;
       break;
     }
     }
@@ -1043,7 +1044,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for SAX");
-      co_yield 0;
       break;
     }
   }
@@ -1054,6 +1054,7 @@ private:
       auto const value = get_immediate(instruction);
       registers_.set(register_type::AC, value);
       registers_.set(register_type::X, value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 2;
       break;
     }
@@ -1064,6 +1065,7 @@ private:
         auto const value = memory_.read(address);
         registers_.set(register_type::AC, value);
         registers_.set(register_type::X, value);
+        update_status_flag_zn(registers_.get(register_type::AC));
         co_yield 3;
         break;
       }
@@ -1072,6 +1074,7 @@ private:
         auto const value = memory_.read(address);
         registers_.set(register_type::AC, value);
         registers_.set(register_type::X, value);
+        update_status_flag_zn(registers_.get(register_type::AC));
         co_yield 4;
         break;
       }
@@ -1080,6 +1083,7 @@ private:
         auto const value = memory_.read(address);
         registers_.set(register_type::AC, value);
         registers_.set(register_type::X, value);
+        update_status_flag_zn(registers_.get(register_type::AC));
         co_yield 4;
         break;
       }
@@ -1089,6 +1093,7 @@ private:
         auto const value = memory_.read(address);
         registers_.set(register_type::AC, value);
         registers_.set(register_type::X, value);
+        update_status_flag_zn(registers_.get(register_type::AC));
         co_yield 4 + (is_page_crossed ? 1 : 0);
         break;
       }
@@ -1097,6 +1102,7 @@ private:
         auto const value = memory_.read(address);
         registers_.set(register_type::AC, value);
         registers_.set(register_type::X, value);
+        update_status_flag_zn(registers_.get(register_type::AC));
         co_yield 6;
         break;
       }
@@ -1106,22 +1112,20 @@ private:
         auto const value = memory_.read(address);
         registers_.set(register_type::AC, value);
         registers_.set(register_type::X, value);
+        update_status_flag_zn(registers_.get(register_type::AC));
         co_yield 5 + (is_page_crossed ? 1 : 0);
         break;
       }
       default: {
         BOOST_STATIC_ASSERT("unexpected addressing mode for LAX");
-        co_yield 0;
         break;
       }
       }
       break;
     default:
       BOOST_STATIC_ASSERT("unexpected operand type for LAX");
-      co_yield 0;
       break;
     }
-    update_status_flag_zn(registers_.get(register_type::AC));
   }
 
   auto execute_rti(decode::instruction const &instruction) -> cpu_step {
@@ -1134,7 +1138,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for RTI");
-      co_yield 0;
       break;
     }
   }
@@ -1143,16 +1146,15 @@ private:
     switch (instruction.decoded_addressing_mode) {
     case addressing_mode_type::IMPLICIT: {
       registers_.set(destination, registers_.get(source));
+      if (should_update_status) {
+        update_status_flag_zn(registers_.get(destination));
+      }
       co_yield 2;
       break;
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for execute transfer");
-      co_yield 0;
       break;
-    }
-    if (should_update_status) {
-      update_status_flag_zn(registers_.get(destination));
     }
   }
 
@@ -1185,15 +1187,14 @@ private:
     switch (instruction.decoded_addressing_mode) {
     case addressing_mode_type::IMPLICIT: {
       registers_.set(type, value - 1);
+      update_status_flag_zn(registers_.get(type));
       co_yield 2;
       break;
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for execute decrement");
-      co_yield 0;
       break;
     }
-    update_status_flag_zn(registers_.get(type));
   }
 
   auto execute_dey(decode::instruction const &instruction) -> cpu_step {
@@ -1209,15 +1210,14 @@ private:
     switch (instruction.decoded_addressing_mode) {
     case addressing_mode_type::IMPLICIT: {
       registers_.set(type, value + 1);
+      update_status_flag_zn(registers_.get(type));
       co_yield 2;
       break;
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for execute increment");
-      co_yield 0;
       break;
     }
-    update_status_flag_zn(registers_.get(type));
   }
 
   auto execute_iny(decode::instruction const &instruction) -> cpu_step {
@@ -1264,7 +1264,6 @@ private:
     }
     default: {
       BOOST_STATIC_ASSERT("unexpected addressing mode for INC");
-      co_yield 0;
       break;
     }
     }
@@ -1306,7 +1305,6 @@ private:
     }
     default: {
       BOOST_STATIC_ASSERT("unexpected addressing mode for DEC");
-      co_yield 0;
       break;
     }
     }
@@ -1375,7 +1373,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for EOR");
-      co_yield 0;
       break;
     }
     update_status_flag_zn(registers_.get(register_type::AC));
@@ -1387,6 +1384,7 @@ private:
     case addressing_mode_type::IMMEDIATE: {
       auto const value = get_immediate(instruction);
       registers_.set(register_type::AC, ac_register | value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 2;
       break;
     }
@@ -1394,6 +1392,7 @@ private:
       auto const address = get_zero_page_address(instruction);
       auto const value = memory_.read(address);
       registers_.set(register_type::AC, ac_register | value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 3;
       break;
     }
@@ -1401,6 +1400,7 @@ private:
       auto const address = get_zero_page_x_address(instruction);
       auto const value = memory_.read(address);
       registers_.set(register_type::AC, ac_register | value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 4;
       break;
     }
@@ -1408,6 +1408,7 @@ private:
       auto const address = get_absolute_address(instruction);
       auto const value = memory_.read(address);
       registers_.set(register_type::AC, ac_register | value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 4;
       break;
     }
@@ -1416,6 +1417,7 @@ private:
       auto const address = get_absolute_x_address(instruction, is_page_crossed);
       auto const value = memory_.read(address);
       registers_.set(register_type::AC, ac_register | value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 4 + (is_page_crossed ? 1 : 0);
       break;
     }
@@ -1424,6 +1426,7 @@ private:
       auto const address = get_absolute_y_address(instruction, is_page_crossed);
       auto const value = memory_.read(address);
       registers_.set(register_type::AC, ac_register | value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 4 + (is_page_crossed ? 1 : 0);
       break;
     }
@@ -1431,6 +1434,7 @@ private:
       auto const address = get_indexed_indirect_address(instruction);
       auto const value = memory_.read(address);
       registers_.set(register_type::AC, ac_register | value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 6;
       break;
     }
@@ -1439,15 +1443,14 @@ private:
       auto const address = get_indirect_indexed_address(instruction, is_page_crossed);
       auto const value = memory_.read(address);
       registers_.set(register_type::AC, ac_register | value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 5 + (is_page_crossed ? 1 : 0);
       break;
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for ORA");
-      co_yield 0;
       break;
     }
-    update_status_flag_zn(registers_.get(register_type::AC));
   }
 
   auto execute_pha(decode::instruction const &instruction) -> cpu_step {
@@ -1460,7 +1463,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for PHA");
-      co_yield 0;
       break;
     }
   }
@@ -1476,7 +1478,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for PLA");
-      co_yield 0;
       break;
     }
   }
@@ -1490,7 +1491,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for PHP");
-      co_yield 0;
       break;
     }
   }
@@ -1504,7 +1504,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for PLP");
-      co_yield 0;
       break;
     }
   }
@@ -1537,7 +1536,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for CPY");
-      co_yield 0;
       break;
     }
   }
@@ -1570,7 +1568,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for CPX");
-      co_yield 0;
       break;
     }
   }
@@ -1646,7 +1643,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for CMP");
-      co_yield 0;
       break;
     }
   }
@@ -1704,7 +1700,6 @@ private:
     }
     default: {
       BOOST_STATIC_ASSERT("unexpected addressing mode for LSR");
-      co_yield 0;
       break;
     }
     }
@@ -1764,7 +1759,6 @@ private:
     }
     default: {
       BOOST_STATIC_ASSERT("unexpected addressing mode for ROR");
-      co_yield 0;
       break;
     }
     }
@@ -1824,7 +1818,6 @@ private:
     }
     default: {
       BOOST_STATIC_ASSERT("unexpected addressing mode for ROL");
-      co_yield 0;
       break;
     }
     }
@@ -1883,7 +1876,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for ASL");
-      co_yield 0;
       break;
     }
   }
@@ -1893,24 +1885,28 @@ private:
     switch (instruction.decoded_addressing_mode) {
     case addressing_mode_type::IMMEDIATE: {
       value = get_immediate(instruction);
+      execute_sbc(value);
       co_yield 2;
       break;
     }
     case addressing_mode_type::ZERO_PAGE: {
       auto const address = get_zero_page_address(instruction);
       value = memory_.read(address);
+      execute_sbc(value);
       co_yield 3;
       break;
     }
     case addressing_mode_type::ZERO_PAGE_X: {
       auto const address = get_zero_page_x_address(instruction);
       value = memory_.read(address);
+      execute_sbc(value);
       co_yield 4;
       break;
     }
     case addressing_mode_type::ABSOLUTE: {
       auto const address = get_absolute_address(instruction);
       value = memory_.read(address);
+      execute_sbc(value);
       co_yield 4;
       break;
     }
@@ -1918,6 +1914,7 @@ private:
       bool is_page_crossed = false;
       auto const address = get_absolute_x_address(instruction, is_page_crossed);
       value = memory_.read(address);
+      execute_sbc(value);
       co_yield 4 + (is_page_crossed ? 1 : 0);
       break;
     }
@@ -1925,12 +1922,14 @@ private:
       bool is_page_crossed = false;
       auto const address = get_absolute_y_address(instruction, is_page_crossed);
       value = memory_.read(address);
+      execute_sbc(value);
       co_yield 4 + (is_page_crossed ? 1 : 0);
       break;
     }
     case addressing_mode_type::INDEXED_INDIRECT: {
       auto const address = get_indexed_indirect_address(instruction);
       value = memory_.read(address);
+      execute_sbc(value);
       co_yield 6;
       break;
     }
@@ -1938,6 +1937,7 @@ private:
       bool is_page_crossed = false;
       auto const address = get_indirect_indexed_address(instruction, is_page_crossed);
       value = memory_.read(address);
+      execute_sbc(value);
       co_yield 5 + (is_page_crossed ? 1 : 0);
       break;
     }
@@ -1945,7 +1945,6 @@ private:
       BOOST_STATIC_ASSERT("unexpected addressing mode for ADC");
       break;
     }
-    execute_sbc(value);
   }
 
   auto execute_sbc(const uint8_t value) -> void {
@@ -2021,7 +2020,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for ADC");
-      co_yield 0;
       break;
     }
     auto const addition = static_cast<uint16_t>(ac_register + value + (is_carry_set ? 1 : 0));
@@ -2041,6 +2039,7 @@ private:
     case addressing_mode_type::IMMEDIATE: {
       auto const value = get_immediate(instruction);
       registers_.set(register_type::AC, ac_register & value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 2;
       break;
     }
@@ -2048,6 +2047,7 @@ private:
       auto const address = get_zero_page_address(instruction);
       auto const value = memory_.read(address);
       registers_.set(register_type::AC, ac_register & value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 3;
       break;
     }
@@ -2055,6 +2055,7 @@ private:
       auto const address = get_zero_page_x_address(instruction);
       auto const value = memory_.read(address);
       registers_.set(register_type::AC, ac_register & value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 4;
       break;
     }
@@ -2062,6 +2063,7 @@ private:
       auto const address = get_absolute_address(instruction);
       auto const value = memory_.read(address);
       registers_.set(register_type::AC, ac_register & value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 4;
       break;
     }
@@ -2070,6 +2072,7 @@ private:
       auto const address = get_absolute_x_address(instruction, is_page_crossed);
       auto const value = memory_.read(address);
       registers_.set(register_type::AC, ac_register & value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 4 + (is_page_crossed ? 1 : 0);
       break;
     }
@@ -2078,6 +2081,7 @@ private:
       auto const address = get_absolute_y_address(instruction, is_page_crossed);
       auto const value = memory_.read(address);
       registers_.set(register_type::AC, ac_register & value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 4 + (is_page_crossed ? 1 : 0);
       break;
     }
@@ -2085,6 +2089,7 @@ private:
       auto const address = get_indexed_indirect_address(instruction);
       auto const value = memory_.read(address);
       registers_.set(register_type::AC, ac_register & value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 6;
       break;
     }
@@ -2093,15 +2098,14 @@ private:
       auto const address = get_indirect_indexed_address(instruction, is_page_crossed);
       auto const value = memory_.read(address);
       registers_.set(register_type::AC, ac_register & value);
+      update_status_flag_zn(registers_.get(register_type::AC));
       co_yield 5 + (is_page_crossed ? 1 : 0);
       break;
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for AND");
-      co_yield 0;
       break;
     }
-    update_status_flag_zn(registers_.get(register_type::AC));
   }
 
   auto execute_bit(decode::instruction const &instruction) -> cpu_step {
@@ -2128,7 +2132,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for BIT");
-      co_yield 0;
       break;
     }
   }
@@ -2184,7 +2187,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for BRANCH");
-      co_yield 0;
       break;
     }
   }
@@ -2250,7 +2252,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for JSR");
-      co_yield 0;
       break;
     }
   }
@@ -2265,7 +2266,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for RTS");
-      co_yield 0;
       break;
     }
   }
@@ -2295,7 +2295,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for NOP");
-      co_yield 0;
       break;
     }
   }
@@ -2323,7 +2322,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for STY");
-      co_yield 0;
       break;
     }
   }
@@ -2375,7 +2373,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for STA");
-      co_yield 0;
       break;
     }
   }
@@ -2403,7 +2400,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for STX");
-      co_yield 0;
       break;
     }
   }
@@ -2424,7 +2420,6 @@ private:
     }
     default:
       BOOST_STATIC_ASSERT("unexpected addressing mode for JMP");
-      co_yield 0;
       break;
     }
   }
@@ -2493,14 +2488,12 @@ private:
       }
       default: {
         BOOST_STATIC_ASSERT("unexpected addressing mode for LDA");
-        co_yield 0;
         break;
       }
       }
       break;
     default:
       BOOST_STATIC_ASSERT("unexpected operand type for LDA");
-      co_yield 0;
       break;
     }
     update_status_flag_zn(registers_.get(register_type::AC));
@@ -2511,6 +2504,7 @@ private:
     case operand_type::IMMEDIATE: {
       auto const value = get_immediate(instruction);
       registers_.set(register_type::Y, value);
+      update_status_flag_zn(registers_.get(register_type::Y));
       co_yield 2;
       break;
     }
@@ -2520,6 +2514,7 @@ private:
         auto const address = get_zero_page_address(instruction);
         auto const value = memory_.read(address);
         registers_.set(register_type::Y, value);
+        update_status_flag_zn(registers_.get(register_type::Y));
         co_yield 3;
         break;
       }
@@ -2527,6 +2522,7 @@ private:
         auto const address = get_zero_page_x_address(instruction);
         auto const value = memory_.read(address);
         registers_.set(register_type::Y, value);
+        update_status_flag_zn(registers_.get(register_type::Y));
         co_yield 4;
         break;
       }
@@ -2534,6 +2530,7 @@ private:
         auto const address = get_absolute_address(instruction);
         auto const value = memory_.read(address);
         registers_.set(register_type::Y, value);
+        update_status_flag_zn(registers_.get(register_type::Y));
         co_yield 4;
         break;
       }
@@ -2542,22 +2539,20 @@ private:
         auto const address = get_absolute_x_address(instruction, is_page_crossed);
         auto const value = memory_.read(address);
         registers_.set(register_type::Y, value);
+        update_status_flag_zn(registers_.get(register_type::Y));
         co_yield 4 + (is_page_crossed ? 1 : 0);
         break;
       }
       default: {
         BOOST_STATIC_ASSERT("unexpected addressing mode for LDY");
-        co_yield 0;
         break;
       }
       }
       break;
     default:
       BOOST_STATIC_ASSERT("unexpected operand type for LDY");
-      co_yield 0;
       break;
     }
-    update_status_flag_zn(registers_.get(register_type::Y));
   }
 
   auto execute_ldx(decode::instruction const &instruction) -> cpu_step {
@@ -2565,6 +2560,7 @@ private:
     case operand_type::IMMEDIATE: {
       auto const value = get_immediate(instruction);
       registers_.set(register_type::X, value);
+      update_status_flag_zn(registers_.get(register_type::X));
       co_yield 2;
       break;
     }
@@ -2574,6 +2570,7 @@ private:
         auto const address = get_zero_page_address(instruction);
         auto const value = memory_.read(address);
         registers_.set(register_type::X, value);
+        update_status_flag_zn(registers_.get(register_type::X));
         co_yield 3;
         break;
       }
@@ -2581,6 +2578,7 @@ private:
         auto const address = get_zero_page_y_address(instruction);
         auto const value = memory_.read(address);
         registers_.set(register_type::X, value);
+        update_status_flag_zn(registers_.get(register_type::X));
         co_yield 4;
         break;
       }
@@ -2588,6 +2586,7 @@ private:
         auto const address = get_absolute_address(instruction);
         auto const value = memory_.read(address);
         registers_.set(register_type::X, value);
+        update_status_flag_zn(registers_.get(register_type::X));
         co_yield 4;
         break;
       }
@@ -2596,22 +2595,20 @@ private:
         auto const address = get_absolute_y_address(instruction, is_page_crossed);
         auto const value = memory_.read(address);
         registers_.set(register_type::X, value);
+        update_status_flag_zn(registers_.get(register_type::X));
         co_yield 4 + (is_page_crossed ? 1 : 0);
         break;
       }
       default: {
         BOOST_STATIC_ASSERT("unexpected addressing mode for LDX");
-        co_yield 0;
         break;
       }
       }
       break;
     default:
       BOOST_STATIC_ASSERT("unexpected operand type for LDX");
-      co_yield 0;
       break;
     }
-    update_status_flag_zn(registers_.get(register_type::X));
   }
 
   void update_status_flag_zn(const uint8_t binary) {
