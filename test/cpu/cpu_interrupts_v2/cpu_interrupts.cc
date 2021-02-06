@@ -54,10 +54,10 @@ BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
             << "binary [" << file_path << "] "
             << "trace [" << trace_path << "]";
 
-  jones::nes nes;
+  jones::nes nes(file_path);
   jones::debugger debugger(nes);
-  debugger.trace(trace_path.string().c_str());
 
-  nes.load(file_path);
-  nes.run(300);
+  if (nes.power()) {
+    nes.run(300);
+  }
 }

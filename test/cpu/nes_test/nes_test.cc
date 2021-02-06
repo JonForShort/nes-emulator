@@ -128,12 +128,11 @@ BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
             << "result [" << result_path << "] "
             << "trace [" << trace_path << "]";
 
-  jones::nes nes;
-  nes.load(file_path);
-
+  jones::nes nes(file_path);
   jones::debugger debugger(nes);
 
-  nes.run(8992);
-
-  check_trace_files(trace_path.string(), result_path);
+  if (nes.power()) {
+    nes.run(8992);
+    check_trace_files(trace_path.string(), result_path);
+  }
 }

@@ -39,6 +39,26 @@
                     "ignoreFailures": true
                 }
             ]
+        },
+        {
+            "name": "Launch NES Test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/jones/bin/test_suite_nes_test",
+            "args": [
+                "${workspaceFolder}/test/cpu/nes_test/nes_test.nes",
+                "${workspaceFolder}/test/cpu/nes_test/nes_test.trace"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }
