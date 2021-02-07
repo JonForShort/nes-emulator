@@ -232,7 +232,7 @@ private:
 BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
   auto const argc = bt::framework::master_test_suite().argc;
   if (argc <= 2) {
-    BOOST_CHECK_MESSAGE(false, "missing required test arguments");
+    BOOST_FAIL("missing required test arguments");
     return;
   }
   auto const argv = bt::framework::master_test_suite().argv;
@@ -253,8 +253,9 @@ BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
   debugger.set_listener(nes_listener.get());
 
   if (nes.power()) {
-    auto const step_limit = 8992;
-    nes.run(step_limit);
-    check_trace_files(trace_path.string(), result_path, step_limit);
+    nes.run(30000);
+    check_trace_files(trace_path.string(), result_path, 8991);
+  } else {
+    BOOST_FAIL("failed to turn on nes power");
   }
 }
