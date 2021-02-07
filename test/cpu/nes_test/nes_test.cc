@@ -70,10 +70,10 @@ void stop_test_if_failed() {
   BOOST_REQUIRE(bt::results_collector.results(test_id).passed());
 }
 
-void check_trace_files(const std::string &trace_path, const std::string &result_path) {
+void check_trace_files(const std::string &trace_path, const std::string &result_path, const size_t expected_line_count) {
   std::ifstream trace_file{trace_path};
   std::ifstream result_file{result_path};
-  int line_count = 0;
+  size_t line_count = 0;
   for (std::string trace_line, result_line;
        std::getline(trace_file, trace_line) && std::getline(result_file, result_line);
        line_count++) {
@@ -93,8 +93,8 @@ void check_trace_files(const std::string &trace_path, const std::string &result_
     BOOST_CHECK_MESSAGE(trace_instruction == result_instruction,
                         format("line [%d] : check [instruction] : expected [%s] found [%s]") % line_count % result_instruction % trace_instruction);
 
-    const auto trace_details = boost::trim_copy(trace_line.substr(45));
-    const auto result_details = boost::trim_copy(result_line.substr(45));
+    const auto trace_details = boost::trim_copy(trace_line.substr(40));
+    const auto result_details = boost::trim_copy(result_line.substr(40));
 
     std::map<std::string, std::string> trace_details_map = build_trace_details_map(trace_details);
     std::map<std::string, std::string> result_details_map = build_trace_details_map(result_details);
@@ -129,12 +129,12 @@ void check_trace_files(const std::string &trace_path, const std::string &result_
       BOOST_CHECK_MESSAGE(trace_register_sp == result_register_sp,
                           format("line [%d] : check [sp] : expected [%s] found [%s]") % line_count % result_register_sp % trace_register_sp);
     }
-    {
-      const auto trace_ppu_cycle = trace_details_map["PPU"];
-      const auto result_ppu_cycle = result_details_map["PPU"];
-      BOOST_CHECK_MESSAGE(trace_ppu_cycle == result_ppu_cycle,
-                          format("line [%d] : check [ppu_cycle] : expected [%s] found [%s]") % line_count % result_ppu_cycle % trace_ppu_cycle);
-    }
+    // {
+    //   const auto trace_ppu_cycle = trace_details_map["PPU"];
+    //   const auto result_ppu_cycle = result_details_map["PPU"];
+    //   BOOST_CHECK_MESSAGE(trace_ppu_cycle == result_ppu_cycle,
+    //                       format("line [%d] : check [ppu_cycle] : expected [%s] found [%s]") % line_count % result_ppu_cycle % trace_ppu_cycle);
+    // }
     {
       const auto trace_ppu_cycle = trace_details_map["CYC"];
       const auto result_ppu_cycle = result_details_map["CYC"];
@@ -143,20 +143,25 @@ void check_trace_files(const std::string &trace_path, const std::string &result_
     }
     stop_test_if_failed();
   }
+
+  BOOST_CHECK_MESSAGE(expected_line_count == line_count,
+                      format("expected line count does not match actual line count, expected=%d, actual=%d") % expected_line_count % line_count);
 }
 
 class trace_listener : public jones::nes_listener {
 public:
-  explicit trace_listener(std::string trace_path, const int initial_pc)
-      : trace_path_(std::move(trace_path)), initial_pc_(initial_pc) {}
+  explicit trace_listener(std::string trace_path) : trace_path_(std::move(trace_path)) {}
 
   ~trace_listener() override = default;
 
   auto on_event(jones::nes_listener::event event, jones::nes_state &state) -> void override {
     switch (event) {
     case event::ON_RESET:
+    case event::ON_INSTRUCTION_FINISHED:
+    case event::ON_RUN_STARTED:
     case event::ON_RUN_FINISHED:
     case event::ON_RUN_PAUSED:
+    case event::ON_RUN_STEP:
     case event::ON_POWER_OFF: {
       //
       // do nothing.
@@ -164,13 +169,17 @@ public:
       break;
     }
     case event::ON_POWER_ON: {
-      if (initial_pc_ >= 0) {
-        state.cpu.registers.PC = initial_pc_;
-      }
+      state.cpu.registers.PC = 0xC000;
+      state.cpu.registers.SR = 0x24;
+      state.cpu.cycles.running = 7;
+      break;
+    }
+    case event::ON_INSTRUCTION_STARTED: {
+      add_trace_entry(trace_path_, state);
       break;
     }
     default: {
-      add_trace_entry(trace_path_, state);
+      BOOST_STATIC_ASSERT("missing listener event");
       break;
     }
     }
@@ -210,14 +219,12 @@ private:
 
     trace_file << std::dec << std::right << std::setw(3) << std::setfill(' ') << nes_state.ppu.scanline << " ";
 
-    trace_file << "CYC:" << std::dec << nes_state.cpu.cycle;
+    trace_file << "CYC:" << std::dec << nes_state.cpu.cycles.running;
 
     trace_file << std::endl;
   }
 
   std::string trace_path_;
-
-  const int initial_pc_{};
 };
 
 } // namespace
@@ -242,11 +249,12 @@ BOOST_AUTO_TEST_CASE(test_suite_nes_test) {
   jones::nes nes(file_path);
   jones::debugger debugger(nes);
 
-  auto const nes_listener = std::make_unique<trace_listener>(trace_path.string(), 0xC000);
+  auto const nes_listener = std::make_unique<trace_listener>(trace_path.string());
   debugger.set_listener(nes_listener.get());
 
   if (nes.power()) {
-    nes.run(8992);
-    check_trace_files(trace_path.string(), result_path);
+    auto const step_limit = 8992;
+    nes.run(step_limit);
+    check_trace_files(trace_path.string(), result_path, step_limit);
   }
 }

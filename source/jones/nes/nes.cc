@@ -163,10 +163,28 @@ private:
   }
 
   auto notify_listener(nes_listener::event const &event) -> void {
-    if (listener_ != nullptr) {
-      auto state = get_state();
-      listener_->on_event(event, state);
-      set_state(state);
+    if (listener_ == nullptr) {
+      return;
+    }
+    auto state = get_state();
+    listener_->on_event(event, state);
+    set_state(state);
+  }
+
+  auto notify_listener_on_instruction_event() -> void {
+    if (listener_ == nullptr) {
+      return;
+    }
+    auto state = get_state();
+    if (state.cpu.cycles.instruction == 0 &&
+        state.cpu.cycles.idle == 0 &&
+        state.cpu.cycles.interrupt == 0) {
+      listener_->on_event(nes_listener::event::ON_INSTRUCTION_STARTED, state);
+    }
+    if (state.cpu.cycles.instruction < 0 &&
+        state.cpu.cycles.idle == 0 &&
+        state.cpu.cycles.interrupt == 0) {
+      listener_->on_event(nes_listener::event::ON_INSTRUCTION_FINISHED, state);
     }
   }
 
@@ -203,7 +221,11 @@ private:
     state.cpu.registers.SR = cpu_state.registers.SR;
     state.cpu.registers.SP = cpu_state.registers.SP;
     state.cpu.registers.PC = cpu_state.registers.PC;
-    state.cpu.cycle = cpu_state.cycles;
+
+    state.cpu.cycles.running = cpu_state.cycles.running;
+    state.cpu.cycles.instruction = cpu_state.cycles.instruction;
+    state.cpu.cycles.interrupt = cpu_state.cycles.interrupt;
+    state.cpu.cycles.idle = cpu_state.cycles.idle;
 
     state.instruction.instruction = cpu_state.instruction.instruction;
     state.instruction.instruction_bytes = cpu_state.instruction.instruction_bytes;
@@ -223,6 +245,10 @@ private:
     cpu_state.registers.A = state.cpu.registers.A;
     cpu_state.registers.X = state.cpu.registers.X;
     cpu_state.registers.Y = state.cpu.registers.Y;
+    cpu_state.cycles.running = state.cpu.cycles.running;
+    cpu_state.cycles.instruction = state.cpu.cycles.instruction;
+    cpu_state.cycles.interrupt = state.cpu.cycles.interrupt;
+    cpu_state.cycles.idle = state.cpu.cycles.idle;
     cpu_.set_state(cpu_state);
 
     auto ppu_state = ppu_.get_state();
@@ -242,6 +268,7 @@ private:
     for (auto i = 0; i < apu_cycles; i++) {
       apu_.step();
     }
+    notify_listener_on_instruction_event();
   }
 
 private:

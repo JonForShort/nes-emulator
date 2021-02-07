@@ -53,19 +53,22 @@ public:
   }
 
   auto step() -> uint8_t {
-    if (idle_cycles_ > 0) {
+    auto step_cycles = 0;
+    if (cycles_.idle > 0) {
       static auto step_idle = step_idle_.begin();
       step_idle++;
-      return *step_idle;
+      step_cycles = *step_idle;
     } else if (is_interrupt_pending()) {
       static auto step_interrupt = step_interrupt_.begin();
       step_interrupt++;
-      return *step_interrupt;
+      step_cycles = *step_interrupt;
     } else {
       static auto step_execute = step_execute_.begin();
       step_execute++;
-      return *step_execute;
+      step_cycles = *step_execute;
     }
+    cycles_.running += step_cycles;
+    return step_cycles;
   }
 
   auto reset() -> void {
@@ -133,13 +136,18 @@ public:
     cpu_state current_cpu_state;
     current_cpu_state.instruction.instruction = disassembled.instructions[0].opcode + disassembled.instructions[0].operand;
     current_cpu_state.instruction.instruction_bytes = fetched;
-    current_cpu_state.cycles = cycles_;
+
     current_cpu_state.registers.PC = registers_.get(register_type::PC);
     current_cpu_state.registers.SP = registers_.get(register_type::SP);
     current_cpu_state.registers.A = registers_.get(register_type::AC);
     current_cpu_state.registers.X = registers_.get(register_type::X);
     current_cpu_state.registers.Y = registers_.get(register_type::Y);
     current_cpu_state.registers.SR = registers_.get(register_type::SR);
+
+    current_cpu_state.cycles.running = cycles_.running;
+    current_cpu_state.cycles.instruction = cycles_.instruction;
+    current_cpu_state.cycles.interrupt = cycles_.interrupt;
+    current_cpu_state.cycles.idle = cycles_.idle;
 
     auto instruction_binary = disassembled.instructions[0].binary;
     auto const decoded = decode::decode(instruction_binary.data(), instruction_binary.size());
@@ -223,12 +231,20 @@ public:
   }
 
   auto set_state(cpu_state const &state) -> void {
+
     registers_.set(register_type::PC, state.registers.PC);
     registers_.set(register_type::SP, state.registers.SP);
     registers_.set(register_type::AC, state.registers.A);
     registers_.set(register_type::X, state.registers.X);
     registers_.set(register_type::Y, state.registers.Y);
     registers_.set(register_type::SR, state.registers.SR);
+
+    status_register_.set(state.registers.SR);
+
+    cycles_.running = state.cycles.running;
+    cycles_.instruction = state.cycles.instruction;
+    cycles_.interrupt = state.cycles.interrupt;
+    cycles_.idle = state.cycles.idle;
   }
 
   auto interrupt(interrupt_type const type, interrupt_state const state) -> void {
@@ -250,7 +266,7 @@ public:
   }
 
   auto idle(uint16_t const cycles) -> void {
-    idle_cycles_ += cycles;
+    cycles_.idle += cycles;
   }
 
 private:
@@ -261,7 +277,7 @@ private:
   auto step_idle() -> cpu_step {
     co_yield 0;
     while (is_running_) {
-      idle_cycles_ -= 1;
+      cycles_.idle -= 1;
       co_yield 1;
     }
   }
@@ -269,17 +285,24 @@ private:
   auto step_execute() -> cpu_step {
     co_yield 0;
     while (is_running_) {
+      cycles_.instruction = 0;
+      co_yield 0;
+
       auto const fetched = fetch();
       auto const decoded = decode(fetched);
       if (decoded.decoded_result == decode::result::SUCCESS) {
         registers_.increment_by(register_type::PC, decoded.encoded_length_in_bytes);
         for (auto cycles : execute(decoded)) {
+          cycles_.instruction += cycles;
           co_yield cycles;
         }
       } else {
         BOOST_STATIC_ASSERT("unable to step cpu; decoded invalid instruction");
         interrupt(interrupt_type::BRK, interrupt_state::SET);
       }
+
+      cycles_.instruction = -1;
+      co_yield 0;
     }
   }
 
@@ -290,23 +313,32 @@ private:
       if (triggered_interrupt == interrupt_type::NONE) {
         co_return;
       }
+
       push_pc();
+      cycles_.interrupt += 2;
       co_yield 2;
 
       push_flags();
+      cycles_.interrupt += 1;
       co_yield 1;
 
       auto const interrupt_vector = interrupts_.get_vector(triggered_interrupt);
       auto const interrupt_routine = memory_.read_word(interrupt_vector);
+      cycles_.interrupt += 2;
       co_yield 2;
 
       registers_.set(register_type::PC, interrupt_routine);
       status_register_.set(status_flag::I);
+      cycles_.interrupt += 1;
       co_yield 1;
 
       registers_.set(register_type::SR, status_register_.get());
       interrupts_.set_state(triggered_interrupt, false);
+      cycles_.interrupt += 1;
       co_yield 1;
+
+      cycles_.interrupt = 0;
+      co_yield 0;
     }
   }
 
@@ -2732,6 +2764,18 @@ private:
 private:
   static constexpr uint16_t stack_pointer_base = 0x100U;
 
+  struct cycles {
+
+    size_t running;
+
+    int8_t instruction;
+
+    int8_t interrupt;
+
+    int8_t idle;
+
+  } cycles_{};
+
   memory const &memory_;
 
   status_register status_register_{};
@@ -2739,10 +2783,6 @@ private:
   registers registers_{};
 
   interrupts interrupts_{};
-
-  uint64_t cycles_{};
-
-  uint16_t idle_cycles_{};
 
   std::atomic<bool> is_running_{};
 

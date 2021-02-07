@@ -35,7 +35,17 @@ struct nes_state {
 
   struct cpu {
 
-    size_t cycle;
+    struct cycles {
+
+      size_t running;
+
+      int8_t instruction;
+
+      int8_t interrupt;
+
+      int8_t idle;
+
+    } cycles;
 
     struct registers {
 

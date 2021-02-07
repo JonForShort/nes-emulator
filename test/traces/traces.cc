@@ -263,7 +263,7 @@ void add_trace_entry(const fs::path &trace_path, const jones::nes_state &nes_sta
 
   trace_file << std::dec << std::left << nes_state.ppu.frame << " ";
 
-  trace_file << "CPU Cycle:" << std::dec << nes_state.cpu.cycle;
+  trace_file << "CPU Cycle:" << std::dec << nes_state.cpu.cycles.running;
 
   trace_file << std::endl;
 }

@@ -276,7 +276,7 @@ private:
       address++;
     }
     cpu_.idle(ppu_dma_cycles);
-    auto const cpu_cycles = cpu_.get_state().cycles;
+    auto const cpu_cycles = cpu_.get_state().cycles.running;
     if (cpu_cycles % 2 == 1) {
       cpu_.idle(1);
     }
