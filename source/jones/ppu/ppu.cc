@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2019
+// Copyright 2019-2021
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -745,15 +745,15 @@ private:
   auto check_nmi_context() -> void {
     static bool previous_nmi{};
     if (!previous_nmi && can_perform_nmi()) {
-      nmi_delay = 15;
+      nmi_delay_ = 15;
     }
     previous_nmi = can_perform_nmi();
   }
 
   auto check_nmi_trigger() -> void {
-    if (nmi_delay > 0) {
-      nmi_delay--;
-      if (nmi_delay == 0 && can_perform_nmi()) {
+    if (nmi_delay_ > 0) {
+      nmi_delay_--;
+      if (nmi_delay_ == 0 && can_perform_nmi()) {
         cpu_.interrupt(interrupt_type::NMI);
       }
     }
@@ -1065,7 +1065,7 @@ private:
 
   ppu_io_context io_context_{};
 
-  uint8_t nmi_delay{};
+  uint8_t nmi_delay_{};
 };
 
 ppu::ppu(jones::memory &cpu_memory, jones::memory &ppu_memory, cpu &cpu, screen::screen *screen)

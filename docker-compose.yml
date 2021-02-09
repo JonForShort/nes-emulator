@@ -1,16 +1,30 @@
 version: '3'
 services:
+
   jones:
     depends_on:
       - 'emsdk'
     build:
-      dockerfile: 'cm/Dockerfile'
+      dockerfile: 'cm/docker/base/Dockerfile'
       context: .
     volumes:
       - '.:/jones'
     working_dir: '/jones'
     tty: true
     user: $JONES_UID
+
+  jones-flutter:
+    depends_on:
+      - 'jones'
+    build:
+      dockerfile: 'cm/docker/flutter/Dockerfile'
+      context: .
+    volumes:
+      - '.:/jones'
+    working_dir: '/jones'
+    tty: true
+    user: $JONES_UID
+
   emsdk:
     build:
       dockerfile: 'docker/Dockerfile'
