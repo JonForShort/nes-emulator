@@ -11,7 +11,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && \
     apt -y upgrade && \
     apt -y dist-upgrade && \
-    apt install -y wget unzip default-jdk git curl && \
+    apt install -y wget unzip default-jdk git curl clang ninja-build pkg-config liblzma-dev libgtk-3-dev && \
     apt autoclean -y && \
     apt remove -y && \
     apt autoremove -y
