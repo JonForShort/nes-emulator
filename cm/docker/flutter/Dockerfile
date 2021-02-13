@@ -50,4 +50,7 @@ RUN wget https://storage.googleapis.com/flutter_infra/releases/stable/linux/flut
 
 ENV PATH ${PATH}:${FLUTTER_SDK_ROOT}/bin
 
-RUN flutter channel dev && flutter upgrade && flutter doctor
+RUN flutter channel dev && \
+    flutter upgrade && \
+    flutter config --enable-linux-desktop && \
+    flutter doctor
