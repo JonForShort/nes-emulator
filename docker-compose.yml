@@ -13,7 +13,7 @@ services:
     tty: true
     user: $JONES_UID
 
-  jones-flutter:
+  jones-flutter: &jones-flutter
     depends_on:
       - 'jones'
     build:
@@ -24,6 +24,15 @@ services:
     working_dir: '/jones'
     tty: true
     user: $JONES_UID
+
+  jones-flutter-gui:
+    <<: *jones-flutter
+    volumes:
+      - '.:/jones'
+      - '/tmp/.X11-unix:/tmp/.X11-unix'
+      - '$HOME/.Xauthority:/home/jones/.Xauthority'
+    environment:
+      - DISPLAY
 
   emsdk:
     build:

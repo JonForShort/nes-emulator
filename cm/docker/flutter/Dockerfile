@@ -52,5 +52,6 @@ ENV PATH ${PATH}:${FLUTTER_SDK_ROOT}/bin
 
 RUN flutter channel dev && \
     flutter upgrade && \
+    flutter pub upgrade && \
     flutter config --enable-linux-desktop && \
     flutter doctor
