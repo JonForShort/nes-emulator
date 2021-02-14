@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.7)
+cmake_minimum_required (VERSION 3.14)
 
 set (boost-include   ${DIR_ROOT_OUT}/boost/include)
 set (boost-lib       ${DIR_ROOT_OUT}/boost/lib)

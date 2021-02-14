@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.7)
+cmake_minimum_required (VERSION 3.14)
 
 option (CAPSTONE_BUILD_TESTS "" OFF)
 
