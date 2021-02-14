@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  native_jones
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)
