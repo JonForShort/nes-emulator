@@ -1,0 +1,31 @@
+name: native_jones
+description: A new flutter plugin project.
+version: 0.0.1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+  flutter: ">=1.20.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.example.native_jones
+        pluginClass: NativeJonesPlugin
+      ios:
+        pluginClass: NativeJonesPlugin
+      linux:
+        pluginClass: NativeJonesPlugin
+      web:
+        pluginClass: NativeJonesWeb
+        fileName: native_jones_web.dart
