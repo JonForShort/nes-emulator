@@ -25,13 +25,24 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
+
     compileSdkVersion 30
+
+    ndkVersion "22.0.7026061"
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
+
     defaultConfig {
         minSdkVersion 16
+    }
+
+    externalNativeBuild {
+        cmake {
+           version "3.18.4"
+           path "CMakeLists.txt"
+        }
     }
 }
 

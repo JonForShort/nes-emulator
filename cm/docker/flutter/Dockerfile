@@ -11,7 +11,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && \
     apt -y upgrade && \
     apt -y dist-upgrade && \
-    apt install -y wget unzip default-jdk git curl clang ninja-build pkg-config liblzma-dev libgtk-3-dev && \
+    apt install -y wget unzip openjdk-8-jdk git curl clang ninja-build pkg-config liblzma-dev libgtk-3-dev && \
     apt autoclean -y && \
     apt remove -y && \
     apt autoremove -y
@@ -36,7 +36,7 @@ RUN wget https://dl.google.com/android/repository/commandlinetools-linux-6858069
 ENV PATH ${PATH}:${ANDROID_SDK_ROOT}/cmdline-tools/bin:${ANDROID_SDK_ROOT}/tools/bin
 
 RUN yes | sdkmanager --update --sdk_root=${ANDROID_SDK_ROOT} && \
-    yes | sdkmanager "platforms;android-29" "platform-tools" "build-tools;29.0.3" "ndk-bundle" "cmake;3.10.2.4988404" --sdk_root=${ANDROID_SDK_ROOT}
+    yes | sdkmanager "platforms;android-29" "platform-tools" "build-tools;29.0.3" "ndk-bundle" --sdk_root=${ANDROID_SDK_ROOT}
 
 # ---------------------------------------------------------------------------------------------
 # Set up flutter
@@ -53,4 +53,4 @@ ENV PATH ${PATH}:${FLUTTER_SDK_ROOT}/bin
 RUN flutter channel dev && \
     flutter upgrade && \
     flutter config --enable-linux-desktop && \
-    flutter doctor
+    flutter doctor --android-licenses
