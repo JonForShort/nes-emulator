@@ -11,7 +11,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && \
     apt -y upgrade && \
     apt -y dist-upgrade && \
-    apt install -y wget unzip openjdk-8-jdk git curl clang ninja-build pkg-config liblzma-dev libgtk-3-dev && \
+    apt install -y wget unzip openjdk-8-jdk git curl clang libc++abi-11-dev libc++-11-dev ninja-build pkg-config liblzma-dev libgtk-3-dev && \
     apt autoclean -y && \
     apt remove -y && \
     apt autoremove -y
@@ -52,5 +52,4 @@ ENV PATH ${PATH}:${FLUTTER_SDK_ROOT}/bin
 
 RUN flutter channel dev && \
     flutter upgrade && \
-    flutter config --enable-linux-desktop && \
-    flutter doctor --android-licenses
+    flutter config --enable-linux-desktop
