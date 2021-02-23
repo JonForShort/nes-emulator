@@ -21,3 +21,6 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
 
 # List of absolute paths to libraries that should be bundled with the plugin
 set(native_jones_bundled_libraries "" PARENT_SCOPE)
+
+# Root directory of Jones project
+set(native_jones_root_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../../../../../)

@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
+
 project(runner LANGUAGES CXX)
 
-set(BINARY_NAME "jones")
-set(APPLICATION_ID "com.example.jones")
+set(BINARY_NAME "jones-flutter")
+
+set(APPLICATION_ID "com.github.jonforshort.jones")
 
 cmake_policy(SET CMP0063 NEW)
 
