@@ -1,6 +1,14 @@
 cmake_minimum_required (VERSION 3.14)
 
-set (EXTERNAL_PROJECTS ncurses sndio sdl boost capstone gsl zlib png gzip cppcoro)
+if (ANDROID)
+
+  set (EXTERNAL_PROJECTS boost capstone gsl zlib png gzip cppcoro)
+
+else ()
+
+  set (EXTERNAL_PROJECTS ncurses sndio sdl boost capstone gsl zlib png gzip cppcoro)
+
+endif ()
 
 foreach (EXTERNAL_PROJECT ${EXTERNAL_PROJECTS})
 

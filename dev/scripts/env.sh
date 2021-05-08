@@ -48,7 +48,7 @@ jones_build() {
     mkdir -p ${JONES_BUILD_DIR}
 
     pushd ${JONES_BUILD_DIR}
-        cmake -DCMAKE_BUILD_TYPE=Debug ..
+        cmake -DBUILD_FRONTEND=SDL -DCMAKE_BUILD_TYPE=Debug ..
         make "$@"
     popd
 }

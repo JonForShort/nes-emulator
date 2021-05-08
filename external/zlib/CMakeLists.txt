@@ -8,4 +8,5 @@ ExternalProject_Add (
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/source/configure --prefix=${DIR_PROJECT_OUT}
   BUILD_COMMAND ${MAKE}
+  BYPRODUCTS ${DIR_PROJECT_OUT}/lib/libz.a
 )
