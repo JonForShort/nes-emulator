@@ -1,12 +1,8 @@
 cmake_minimum_required (VERSION 3.14)
 
-if (ANDROID)
+if (NOT DEFINED EXTERNAL_PROJECTS)
 
-  set (EXTERNAL_PROJECTS boost capstone gsl zlib png gzip cppcoro)
-
-else ()
-
-  set (EXTERNAL_PROJECTS ncurses sndio sdl boost capstone gsl zlib png gzip cppcoro)
+  message (FATAL_ERROR "EXTERNAL_PROJECTS is not set; check platform cmake script is loaded" )
 
 endif ()
 

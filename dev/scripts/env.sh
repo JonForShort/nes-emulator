@@ -132,6 +132,16 @@ jones_setup_vscode() {
     popd
 }
 
+jones_format_cmake() {
+
+    for i in $(find ${JONES_ROOT_DIR}/cmake \
+                    ${JONES_ROOT_DIR}/source/jones \
+                    ${JONES_ROOT_DIR}/source/tools \
+                    -type f \( -iname '*.cmake' -o -iname 'CMakeLists.txt' \)); do
+        cmake-format -i ${i}
+    done
+}
+
 jones_setup_environment
 
 "$@"

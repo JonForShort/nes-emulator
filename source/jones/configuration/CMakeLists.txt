@@ -1,17 +1,17 @@
-cmake_minimum_required (VERSION 3.14)
+cmake_minimum_required(VERSION 3.14)
 
 # boost
 
-set (boost-include  ${DIR_ROOT_OUT}/boost/include)
-set (boost-lib      ${DIR_ROOT_OUT}/boost/lib)
+set(boost-include ${DIR_ROOT_OUT}/boost/include)
+set(boost-lib ${DIR_ROOT_OUT}/boost/lib)
 
 # configuration
 
-set (sources configuration.cc)
+set(sources configuration.cc)
 
-add_library (configuration STATIC ${sources})
+add_library(configuration STATIC ${sources})
 
-target_include_directories (configuration PRIVATE ${boost-include})
-target_include_directories (configuration PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(configuration PRIVATE ${boost-include})
+target_include_directories(configuration PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-include (${CMAKE_CURRENT_SOURCE_DIR}/test.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/test.cmake)
