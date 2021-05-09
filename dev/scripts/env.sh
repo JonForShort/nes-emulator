@@ -137,6 +137,7 @@ jones_format_cmake() {
     for i in $(find ${JONES_ROOT_DIR}/cmake \
                     ${JONES_ROOT_DIR}/source/jones \
                     ${JONES_ROOT_DIR}/source/tools \
+                    ${JONES_ROOT_DIR}/test \
                     -type f \( -iname '*.cmake' -o -iname 'CMakeLists.txt' \)); do
         cmake-format -i ${i}
     done
