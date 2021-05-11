@@ -25,6 +25,7 @@
 #include <boost/core/ignore_unused.hpp>
 #include <boost/filesystem.hpp>
 #include <fstream>
+#include <sstream>
 #include <iomanip>
 
 #include "apu.hh"

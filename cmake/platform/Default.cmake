@@ -17,3 +17,7 @@ set(EXTERNAL_PROJECTS
     png
     gzip
     cppcoro)
+
+set(JONES_C_COMPILER ${CMAKE_C_COMPILER})
+
+set(JONES_CXX_COMPILER ${CMAKE_CXX_COMPILER})
