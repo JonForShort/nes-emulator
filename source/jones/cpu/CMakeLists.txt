@@ -29,6 +29,4 @@ target_include_directories(cpu PRIVATE ${cppcoro-include})
 target_include_directories(cpu PRIVATE ${gsl-include})
 target_include_directories(cpu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_compile_options(cpu PRIVATE -fcoroutines)
-
 include(${CMAKE_CURRENT_SOURCE_DIR}/test.cmake)

@@ -23,9 +23,9 @@
 //
 #include <atomic>
 #include <boost/format.hpp>
-#include <coroutine>
 #include <cppcoro/generator.hpp>
 
+#include "coroutines-compat.hh"
 #include "cpu.hh"
 #include "decode.hh"
 #include "disassemble_internal.hh"

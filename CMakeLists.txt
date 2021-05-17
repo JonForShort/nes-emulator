@@ -16,7 +16,7 @@ include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/CustomWarnings.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/CodeCoverage.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/AddressSanitizer.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/CustomFlags.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/Coroutines.cmake)
+include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/Coroutines/Coroutines.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/Platform.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/BuildOptions.cmake)
 
