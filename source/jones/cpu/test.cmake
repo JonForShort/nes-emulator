@@ -10,8 +10,6 @@ add_executable(cpu_test ${sources})
 
 add_dependencies(cpu_test boost)
 
-add_dependencies(cpu_test capstone)
-
 target_link_libraries(cpu_test cpu)
 target_link_libraries(cpu_test ${boost-lib}/libboost_unit_test_framework.a)
 

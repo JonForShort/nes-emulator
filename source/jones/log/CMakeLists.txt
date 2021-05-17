@@ -12,7 +12,10 @@ add_dependencies(log boost)
 target_link_libraries(log ${boost-lib}/libboost_log.a)
 target_link_libraries(log ${boost-lib}/libboost_log_setup.a)
 target_link_libraries(log ${boost-lib}/libboost_thread.a)
-target_link_libraries(log pthread)
+
+if(NOT ANDROID)
+  target_link_libraries(log pthread)
+endif()
 
 target_include_directories(log PRIVATE ${boost-include})
 
