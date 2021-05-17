@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright 2019
+// Copyright 2019-2021
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,13 @@
 #include <boost/core/ignore_unused.hpp>
 #include <memory>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+
 #include "boost_gil.h"
+
+#pragma clang diagnostic pop
+
 #include "image_color.hh"
 #include "image_writer.hh"
 

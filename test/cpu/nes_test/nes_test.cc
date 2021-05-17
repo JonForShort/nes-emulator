@@ -187,7 +187,7 @@ public:
 
 private:
   void add_trace_entry(const fs::path &trace_path, const jones::nes_state &nes_state) {
-    std::ofstream trace_file(trace_path, std::ios::app);
+    std::ofstream trace_file(trace_path.string(), std::ios::app);
 
     trace_file << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << nes_state.cpu.registers.PC << "  ";
 

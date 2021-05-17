@@ -1,8 +1,10 @@
-cmake_minimum_required (VERSION 3.14)
+cmake_minimum_required(VERSION 3.14)
 
-add_subdirectory (source)
+include(ExternalProject)
 
-add_custom_target (cppcoro-headers COMMAND ${CMAKE_COMMAND}
-  -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/source/include ${DIR_PROJECT_OUT}/include)
-
-add_dependencies (cppcoro cppcoro-headers)
+ExternalProject_Add(
+  cppcoro
+  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source
+  BUILD_BYPRODUCTS ${DIR_PROJECT_OUT}/lib/libcppcoro.a
+  BINARY_DIR ${DIR_PROJECT_BUILD}
+  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DIR_PROJECT_OUT} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC})

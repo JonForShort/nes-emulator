@@ -22,6 +22,9 @@ add_custom_target(jones-tool-lib-copy-headers COMMAND ${CMAKE_COMMAND} -E copy_d
                                                       ${DIR_ROOT_OUT}/jones/include/jones-tool)
 
 add_dependencies(jones-tool-lib jones-tool-lib-copy-headers)
+add_dependencies(jones-tool-lib boost)
+add_dependencies(jones-tool-lib png)
+add_dependencies(jones-tool-lib zlib)
 
 target_link_libraries(jones-tool-lib cpu)
 target_link_libraries(jones-tool-lib cartridge)
@@ -34,6 +37,8 @@ target_include_directories(jones-tool-lib PRIVATE ${boost-include})
 target_include_directories(jones-tool-lib PRIVATE ${png-include})
 
 target_include_directories(jones-tool-lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+target_compile_options(jones-tool-lib PRIVATE "-Wno-unknown-pragmas")
 
 # building tool executable
 

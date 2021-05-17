@@ -1,6 +1,9 @@
-cmake_minimum_required (VERSION 3.14)
+cmake_minimum_required(VERSION 3.14)
 
-add_custom_target (gsl-headers COMMAND ${CMAKE_COMMAND}
-  -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/source/include ${DIR_PROJECT_OUT}/include)
+include(ExternalProject)
 
-add_custom_target (gsl DEPENDS gsl-headers)
+ExternalProject_Add(
+  gsl
+  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source
+  BINARY_DIR ${DIR_PROJECT_BUILD}
+  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${DIR_PROJECT_OUT} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC} -DGSL_TEST=FALSE)

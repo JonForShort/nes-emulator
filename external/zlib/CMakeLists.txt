@@ -1,11 +1,10 @@
-cmake_minimum_required (VERSION 3.14)
+cmake_minimum_required(VERSION 3.14)
 
-include (ExternalProject)
+include(ExternalProject)
 
-ExternalProject_Add (
+ExternalProject_Add(
   zlib
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source
-  CONFIGURE_COMMAND CC=${JONES_C_COMPILER} CXX=${JONES_CXX_COMPILER} ${CMAKE_CURRENT_SOURCE_DIR}/source/configure --prefix=${DIR_PROJECT_OUT}
-  BUILD_COMMAND ${MAKE}
-  BYPRODUCTS ${DIR_PROJECT_OUT}/lib/libz.a
-)
+  BUILD_BYPRODUCTS ${DIR_PROJECT_OUT}/lib/libz.a
+  BINARY_DIR ${DIR_PROJECT_BUILD}
+  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DIR_PROJECT_OUT} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC})

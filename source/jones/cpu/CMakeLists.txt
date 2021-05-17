@@ -16,12 +16,13 @@ set(sources cpu.cc decode.cc disassemble.cc instruction.cc status_register.cc)
 add_library(cpu STATIC ${sources})
 
 add_dependencies(cpu boost)
+add_dependencies(cpu cppcoro)
 add_dependencies(cpu gsl)
-add_dependencies(cpu log)
 
 target_link_libraries(cpu configuration)
 target_link_libraries(cpu log)
 target_link_libraries(cpu memory)
+target_link_libraries(cpu coroutines)
 
 target_include_directories(cpu PRIVATE ${boost-include})
 target_include_directories(cpu PRIVATE ${cppcoro-include})

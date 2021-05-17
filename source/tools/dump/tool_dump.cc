@@ -106,19 +106,19 @@ void dump_raw(const fs::path &root_path, const jo::cartridge &rom) {
   fs::create_directories(raw_path);
   {
     const fs::path chrom_path = raw_path / "chrrom.bin";
-    std::ofstream chrom_file{chrom_path};
+    std::ofstream chrom_file{chrom_path.string()};
     rom.dump_chr(chrom_file);
   }
   {
     const fs::path prgrom_path = raw_path / "prgrom.bin";
-    std::ofstream prgrom_file{prgrom_path};
+    std::ofstream prgrom_file{prgrom_path.string()};
     rom.dump_prg(prgrom_file);
   }
 }
 
 void dump_header(const fs::path &root_path, const jo::cartridge &rom) {
   const fs::path header_path = root_path / "rom_header.txt";
-  std::ofstream header_file{header_path};
+  std::ofstream header_file{header_path.string()};
   rom.print(header_file);
 }
 

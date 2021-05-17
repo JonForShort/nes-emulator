@@ -170,7 +170,7 @@ public:
     return ppu_state{
         .cycle = frame_current_cycle_,
         .scanline = frame_current_scanline_,
-        .frame = frame_current_frame_};
+        .frame = static_cast<size_t>(frame_current_frame_)};
   }
 
   auto set_state(const ppu_state &state) -> void {

@@ -48,7 +48,7 @@ jones_build() {
     mkdir -p ${JONES_BUILD_DIR}
 
     pushd ${JONES_BUILD_DIR}
-        cmake -DBUILD_FRONTEND=SDL -DCMAKE_BUILD_TYPE=Debug ..
+        cmake -DBUILD_FRONTEND=SDL -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ ..
         make "$@"
     popd
 }
@@ -135,10 +135,15 @@ jones_setup_vscode() {
 jones_format_cmake() {
 
     for i in $(find ${JONES_ROOT_DIR}/cmake \
-                    ${JONES_ROOT_DIR}/source/jones \
                     ${JONES_ROOT_DIR}/source/tools \
+                    ${JONES_ROOT_DIR}/source/jones \
                     ${JONES_ROOT_DIR}/test \
                     -type f \( -iname '*.cmake' -o -iname 'CMakeLists.txt' \)); do
+        cmake-format -i ${i}
+    done
+
+    for i in $(find ${JONES_ROOT_DIR}/external \
+                    -maxdepth 2 -type f \( -iname '*.cmake' -o -iname 'CMakeLists.txt' \)); do
         cmake-format -i ${i}
     done
 }

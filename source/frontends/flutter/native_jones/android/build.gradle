@@ -40,8 +40,14 @@ android {
 
     externalNativeBuild {
         cmake {
-           version "3.18.4"
-           path "CMakeLists.txt"
+            version "3.18.4"
+            path "CMakeLists.txt"
+        }
+    }
+
+    buildTypes {
+        profile {
+            initWith debug
         }
     }
 }
