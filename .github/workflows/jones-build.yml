@@ -27,5 +27,5 @@ jobs:
       with:
         name: archive-artifacts
         path: |
-	  out/default/jones/**/*.*
+          out/default/jones/**/*.*
           out/flutter/**/*.*
