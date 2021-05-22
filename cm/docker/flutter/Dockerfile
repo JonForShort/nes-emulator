@@ -12,7 +12,8 @@ RUN apt update && \
     apt install -y wget unzip openjdk-8-jdk git curl clang libc++abi-11-dev libc++-11-dev ninja-build pkg-config liblzma-dev libgtk-3-dev && \
     apt autoclean -y && \
     apt remove -y && \
-    apt autoremove -y
+    apt autoremove -y \
+    apt clean -y
 
 # ---------------------------------------------------------------------------------------------
 # Set up android sdk
