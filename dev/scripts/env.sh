@@ -72,9 +72,9 @@ jones_build_sdl() {
 jones_build_flutter() {
 
     mkdir -p ${JONES_OUT_DIR}/flutter
-    
+
     pushd ${JONES_ROOT_DIR}/source/frontends/flutter/jones
-    
+
     flutter pub get
     flutter build apk
     flutter build linux
@@ -93,14 +93,25 @@ jones_build_cm() {
     pushd ${JONES_ROOT_DIR}
 
     COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones ./dev/scripts/env.sh jones_build_clean
 
     COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones ./dev/scripts/env.sh jones_build_sdl
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones ./dev/scripts/env.sh jones_build_clean
 
     COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones-flutter ./dev/scripts/env.sh jones_setup_flutter
-
     COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones-flutter ./dev/scripts/env.sh jones_build_flutter
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones-flutter ./dev/scripts/env.sh jones_build_clean
 
     popd
+}
+
+jones_build_clean() {
+
+    rm -rf ${JONES_BUILD_DIR}
+
+    if command -v flutter &> /dev/null; then
+        flutter clean
+    fi
 }
 
 jones_test() {
@@ -174,8 +185,6 @@ jones_setup_environment() {
 jones_setup_flutter() {
 
     flutter channel dev
-
-    flutter upgrade
 
     flutter config --enable-linux-desktop
 
