@@ -40,7 +40,7 @@ RUN yes | sdkmanager --update --sdk_root=${ANDROID_SDK_ROOT} && \
 
 ENV FLUTTER_SDK_ROOT /opt/flutter
 
-RUN wget https://storage.googleapis.com/flutter_infra/releases/stable/linux/flutter_linux_1.22.6-stable.tar.xz -O ${FLUTTER_SDK_ROOT}.tar.xz && \
+RUN wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_2.2.0-stable.tar.xz -O ${FLUTTER_SDK_ROOT}.tar.xz && \
     tar -xf ${FLUTTER_SDK_ROOT}.tar.xz -C /opt && \
     rm -rf ${FLUTTER_SDK_ROOT}.tar.xz
 
