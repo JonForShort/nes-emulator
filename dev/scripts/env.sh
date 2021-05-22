@@ -174,6 +174,13 @@ jones_check_environment() {
     cat ${JONES_ROOT_DIR}/.env
     echo "---------------------------------------------------"
     echo ""
+    echo "Dumping storage"
+    echo ""
+    echo "---------------------------------------------------"
+    df
+    mount
+    echo "---------------------------------------------------"
+    echo ""
     echo "done"
 }
 
