@@ -177,7 +177,7 @@ jones_check_environment() {
     echo "Dumping storage"
     echo ""
     echo "---------------------------------------------------"
-    df
+    df -h
     mount
     echo "---------------------------------------------------"
     echo ""
