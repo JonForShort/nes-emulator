@@ -71,8 +71,6 @@ jones_build_sdl() {
 
 jones_build_flutter() {
 
-    flutter doctor -v
-
     mkdir -p ${JONES_OUT_DIR}/flutter
     
     pushd ${JONES_ROOT_DIR}/source/frontends/flutter/jones
@@ -180,6 +178,10 @@ jones_setup_flutter() {
     flutter upgrade
 
     flutter config --enable-linux-desktop
+
+    yes | flutter doctor --android-licenses
+
+    flutter doctor -v
 }
 
 jones_update_submodules() {(
