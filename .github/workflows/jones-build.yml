@@ -16,6 +16,9 @@ jobs:
       with:
         submodules: true
 
+    - name: Check Environment
+      run:  ./dev/scripts/env.sh jones_check_environment
+
     - name: Build Jones Project
       run:  ./dev/scripts/env.sh jones_build_cm
 

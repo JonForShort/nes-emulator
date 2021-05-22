@@ -146,6 +146,24 @@ jones_test_code_coverage() {
     echo ""
 }
 
+jones_check_environment() {
+
+    echo ""
+    echo "Dumping environment variables"
+    echo ""
+    echo "---------------------------------------------------"
+    export
+    echo "---------------------------------------------------"
+    echo ""
+    echo "Dumping environment file"
+    echo ""
+    echo "---------------------------------------------------"
+    cat ${JONES_ROOT_DIR}/.env
+    echo "---------------------------------------------------"
+    echo ""
+    echo "done"
+}
+
 jones_setup_environment() {
 
     echo JONES_UID=$(id -u $USER):$(id -g $USER) > .env
