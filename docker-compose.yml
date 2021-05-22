@@ -1,7 +1,7 @@
 version: '3'
 services:
 
-  jones:
+  jones: &jones
     depends_on:
       - 'emsdk'
     build:
@@ -10,29 +10,30 @@ services:
     volumes:
       - '.:/jones'
     working_dir: '/jones'
-    tty: true
-    user: $JONES_UID
 
-  jones-flutter: &jones-flutter
+  jones-flutter:
+    <<: *jones
     depends_on:
       - 'jones'
     build:
       dockerfile: 'cm/docker/flutter/Dockerfile'
       context: .
-    volumes:
-      - '.:/jones'
-    working_dir: '/jones'
-    tty: true
-    user: $JONES_UID
 
-  jones-flutter-gui:
-    <<: *jones-flutter
+  jones-dev:
+    <<: *jones
+    depends_on:
+      - 'jones-flutter'
+    build:
+      dockerfile: 'cm/docker/dev/Dockerfile'
+      context: .
     volumes:
       - '.:/jones'
       - '/tmp/.X11-unix:/tmp/.X11-unix'
       - '$HOME/.Xauthority:/home/jones/.Xauthority'
     environment:
       - DISPLAY
+    tty: true
+    user: $JONES_UID
 
   emsdk:
     build:

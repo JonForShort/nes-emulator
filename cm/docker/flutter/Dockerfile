@@ -4,8 +4,6 @@ FROM jones_jones:latest
 # Install dependency packages
 # ---------------------------------------------------------------------------------------------
 
-USER root
-
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update && \
@@ -15,8 +13,6 @@ RUN apt update && \
     apt autoclean -y && \
     apt remove -y && \
     apt autoremove -y
-
-USER jones
 
 # ---------------------------------------------------------------------------------------------
 # Set up android sdk
@@ -50,6 +46,4 @@ RUN wget https://storage.googleapis.com/flutter_infra/releases/stable/linux/flut
 
 ENV PATH ${PATH}:${FLUTTER_SDK_ROOT}/bin
 
-RUN flutter channel dev && \
-    flutter upgrade && \
-    flutter config --enable-linux-desktop
+RUN chown -R root:root /opt/flutter

@@ -71,6 +71,8 @@ jones_build_sdl() {
 
 jones_build_flutter() {
 
+    flutter doctor -v
+
     mkdir -p ${JONES_OUT_DIR}/flutter
     
     pushd ${JONES_ROOT_DIR}/source/frontends/flutter/jones
@@ -95,6 +97,8 @@ jones_build_cm() {
     COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
 
     COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones ./dev/scripts/env.sh jones_build_sdl
+
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones-flutter ./dev/scripts/env.sh jones_setup_flutter
 
     COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones-flutter ./dev/scripts/env.sh jones_build_flutter
 
@@ -167,6 +171,15 @@ jones_check_environment() {
 jones_setup_environment() {
 
     echo JONES_UID=$(id -u $USER):$(id -g $USER) > .env
+}
+
+jones_setup_flutter() {
+
+    flutter channel dev
+
+    flutter upgrade
+
+    flutter config --enable-linux-desktop
 }
 
 jones_update_submodules() {(
