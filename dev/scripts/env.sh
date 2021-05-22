@@ -4,7 +4,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 JONES_ROOT_DIR=${SCRIPT_DIR}/../..
 
-JONES_OUT_DIR=${JONES_ROOT_DIR}/out/jones
+JONES_OUT_DIR=${JONES_ROOT_DIR}/out
 
 JONES_BUILD_DIR=${JONES_ROOT_DIR}/build
 
@@ -14,7 +14,7 @@ JONES_EXTERNAL_DIR=${JONES_ROOT_DIR}/external
 
 jones() {
 
-    JONES=${JONES_OUT_DIR}/bin/jones
+    JONES=${JONES_OUT_DIR}/default/jones/bin/jones
 
     if [ ! -f "${JONES}" ]; then
         echo "error: unable to find jones; path is not valid [${JONES}]"
@@ -25,7 +25,7 @@ jones() {
 }
 
 jones_asan() {
-    
+
     ASAN_OPTIONS="fast_unwind_on_malloc=0" \
     LSAN_OPTIONS="suppressions=${JONES_CMAKE_DIR}/AddressSanitizer.suppressions:verbosity=1:log_threads=1" \
     jones "$@"
@@ -33,7 +33,7 @@ jones_asan() {
 
 jones_tool() {
 
-    JONES_TOOL=${JONES_OUT_DIR}/bin/jones-tool
+    JONES_TOOL=${JONES_OUT_DIR}/default/jones/bin/jones-tool
 
     if [ ! -f "${JONES_TOOL}" ]; then
         echo "error: unable to find tool; path is not valid [${JONES_TOOL}]"
@@ -48,9 +48,44 @@ jones_build() {
     mkdir -p ${JONES_BUILD_DIR}
 
     pushd ${JONES_BUILD_DIR}
-        cmake -DBUILD_FRONTEND=SDL -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ ..
-        make "$@"
+
+    cmake -DCMAKE_BUILD_TYPE=Debug ..
+
+    make "$@"
+
     popd
+}
+
+jones_build_sdl() {
+
+    mkdir -p ${JONES_BUILD_DIR}
+
+    pushd ${JONES_BUILD_DIR}
+
+    cmake -DBUILD_FRONTEND=SDL -DCMAKE_BUILD_TYPE=Debug ..
+
+    make "$@"
+
+    popd
+}
+
+jones_build_flutter() {
+
+    mkdir -p ${JONES_OUT_DIR}/flutter
+    
+    pushd ${JONES_ROOT_DIR}/source/frontends/flutter/jones
+    
+    flutter pub get
+    flutter build apk
+    flutter build linux
+
+    popd
+
+    rm -rf ${JONES_OUT_DIR}/flutter/android
+    rm -rf ${JONES_OUT_DIR}/flutter/linux
+
+    cp -R ${JONES_ROOT_DIR}/source/frontends/flutter/jones/build/app/outputs/flutter-apk ${JONES_OUT_DIR}/flutter/android
+    cp -R ${JONES_ROOT_DIR}/source/frontends/flutter/jones/build/linux/x64/release/bundle ${JONES_OUT_DIR}/flutter/linux
 }
 
 jones_build_cm() {
@@ -59,7 +94,9 @@ jones_build_cm() {
 
     COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
 
-    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones ./dev/scripts/env.sh jones_build
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones ./dev/scripts/env.sh jones_build_sdl
+
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones-flutter ./dev/scripts/env.sh jones_build_flutter
 
     popd
 }

@@ -26,4 +26,6 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: archive-artifacts
-        path: out/jones/**/*.*
+        path: |
+	  out/default/jones/**/*.*
+          out/flutter/**/*.*
