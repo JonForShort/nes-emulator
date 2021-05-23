@@ -10,6 +10,10 @@ JONES_BUILD_DIR=${JONES_ROOT_DIR}/build
 
 JONES_CMAKE_DIR=${JONES_ROOT_DIR}/cmake
 
+export COMPOSE_DOCKER_CLI_BUILD=1
+
+export DOCKER_BUILDKIT=1
+
 jones() {
 
     JONES=${JONES_OUT_DIR}/default/jones/bin/jones
@@ -91,19 +95,17 @@ jones_build_cm() {
     pushd ${JONES_ROOT_DIR}
 
     if  [ "$1" = "sdl" ]; then
-	#
-	# Build SDL variant
-	#
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones \
-				./dev/scripts/env.sh jones_build_sdl && jones_build_clean
+        #
+        # Build SDL variant
+        #
+        docker-compose run jones ./dev/scripts/env.sh "jones_build_sdl && jones_build_clean"
     fi
 
     if [ "$1" = "flutter" ]; then
-	#
-	# Build Flutter variant
-	#
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones-flutter \
-				./dev/scripts/env.sh jones_setup_flutter && jones_build_flutter && jones_build_clean
+        #
+        # Build Flutter variant
+        #
+        docker-compose run jones-flutter ./dev/scripts/env.sh "jones_setup_flutter && jones_build_flutter && jones_build_clean"
     fi
 
     popd
@@ -135,12 +137,12 @@ jones_test_cm() {
     pushd ${JONES_ROOT_DIR}
 
     if  [ "$1" = "sdl" ]; then
-	#
-	# Test SDL variant
-	#
-	shift # remove variant from arguments
+        #
+        # Test SDL variant
+        #
+        shift # remove variant from arguments
 
-	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run -e IS_CM_BUILD=1 jones ./dev/scripts/env.sh jones_test "$@"
+        docker-compose run -e IS_CM_BUILD=1 jones ./dev/scripts/env.sh jones_test "$@"
     fi
 
     popd
@@ -248,4 +250,4 @@ jones_format_cmake() {
 
 jones_setup_environment
 
-"$@"
+eval "$@"
