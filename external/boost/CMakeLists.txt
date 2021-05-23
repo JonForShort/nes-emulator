@@ -14,8 +14,7 @@ endif()
 
 set(boost-modules --with-log --with-program_options --with-filesystem --with-test --with-serialization --with-iostreams)
 set(boost-flags toolset=${boost-cxx-compiler-id}-custom link=static threading=multi cxxflags=-fPIC linkflags=-pie headers)
-set(boost-zlib -sZLIB_SOURCE=${DIR_ROOT_EXTERNAL}/zlib/source -sZLIB_INCLUDE=${DIR_ROOT_OUT}/zlib/include
-               -sZLIB_LIBPATH=${DIR_ROOT_OUT}/zlib/lib)
+set(boost-zlib -sZLIB_INCLUDE=${DIR_ROOT_OUT}/zlib/include -sZLIB_LIBPATH=${DIR_ROOT_OUT}/zlib/lib)
 
 add_custom_target(
   boost
