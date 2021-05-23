@@ -1,6 +1,10 @@
 cmake_minimum_required (VERSION 3.7)
 
-if (${BUILD_FRONTEND} MATCHES "sdl")
+message ("BUILD_FRONTEND set to [" ${BUILD_FRONT_END} "]")
+
+if (${BUILD_FRONTEND} MATCHES "SDL")
+
+  message ("building SDL frontend")
 
   add_subdirectory (sdl)
 
