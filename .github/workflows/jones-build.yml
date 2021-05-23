@@ -56,4 +56,4 @@ jobs:
       with:
         name: archive-artifacts
         path: |
-          out/flutter/**/*.*
+          out/flutter/
