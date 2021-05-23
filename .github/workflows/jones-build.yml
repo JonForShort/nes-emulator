@@ -20,10 +20,10 @@ jobs:
       run:  ./dev/scripts/env.sh jones_check_environment
 
     - name: Build Jones Project
-      run:  ./dev/scripts/env.sh jones_build_cm
+      run:  ./dev/scripts/env.sh jones_build_cm sdl
 
     - name: Run Unit Tests
-      run:  ./dev/scripts/env.sh jones_test_cm
+      run:  ./dev/scripts/env.sh jones_test_cm sdl
 
     - name: Archive Artifacts
       uses: actions/upload-artifact@v2
