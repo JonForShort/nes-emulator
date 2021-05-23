@@ -44,7 +44,7 @@ jobs:
         sudo rm -rf /usr/share/dotnet
         sudo swapoff -a
         sudo rm -f /mnt/swapfile
-        yes | docker system prune -a
+        docker system prune -fa
         df -h
 
     - name: Checkout Source
