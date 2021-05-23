@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  build_jones_sdl:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,4 +31,3 @@ jobs:
         name: archive-artifacts
         path: |
           out/default/jones/**/*.*
-          out/flutter/**/*.*
