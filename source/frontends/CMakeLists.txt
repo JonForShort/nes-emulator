@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.7)
 
-message ("BUILD_FRONTEND set to [" ${BUILD_FRONT_END} "]")
+message ("BUILD_FRONTEND set to [" ${BUILD_FRONTEND} "]")
 
 if (${BUILD_FRONTEND} MATCHES "SDL")
 
