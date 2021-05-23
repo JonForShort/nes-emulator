@@ -13,5 +13,5 @@ RUN apt update && \
     apt install -y libasound2-dev texinfo file autoconf automake zlib1g-dev sudo && \
     apt autoclean -y && \
     apt remove -y && \
-    apt autoremove -y \
+    apt autoremove -y && \
     apt clean -y
