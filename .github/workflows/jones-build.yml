@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Free Disk Space
+      run: ./.github/workflows/free_disk_space.sh
+
     - name: Checkout Source
       uses: actions/checkout@v2
       with:
@@ -38,15 +41,7 @@ jobs:
 
     steps:
     - name: Free Disk Space
-      run: |
-        df -h
-        sudo rm -rf /usr/local/lib/android
-        sudo rm -rf /usr/share/dotnet
-        sudo rm -rf /opt/ghc
-        sudo swapoff -a
-        sudo rm -f /mnt/swapfile
-        docker system prune -fa
-        df -h
+      run: ./.github/workflows/free_disk_space.sh
 
     - name: Checkout Source
       uses: actions/checkout@v2

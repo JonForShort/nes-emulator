@@ -113,7 +113,6 @@ jones_build_cm() {
 
 jones_build_clean() {
 
-    yes | docker system prune -a
     git clean -fdx -e out
 
     rm -rf ${JONES_BUILD_DIR}
