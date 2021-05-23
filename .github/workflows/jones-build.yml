@@ -31,7 +31,7 @@ jobs:
       with:
         name: archive-artifacts
         path: |
-          out/default/jones/**/*.*
+          out/default/jones/
 
   build_jones_flutter:
     runs-on: ubuntu-latest
