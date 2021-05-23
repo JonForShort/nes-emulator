@@ -2,14 +2,22 @@ version: '3'
 services:
 
   jones: &jones
-    depends_on:
-      - 'emsdk'
     build:
       dockerfile: 'cm/docker/base/Dockerfile'
       context: .
     volumes:
       - '.:/jones'
     working_dir: '/jones'
+
+  jones-emsdk:
+    <<: *jones
+    depends_on:
+      - 'jones'
+    build:
+      dockerfile: 'docker/Dockerfile'
+      context: 'external/wasm/emsdk/source'
+      args:
+        - EMSCRIPTEN_VERSION=2.0.12
 
   jones-flutter:
     <<: *jones
@@ -34,10 +42,3 @@ services:
       - DISPLAY
     tty: true
     user: $JONES_UID
-
-  emsdk:
-    build:
-      dockerfile: 'docker/Dockerfile'
-      context: 'external/wasm/emsdk/source'
-      args:
-        - EMSCRIPTEN_VERSION=2.0.12
