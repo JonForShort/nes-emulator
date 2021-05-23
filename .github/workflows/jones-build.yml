@@ -7,6 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
+
   build_jones_sdl:
     runs-on: ubuntu-latest
 
@@ -31,3 +32,28 @@ jobs:
         name: archive-artifacts
         path: |
           out/default/jones/**/*.*
+
+  build_jones_flutter:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Source
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Check Environment
+      run:  ./dev/scripts/env.sh jones_check_environment
+
+    - name: Build Jones Project
+      run:  ./dev/scripts/env.sh jones_build_cm flutter
+
+    - name: Run Unit Tests
+      run:  ./dev/scripts/env.sh jones_test_cm flutter
+
+    - name: Archive Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: archive-artifacts
+        path: |
+          out/flutter/**/*.*
