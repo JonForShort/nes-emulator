@@ -10,8 +10,6 @@ JONES_BUILD_DIR=${JONES_ROOT_DIR}/build
 
 JONES_CMAKE_DIR=${JONES_ROOT_DIR}/cmake
 
-JONES_EXTERNAL_DIR=${JONES_ROOT_DIR}/external
-
 jones() {
 
     JONES=${JONES_OUT_DIR}/default/jones/bin/jones
@@ -92,20 +90,30 @@ jones_build_cm() {
 
     pushd ${JONES_ROOT_DIR}
 
-    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
-    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones ./dev/scripts/env.sh jones_build_clean
+    ./dev/scripts/env.sh jones_build_clean
 
+    #
+    # Build SDL variant
+    #
     COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones ./dev/scripts/env.sh jones_build_sdl
-    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones ./dev/scripts/env.sh jones_build_clean
 
+    ./dev/scripts/env.sh jones_build_clean
+
+    #
+    # Build Flutter variant
+    #
     COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones-flutter ./dev/scripts/env.sh jones_setup_flutter
     COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones-flutter ./dev/scripts/env.sh jones_build_flutter
-    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run jones-flutter ./dev/scripts/env.sh jones_build_clean
+
+    ./dev/scripts/env.sh jones_build_clean
 
     popd
 }
 
 jones_build_clean() {
+
+    yes | docker system prune -a
+    git clean -fdx -e out
 
     rm -rf ${JONES_BUILD_DIR}
 
@@ -127,7 +135,7 @@ jones_test_cm() {
 
     pushd ${JONES_ROOT_DIR}
 
-    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build jones
 
     COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose run -e IS_CM_BUILD=1 jones ./dev/scripts/env.sh jones_test "$@"
 
