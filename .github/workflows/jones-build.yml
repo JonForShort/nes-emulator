@@ -37,6 +37,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Free Disk Space
+      run: |
+        df -h
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /usr/share/dotnet
+        sudo swapoff -a
+        sudo rm -f /mnt/swapfile
+        yes | docker system prune -a
+        df -h
+
     - name: Checkout Source
       uses: actions/checkout@v2
       with:
