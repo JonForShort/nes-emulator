@@ -30,3 +30,6 @@ add_custom_target(
              ${DIR_PROJECT_OUT}/lib/libboost_program_options.a
              ${DIR_PROJECT_OUT}/lib/libboost_serialization.a
              ${DIR_PROJECT_OUT}/lib/libboost_iostreams.a)
+
+add_dependencies(boost zlib)
+add_dependencies(boost gzip)
