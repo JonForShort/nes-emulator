@@ -92,6 +92,8 @@ jones_build_flutter() {
 
 jones_build_cm() {
 
+    set -ex
+
     pushd ${JONES_ROOT_DIR}
 
     if  [ "$1" = "sdl" ]; then
@@ -109,6 +111,8 @@ jones_build_cm() {
     fi
 
     popd
+
+    set +ex
 }
 
 jones_build_clean() {
