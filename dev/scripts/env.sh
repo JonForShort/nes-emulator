@@ -120,10 +120,6 @@ jones_build_clean() {
     git clean -fdx -e out
 
     rm -rf ${JONES_BUILD_DIR}
-
-    if command -v flutter &> /dev/null; then
-        flutter clean
-    fi
 }
 
 jones_test() {
