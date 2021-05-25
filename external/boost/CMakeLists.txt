@@ -14,7 +14,8 @@ endif()
 
 set(boost-modules --with-log --with-program_options --with-filesystem --with-test --with-serialization --with-iostreams)
 set(boost-flags toolset=${boost-cxx-compiler-id}-custom link=static threading=multi cxxflags=-fPIC linkflags=-pie headers)
-set(boost-zlib -sZLIB_INCLUDE=${DIR_ROOT_OUT}/zlib/include -sZLIB_LIBPATH=${DIR_ROOT_OUT}/zlib/lib)
+set(boost-zlib -sZLIB_INCLUDE=${DIR_ROOT_OUT}/zlib/include -sZLIB_LIBPATH=${DIR_ROOT_OUT}/zlib/lib
+               -sZLIB_SOURCE=${DIR_ROOT_EXTERNAL}/zlib/source)
 
 add_custom_target(
   boost
@@ -31,5 +32,9 @@ add_custom_target(
              ${DIR_PROJECT_OUT}/lib/libboost_serialization.a
              ${DIR_PROJECT_OUT}/lib/libboost_iostreams.a)
 
-add_dependencies(boost zlib)
-add_dependencies(boost gzip)
+add_custom_target(
+  boost-zlib
+  DEPENDS zlib
+  COMMAND ${CMAKE_COMMAND} -E rename ${DIR_ROOT_EXTERNAL}/zlib/source/zconf.h.included ${DIR_ROOT_EXTERNAL}/zlib/source/zconf.h)
+
+add_dependencies(boost boost-zlib)
