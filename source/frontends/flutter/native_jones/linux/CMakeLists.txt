@@ -24,5 +24,12 @@ set(native_jones_bundled_libraries
     ""
     PARENT_SCOPE)
 
-# Root directory of Jones project
-set(native_jones_root_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../../../../../)
+# Include native jones
+
+set(LINUX TRUE CACHE BOOL "Specifies that the platform is Linux" FORCE)
+
+set(native_jones_root_dir ${CMAKE_SOURCE_DIR}/../../../../../)
+
+set(native_jones_bin_dir ${CMAKE_SOURCE_DIR}/build)
+
+#add_subdirectory (${native_jones_root_dir} ${native_jones_bin_dir})

@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 3.14)
 
 if(ANDROID)
+  message("Platform is set to ANDROID")
   include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/platform/Android.cmake)
+elseif(LINUX)
+  message("Platform is set to LINUX")
+  include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/platform/Linux.cmake)
 else()
+  message("Platform is set to DEFAULT")
   include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/platform/Default.cmake)
 endif()
