@@ -12,7 +12,17 @@ else()
   message(FATAL_ERROR "building boost with unsupported compiler")
 endif()
 
-set(boost-modules --with-log --with-program_options --with-filesystem --with-test --with-serialization --with-iostreams)
+set(boost-modules
+    --with-log
+    --with-program_options
+    --with-filesystem
+    --with-test
+    --with-serialization
+    --with-iostreams
+    --with-context
+    --with-regex
+    --with-system
+    --with-thread)
 set(boost-flags toolset=${boost-cxx-compiler-id}-custom link=static threading=multi cxxflags=-fPIC linkflags=-pie headers)
 set(boost-zlib -sZLIB_INCLUDE=${DIR_ROOT_OUT}/zlib/include -sZLIB_LIBPATH=${DIR_ROOT_OUT}/zlib/lib
                -sZLIB_SOURCE=${DIR_ROOT_EXTERNAL}/zlib/source)
@@ -35,6 +45,6 @@ add_custom_target(
 add_custom_target(
   boost-zlib
   DEPENDS zlib
-  COMMAND ${CMAKE_COMMAND} -E rename ${DIR_ROOT_EXTERNAL}/zlib/source/zconf.h.included ${DIR_ROOT_EXTERNAL}/zlib/source/zconf.h)
+  COMMAND ${CMAKE_COMMAND} -E rename ${DIR_ROOT_EXTERNAL}/zlib/source/zconf.h.included ${DIR_ROOT_EXTERNAL}/zlib/source/zconf.h || true)
 
 add_dependencies(boost boost-zlib)

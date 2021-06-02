@@ -221,6 +221,7 @@ jones_update_submodules() {(
 jones_clean_submodules() {(
 
     git submodule foreach --recursive "git clean -idx"
+    git submodule foreach --recursive "git checkout -- ."
 )}
 
 jones_setup_vscode() {
