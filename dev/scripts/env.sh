@@ -218,6 +218,11 @@ jones_update_submodules() {(
     git submodule update --recursive --remote
 )}
 
+jones_clean_submodules() {(
+
+    git submodule foreach --recursive "git clean -idx"
+)}
+
 jones_setup_vscode() {
 
     mkdir -p ${JONES_ROOT_DIR}/.vscode
