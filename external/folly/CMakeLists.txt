@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 3.14)
+
+include(ExternalProject)
+
+set(BOOST_ROOT ${DIR_ROOT_EXTERNAL}/boost/source)
+set(BOOST_INCLUDE ${DIR_ROOT_OUT}/boost/include)
+set(BOOST_LIBDIR ${DIR_ROOT_OUT}/boost/lib)
+set(BOOST_OPTS "-DBOOST_ROOT=${BOOST_ROOT} -DBOOST_INCLUDEDIR=${BOOST_INCLUDE} -DBOOST_LIBRARYDIR=${BOOST_LIBDIR}")
+
+ExternalProject_Add(
+  folly
+  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/source
+  BINARY_DIR ${DIR_PROJECT_BUILD}
+  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DIR_PROJECT_OUT} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_C_COMPILER=${CC} ${BOOST_OPTS})
+
+add_dependencies(folly boost)

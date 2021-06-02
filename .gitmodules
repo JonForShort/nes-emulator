@@ -62,3 +62,9 @@
 	path = external/cppcoro/source
 	url = git@github.com:JonForShort/cppcoro.git
         ignore = dirty
+
+[submodule "external/folly/source"]
+	path = external/folly/source
+	url = https://github.com/facebook/folly.git
+        ignore = dirty
+
