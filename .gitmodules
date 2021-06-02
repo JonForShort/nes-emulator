@@ -44,27 +44,27 @@
         ignore = dirty
 
 [submodule "external/spdlog/source"]
-	path = external/spdlog/source
-	url = https://github.com/gabime/spdlog.git
+        path = external/spdlog/source
+        url = https://github.com/gabime/spdlog.git
         ignore = dirty
 
 [submodule "external/wasm/emsdk/source"]
-	path = external/wasm/emsdk/source
-	url = https://github.com/emscripten-core/emsdk.git
+        path = external/wasm/emsdk/source
+        url = https://github.com/emscripten-core/emsdk.git
         ignore = dirty
 
 [submodule "external/wasm/emscripten/source"]
-	path = external/wasm/emscripten/source
-	url = https://github.com/emscripten-core/emscripten.git
+        path = external/wasm/emscripten/source
+        url = https://github.com/emscripten-core/emscripten.git
         ignore = dirty
 
 [submodule "external/cppcoro/source"]
-	path = external/cppcoro/source
-	url = git@github.com:JonForShort/cppcoro.git
+        path = external/cppcoro/source
+        url = git@github.com:JonForShort/cppcoro.git
         ignore = dirty
 
 [submodule "external/folly/source"]
-	path = external/folly/source
-	url = https://github.com/facebook/folly.git
+        path = external/folly/source
+        url = https://github.com/facebook/folly.git
         ignore = dirty
 
