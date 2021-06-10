@@ -1,4 +1,4 @@
-# jones
+# NES Emulator (Jones)
 
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Build Status](https://github.com/JonForShort/jones/workflows/Build%20Master/badge.svg)](https://github.com/JonForShort/jones/actions)
