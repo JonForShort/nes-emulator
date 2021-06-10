@@ -1,4 +1,4 @@
-FROM jones_jones:latest
+FROM nes-emulator_jones:latest
 
 # ---------------------------------------------------------------------------------------------
 # Install dependency packages

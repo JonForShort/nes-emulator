@@ -1,4 +1,4 @@
-FROM jones_jones-flutter:latest
+FROM nes-emulator_jones-flutter:latest
 
 # ---------------------------------------------------------------------------------------------
 # Set up user environment
