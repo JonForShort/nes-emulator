@@ -10,7 +10,7 @@ This file defines project-specific guidance for coding agents working in this re
 - Language: C++20
 - Build system: CMake + Make
 - Main helper script: `dev/scripts/env.sh`
-- Optional reproducible environment: Docker Compose (`docker-compose.yml`, `cm/docker/*`)
+- Build/test environment: Docker Compose (`docker-compose.yml`, `cm/docker/*`)
 
 ## Repository Landmarks
 
@@ -24,15 +24,10 @@ This file defines project-specific guidance for coding agents working in this re
 
 ## Standard Workflows
 
-Prefer existing script entrypoints over ad hoc commands:
+Prefer existing script entrypoints over ad hoc commands.
+In this repository environment, always build/test through Docker Compose via `dev/scripts/env.sh` containerized commands; host-native toolchains are not available.
 
-- Native build: `./dev/scripts/env.sh jones_build`
-- Native SDL build: `./dev/scripts/env.sh jones_build_sdl`
-- Native tests: `./dev/scripts/env.sh jones_test`
-- ASAN tests: `./dev/scripts/env.sh jones_test_asan`
-- Coverage: `./dev/scripts/env.sh jones_test_code_coverage`
-
-Containerized workflows:
+Containerized workflows (required):
 
 - Build SDL in container: `./dev/scripts/env.sh jones_build_cm sdl`
 - Build Flutter in container: `./dev/scripts/env.sh jones_build_cm flutter`
@@ -57,7 +52,7 @@ Containerized workflows:
 When changes affect build/test/tooling:
 
 1. Run the narrowest relevant checks first.
-2. Then run at least one end-to-end command from `dev/scripts/env.sh`.
+2. Then run at least one end-to-end containerized command from `dev/scripts/env.sh` (for example `jones_build_cm sdl` or `jones_test_cm sdl`).
 3. Report exactly what was run and what passed/failed.
 
 For script-only edits, at minimum run:

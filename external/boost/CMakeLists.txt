@@ -26,13 +26,18 @@ set(boost-modules
 set(boost-flags toolset=${boost-cxx-compiler-id}-custom link=static threading=multi cxxflags=-fPIC linkflags=-pie headers)
 set(boost-zlib -sZLIB_INCLUDE=${DIR_ROOT_OUT}/zlib/include -sZLIB_LIBPATH=${DIR_ROOT_OUT}/zlib/lib
                -sZLIB_SOURCE=${DIR_ROOT_EXTERNAL}/zlib/source)
+set(boost-project-config ${CMAKE_CURRENT_BINARY_DIR}/project-config.jam)
+set(boost-build-stamp ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_SYSTEM_PROCESSOR}/boost-build.stamp)
 
-add_custom_target(
-  boost
+file(WRITE ${boost-project-config} "using ${boost-cxx-compiler-id} : custom : ${CXX} ;\n")
+
+add_custom_command(
+  OUTPUT ${boost-build-stamp}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/source
   COMMAND ./bootstrap.sh --prefix=${DIR_PROJECT_OUT}
-  COMMAND echo 'using ${boost-cxx-compiler-id} : custom : ${CXX} \;' >> ${CMAKE_CURRENT_SOURCE_DIR}/source/project-config.jam
-  COMMAND ./b2 --build-dir=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_SYSTEM_PROCESSOR} ${boost-flags} ${boost-modules} ${boost-zlib} install
+  COMMAND ./b2 --build-dir=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_SYSTEM_PROCESSOR} --user-config=${boost-project-config} ${boost-flags}
+          ${boost-modules} ${boost-zlib} install
+  COMMAND ${CMAKE_COMMAND} -E touch ${boost-build-stamp}
   BYPRODUCTS ${DIR_PROJECT_OUT}/lib/libboost_unit_test_framework.a
              ${DIR_PROJECT_OUT}/lib/libboost_log.a
              ${DIR_PROJECT_OUT}/lib/libboost_log_setup.a
@@ -41,6 +46,8 @@ add_custom_target(
              ${DIR_PROJECT_OUT}/lib/libboost_program_options.a
              ${DIR_PROJECT_OUT}/lib/libboost_serialization.a
              ${DIR_PROJECT_OUT}/lib/libboost_iostreams.a)
+
+add_custom_target(boost DEPENDS ${boost-build-stamp})
 
 add_custom_target(
   boost-zlib

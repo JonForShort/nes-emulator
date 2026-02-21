@@ -25,6 +25,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/interprocess/file_mapping.hpp>
 #include <boost/interprocess/mapped_region.hpp>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -65,7 +66,7 @@ void dump_code(const fs::path &root_path, const jo::cartridge &rom) {
 
   const fs::path code_path = root_path / "code";
   fs::create_directories(code_path);
-  fs::ofstream code_file{code_path / "prgrom.a65"};
+  std::ofstream code_file{(code_path / "prgrom.a65").string()};
 
   const fs::path prgrom_path = root_path / "raw" / "prgrom.bin";
   const ip::file_mapping mapped_file(prgrom_path.string().c_str(), ip::mode_t::read_only);
