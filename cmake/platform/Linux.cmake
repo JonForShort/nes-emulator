@@ -18,3 +18,9 @@ set(EXTERNAL_PROJECTS
     png
     gzip
     spdlog)
+
+if(BUILD_FRONTEND MATCHES "SDL")
+  list(APPEND EXTERNAL_PROJECTS
+      sdl
+      sndio)
+endif()

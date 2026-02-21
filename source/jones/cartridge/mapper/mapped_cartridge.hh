@@ -24,6 +24,10 @@
 #ifndef JONES_CARTRIDGE_MAPPER_MAPPED_CARTRIDGE_HH
 #define JONES_CARTRIDGE_MAPPER_MAPPED_CARTRIDGE_HH
 
+#include <cstddef>
+#include <cstdint>
+#include <iosfwd>
+
 namespace jones {
 
 class mapped_cartridge_header {

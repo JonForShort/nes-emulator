@@ -62,6 +62,8 @@ public:
 
   auto on_event(SDL_Event event) -> void override;
 
+  auto is_initialized() const -> bool;
+
 private:
   auto show() -> void;
 

@@ -14,6 +14,27 @@ export COMPOSE_DOCKER_CLI_BUILD=1
 
 export DOCKER_BUILDKIT=1
 
+jones_compose() {
+
+    if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+        docker compose "$@"
+        return $?
+    fi
+
+    if command -v docker-compose >/dev/null 2>&1; then
+        docker-compose "$@"
+        return $?
+    fi
+
+    echo "error: unable to find docker compose command"
+    return 1
+}
+
+jones_is_container() {
+
+    [ -n "${IS_CM_BUILD}" ] || [ -f "/.dockerenv" ]
+}
+
 jones() {
 
     JONES=${JONES_OUT_DIR}/default/jones/bin/jones
@@ -51,11 +72,13 @@ jones_build() {
 
     pushd ${JONES_BUILD_DIR}
 
-    cmake -DCMAKE_BUILD_TYPE=Debug ..
+    cmake -DCMAKE_BUILD_TYPE=Debug .. || { popd; return $?; }
 
     make "$@"
+    local build_status=$?
 
     popd
+    return ${build_status}
 }
 
 jones_build_sdl() {
@@ -64,11 +87,13 @@ jones_build_sdl() {
 
     pushd ${JONES_BUILD_DIR}
 
-    cmake -DBUILD_FRONTEND=SDL -DCMAKE_BUILD_TYPE=Debug ..
+    cmake -DBUILD_FRONTEND=SDL -DCMAKE_BUILD_TYPE=Debug .. || { popd; return $?; }
 
     make "$@"
+    local build_status=$?
 
     popd
+    return ${build_status}
 }
 
 jones_build_flutter() {
@@ -96,18 +121,37 @@ jones_build_cm() {
 
     pushd ${JONES_ROOT_DIR}
 
+    if jones_is_container; then
+        if [ "$1" = "sdl" ]; then
+            jones_build_sdl
+            jones_build_clean
+        fi
+
+        if [ "$1" = "flutter" ]; then
+            jones_setup_flutter
+            jones_build_flutter
+            jones_build_clean
+        fi
+
+        popd
+
+        set +ex
+
+        return 0
+    fi
+
     if  [ "$1" = "sdl" ]; then
         #
         # Build SDL variant
         #
-        docker-compose run jones ./dev/scripts/env.sh "jones_build_sdl && jones_build_clean"
+        jones_compose run --rm jones ./dev/scripts/env.sh "jones_build_sdl && jones_build_clean"
     fi
 
     if [ "$1" = "flutter" ]; then
         #
         # Build Flutter variant
         #
-        docker-compose run jones-flutter ./dev/scripts/env.sh "jones_setup_flutter && jones_build_flutter && jones_build_clean"
+        jones_compose run --rm jones-flutter ./dev/scripts/env.sh "jones_setup_flutter && jones_build_flutter && jones_build_clean"
     fi
 
     popd
@@ -135,13 +179,24 @@ jones_test_cm() {
 
     pushd ${JONES_ROOT_DIR}
 
+    if jones_is_container; then
+        if [ "$1" = "sdl" ]; then
+            shift # remove variant from arguments
+            jones_test "$@"
+        fi
+
+        popd
+
+        return 0
+    fi
+
     if  [ "$1" = "sdl" ]; then
         #
         # Test SDL variant
         #
         shift # remove variant from arguments
 
-        docker-compose run -e IS_CM_BUILD=1 jones ./dev/scripts/env.sh jones_test "$@"
+        jones_compose run --rm -e IS_CM_BUILD=1 jones ./dev/scripts/env.sh jones_test "$@"
     fi
 
     popd
@@ -199,16 +254,27 @@ jones_check_environment() {
 
 jones_setup_environment() {
 
-    echo JONES_UID=$(id -u $USER):$(id -g $USER) > .env
+    local uid
+    local gid
+
+    if [ "$(uname -s)" = "Darwin" ]; then
+        uid=1000
+        gid=1000
+    else
+        uid=$(id -u)
+        gid=$(id -g)
+    fi
+
+    echo "JONES_UID=${uid}:${gid}" > "${JONES_ROOT_DIR}/.env"
 }
 
 jones_setup_flutter() {
 
-    flutter channel dev
+    flutter channel stable
 
     flutter config --enable-linux-desktop
 
-    yes | flutter doctor --android-licenses
+    yes | flutter doctor --android-licenses || true
 
     flutter doctor -v
 }

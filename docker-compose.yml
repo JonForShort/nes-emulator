@@ -1,7 +1,7 @@
-version: '3'
 services:
 
   jones: &jones
+    image: 'nes-emulator/jones-base:local'
     build:
       dockerfile: 'cm/docker/base/Dockerfile'
       context: .
@@ -10,6 +10,7 @@ services:
     working_dir: '/jones'
 
   jones-emsdk:
+    image: 'nes-emulator/jones-emsdk:local'
     <<: *jones
     depends_on:
       - 'jones'
@@ -20,6 +21,7 @@ services:
         - EMSCRIPTEN_VERSION=2.0.12
 
   jones-flutter:
+    image: 'nes-emulator/jones-flutter:local'
     <<: *jones
     depends_on:
       - 'jones'
@@ -28,6 +30,7 @@ services:
       context: .
 
   jones-dev:
+    image: 'nes-emulator/jones-dev:local'
     <<: *jones
     depends_on:
       - 'jones-flutter'
@@ -41,4 +44,23 @@ services:
     environment:
       - DISPLAY
     tty: true
-    user: $JONES_UID
+    user: ${JONES_UID:-1000:1000}
+
+  jones-dev-mac:
+    image: 'nes-emulator/jones-dev:local'
+    <<: *jones
+    depends_on:
+      - 'jones-flutter'
+    build:
+      dockerfile: 'cm/docker/dev/Dockerfile'
+      context: .
+    volumes:
+      - '.:/jones'
+      - '$HOME/.Xauthority:/home/jones/.Xauthority'
+    environment:
+      - DISPLAY=host.docker.internal:0
+      - SDL_VIDEODRIVER=x11
+      - SDL_RENDER_DRIVER=software
+      - XAUTHORITY=/home/jones/.Xauthority
+    tty: true
+    user: ${JONES_UID:-1000:1000}

@@ -73,7 +73,10 @@ auto sdl_screen::show() -> void {
     LOG_DEBUG << "screen is already being shown";
     return;
   }
-  SDL_Init(SDL_INIT_HAPTIC);
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_HAPTIC) < 0) {
+    LOG_ERROR << SDL_GetError();
+    return;
+  }
   window_ = SDL_CreateWindow("Jones NES Emulator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, jones::screen::screen_width, jones::screen::screen_height, SDL_WINDOW_RESIZABLE);
   if (window_ == nullptr) {
     LOG_ERROR << SDL_GetError();
@@ -122,7 +125,7 @@ auto sdl_screen::hide() -> void {
 }
 
 auto sdl_screen::set_pixel(uint16_t const x_position, uint16_t const y_position, pixel const pixel) -> void {
-  if (renderer_ == nullptr) {
+  if (renderer_ == nullptr || screen_ == nullptr) {
     return;
   }
   auto const scaled_x_position = x_position * window_scale_;
@@ -146,6 +149,9 @@ auto sdl_screen::set_pixel(uint16_t const x_position, uint16_t const y_position,
 }
 
 auto sdl_screen::render() -> void {
+  if (renderer_ == nullptr || texture_ == nullptr || screen_ == nullptr) {
+    return;
+  }
   SDL_UpdateTexture(texture_, nullptr, screen_->pixels, screen_->pitch);
   SDL_RenderClear(renderer_);
   SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
@@ -153,12 +159,18 @@ auto sdl_screen::render() -> void {
 }
 
 auto sdl_screen::lock() -> void {
+  if (screen_ == nullptr) {
+    return;
+  }
   if (SDL_MUSTLOCK(screen_)) {
     SDL_LockSurface(screen_);
   }
 }
 
 auto sdl_screen::unlock() -> void {
+  if (screen_ == nullptr) {
+    return;
+  }
   if (SDL_MUSTLOCK(screen_)) {
     SDL_UnlockSurface(screen_);
   }
@@ -171,4 +183,8 @@ auto sdl_screen::on_event(SDL_Event const event) -> void {
       listener_->on_screen_closed();
     }
   }
+}
+
+auto sdl_screen::is_initialized() const -> bool {
+  return is_running_ && window_ != nullptr && renderer_ != nullptr && screen_ != nullptr && texture_ != nullptr;
 }

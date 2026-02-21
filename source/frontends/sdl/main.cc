@@ -92,6 +92,10 @@ int main(int argc, char *argv[]) {
   manager.add_component(screen.get());
   manager.add_component(controller.get());
   manager.initialize();
+  if (!screen->is_initialized()) {
+    std::cerr << "failed to initialize SDL screen; check DISPLAY / X11 setup in your runtime environment" << std::endl;
+    return -5;
+  }
 
   nes.attach_screen(std::move(screen));
   nes.run();

@@ -1,4 +1,4 @@
-FROM ubuntu:21.04
+FROM ubuntu:24.04
 
 # ---------------------------------------------------------------------------------------------
 # Install dependency packages
@@ -6,12 +6,30 @@ FROM ubuntu:21.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt update && \
-    apt -y upgrade && \
-    apt -y dist-upgrade && \
-    apt install -y build-essential gcovr gcc g++ gdb clang-format cmake cmake-format emacs-nox && \
-    apt install -y libasound2-dev texinfo file autoconf automake zlib1g-dev sudo && \
-    apt autoclean -y && \
-    apt remove -y && \
-    apt autoremove -y && \
-    apt clean -y
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        autoconf \
+        automake \
+        build-essential \
+        ca-certificates \
+        clang-format \
+        cmake \
+        curl \
+        emacs-nox \
+        file \
+        g++ \
+        gcc \
+        gcovr \
+        gdb \
+        git \
+        libasound2-dev \
+        python3 \
+        python3-pip \
+        sudo \
+        texinfo \
+        unzip \
+        wget \
+        xz-utils \
+        zlib1g-dev && \
+    pip3 install --break-system-packages cmakelang && \
+    rm -rf /var/lib/apt/lists/*
